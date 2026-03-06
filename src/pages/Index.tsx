@@ -74,31 +74,28 @@ const Index = () => {
     <main className="max-w-[994px] mx-auto px-10 pt-10 pb-[60px]">
       <FadeIn>
         <h1 className="font-heading text-[clamp(42px,6vw,64px)] leading-[1.15] tracking-[-1.5px] mb-10">
-          Agents are becoming the application.
+          Beyond sandboxes.
         </h1>
       </FadeIn>
 
       <FadeIn delay={0.08}>
         <div className="mb-10 space-y-7">
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
-            Today, people build an app and the app calls an agent to do a task.
-            The app is the product, the agent is a feature. That's{" "}
-            <em className="font-heading text-[19px]">sandbox-as-tool</em>{" "}
-            territory.
+            Today, agents use sandboxes to run untrusted code. Disposable
+            computers that spin up, do a task, and disappear. But agents are
+            getting more ambitious. They need a whole computer at their
+            disposal - always on, always persistent, always ready.
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
-            We think the agent <em className="font-heading text-[19px]">is</em>{" "}
-            the product. Someone builds a support agent, a research agent, a
-            coding agent -that agent needs to live somewhere, have a URL, and
-            run. Stop treating it like a function call. Deploy it like a
-            service.
+            Sandboxes are for throwaway tasks. Agents need something that
+            sticks around.
           </p>
         </div>
       </FadeIn>
 
       <FadeIn delay={0.16}>
         <p className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mt-2 mb-2">
-          And services need computers, not sandboxes.
+          It's time to give your agents a real computer.
         </p>
       </FadeIn>
 
