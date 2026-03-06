@@ -1,0 +1,57 @@
+# OpenComputer
+
+> Persistent cloud VMs for AI agents. Beyond sandboxes.
+
+OpenComputer provides long-running cloud infrastructure for AI agents. Every OpenComputer is a real machine with a full filesystem, full OS access, and persistent state. It hibernates when idle and wakes in seconds.
+
+## What it is
+
+OpenComputer is purpose-built for B2B agent platforms. If you're building the next Lovable, Devin, or Bolt, your users need a computer that remembers what it installed yesterday, keeps files between sessions, and picks up where it left off.
+
+Ephemeral sandboxes are stateless - every session starts from scratch. OpenComputer VMs are stateful - they hibernate instead of dying, so state survives across sessions without snapshot/restore pipelines.
+
+## Features
+
+- Persistent VMs: Hibernate/wake instead of timeouts. Your VM sleeps when idle and wakes in seconds.
+- Checkpoints: Instant snapshots. Fork or restore to any point.
+- Preview URLs: Expose ports externally with auth (Clerk) and custom domains.
+- Per-tenant package control: Manage and hot-swap software versions inside running VMs.
+
+## Quick start
+
+Install the SDK:
+
+    npm install @opencomputer/sdk
+    # or
+    pip install opencomputer-sdk
+
+Usage:
+
+    import { Sandbox } from '@opencomputer/sdk';
+
+    const sandbox = await Sandbox.create({ template: 'default' });
+    const result = await sandbox.commands.run('node --version');
+    console.log(result.stdout);
+
+    await sandbox.files.write('/app/index.js', 'console.log("hello")');
+    const output = await sandbox.commands.run('node /app/index.js');
+    console.log(output.stdout); // hello
+
+    await sandbox.kill();
+
+## Pricing
+
+- Free: shared upto 2vCPU, shared upto 2GB memory, 3GB disk, 5 concurrency
+- Medium ($300/mo): 8 CPU, 16GB memory, 50GB disk (addable), 50 concurrency
+- Large ($3,000/mo): 64 CPU, 512GB memory, 3800GB disk, 500 concurrency
+- Custom: talk to us
+
+Users can add one or more machines to their pool at any time.
+
+## Links
+
+- Website: https://opencomputer.dev
+- Docs: https://docs.opencomputer.dev
+- Dashboard: https://app.opencomputer.dev
+- GitHub: https://github.com/diggerhq/opencomputer
+- Docs llms.txt: https://docs.opencomputer.dev/llms.txt
