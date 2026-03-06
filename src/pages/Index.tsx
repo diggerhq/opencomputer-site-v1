@@ -109,9 +109,9 @@ const Index = () => {
       <FadeIn>
         <div className="mb-14 space-y-7">
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
-            Every OpenComputer is a real VM -a real computer with a real
-            filesystem, full OS access, and persistent state. Not a microVM, not
-            a container. A full Linux machine with root access.
+            Every OpenComputer is a real machine - a full filesystem, full OS
+            access, and persistent state. It hibernates when idle and wakes in
+            seconds. No timeouts, no teardowns. Your computer is just there.
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
             Think of it as the compute equivalent of a laptop that sleeps when
