@@ -57,16 +57,22 @@ const Index = () => {
     <nav className="max-w-[994px] mx-auto px-10 py-6 flex items-center justify-between">
       <span
         className="glitch-logo font-mono text-[15px] font-medium tracking-tight text-foreground"
-        data-text="opencomputer"
+        data-text="digger"
       >
         <a
-          href="/"
+          href="https://digger.dev"
+          target="_blank"
           className="font-display text-lg font-medium tracking-tight text-foreground logo-ai-hover cursor-pointer no-underline"
           data-text="digger"
         >
           digger
-        </a>{" "}
-        / opencomputer
+        </a>{" "}/{" "}<a
+          href="/"
+          className="font-display text-lg font-medium tracking-tight text-foreground logo-ai-hover cursor-pointer no-underline"
+          data-text="digger"
+        >
+        opencomputer
+        </a>
       </span>
     </nav>
 
@@ -293,7 +299,8 @@ const Index = () => {
         © 2026 opencomputer by{" "}
         <span className="underline">
           <a
-            href="/"
+            href="https://digger.dev"
+            target="_blank"
             data-text="digger"
           >
             digger
