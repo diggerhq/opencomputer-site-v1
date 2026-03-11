@@ -83,6 +83,13 @@ const Index = () => {
           guides
         </Link>
         <a
+          href="https://cal.com/team/digger/opencomputer-founder-chat"
+          target="_blank"
+          className="font-mono-brand text-[13px] text-muted-foreground hover:text-foreground transition-colors no-underline"
+        >
+          talk to founders
+        </a>
+        <a
           href="https://github.com/diggerhq/opencomputer"
           target="_blank"
           className="font-mono-brand text-[13px] text-muted-foreground hover:text-foreground transition-colors no-underline flex items-center gap-1.5"
