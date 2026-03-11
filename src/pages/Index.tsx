@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
+import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 
 const SDK_CODE = `import { Sandbox } from '@opencomputer/sdk';
@@ -74,6 +75,12 @@ const Index = () => {
         opencomputer
         </a>
       </span>
+      <Link
+        to="/guides"
+        className="font-mono-brand text-[13px] text-muted-foreground hover:text-foreground transition-colors no-underline"
+      >
+        guides
+      </Link>
     </nav>
 
     {/* Main */}
@@ -270,6 +277,28 @@ const Index = () => {
             container died between API calls. Your VM stays alive as long as
             you need it. When it's idle, it hibernates to disk, not nuked.
           </p>
+        </div>
+      </FadeIn>
+
+      <FadeIn>
+        <div className="my-14">
+          <p className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-8">
+            Guides
+          </p>
+          <Link
+            to="/guides/building-open-lovable-part-1"
+            className="block p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
+          >
+            <h3 className="font-heading text-[22px] tracking-[-0.3px] mb-2 text-foreground">
+              Building an Open Lovable - part 1
+            </h3>
+            <p className="text-[15px] leading-[1.7] text-muted-foreground mb-3">
+              A series to build a lovable clone to learn how lovable works under the hood using Claude Agent SDK and OpenComputer.
+            </p>
+            <p className="font-mono-brand text-[12px] text-muted-foreground">
+              Mohamed Habib, CTO Digger &middot; March 11, 2026
+            </p>
+          </Link>
         </div>
       </FadeIn>
 
