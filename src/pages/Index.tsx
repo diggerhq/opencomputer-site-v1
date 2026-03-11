@@ -213,59 +213,42 @@ const Index = () => {
             Pricing
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-8">
-            We give you full machines that you can slice for your users. Since many VMs are idle most of the time we suggest having a larger concurrency per CPU. The platform will take care of concurrency and scheduling.
+            Pay per VM-hour. Hibernated VMs don't count.
           </p>
-          <div className="overflow-x-auto rounded-lg border border-border/50">
-            <table className="w-full text-left text-[14px]">
-              <thead>
-                <tr className="border-b border-border/50 bg-[hsl(0,0%,97%)]">
-                  <th className="px-5 py-3 font-medium">Tier</th>
-                  <th className="px-5 py-3 font-medium">CPU pool</th>
-                  <th className="px-5 py-3 font-medium">Memory pool</th>
-                  <th className="px-5 py-3 font-medium">Available disk</th>
-                  <th className="px-5 py-3 font-medium">Concurrency limit *</th>
-                  <th className="px-5 py-3 font-medium">Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-border/50">
-                  <td className="px-5 py-3 font-medium">Free</td>
-                  <td className="px-5 py-3">shared upto 2vCPU</td>
-                  <td className="px-5 py-3">shared upto 2GB</td>
-                  <td className="px-5 py-3">3GB per VM</td>
-                  <td className="px-5 py-3">5</td>
-                  <td className="px-5 py-3">Free</td>
-                </tr>
-                <tr className="border-b border-border/50">
-                  <td className="px-5 py-3 font-medium">Medium</td>
-                  <td className="px-5 py-3">8</td>
-                  <td className="px-5 py-3">16GB</td>
-                  <td className="px-5 py-3">50GB (addable)</td>
-                  <td className="px-5 py-3">50</td>
-                  <td className="px-5 py-3">$300</td>
-                </tr>
-                <tr className="border-b border-border/50">
-                  <td className="px-5 py-3 font-medium">Large</td>
-                  <td className="px-5 py-3">64</td>
-                  <td className="px-5 py-3">512GB</td>
-                  <td className="px-5 py-3">3800GB</td>
-                  <td className="px-5 py-3">500</td>
-                  <td className="px-5 py-3">$3,000</td>
-                </tr>
-                <tr>
-                  <td className="px-5 py-3 font-medium">Custom</td>
-                  <td className="px-5 py-3"></td>
-                  <td className="px-5 py-3"></td>
-                  <td className="px-5 py-3"></td>
-                  <td className="px-5 py-3"></td>
-                  <td className="px-5 py-3">Talk to us</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div className="mt-4 space-y-1 text-[13px] text-muted-foreground">
-            <p>* Concurrency limit does not include hibernated VMs, it is only suggested based on CPU overcommitment.</p>
-            <p>** Users can add one or more of these to their pool at any time, for example 2x medium, 3x large etc.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)]">
+              <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-4">Free</p>
+              <p className="font-heading text-[36px] tracking-[-1px] mb-1">$0</p>
+              <p className="font-mono-brand text-[13px] text-muted-foreground mb-6">forever</p>
+              <div className="space-y-2.5 text-[14px]">
+                <p>Up to 2 vCPU (shared)</p>
+                <p>Up to 2 GB RAM (shared)</p>
+                <p>3 GB disk per VM</p>
+                <p>5 concurrent VMs</p>
+              </div>
+            </div>
+            <div className="p-6 rounded-lg border-2 border-foreground/80 bg-[hsl(0,0%,98%)]">
+              <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-4">Pro</p>
+              <p className="font-heading text-[36px] tracking-[-1px] mb-1">$0.04<span className="text-[20px] text-muted-foreground">/hr</span></p>
+              <p className="font-mono-brand text-[13px] text-muted-foreground mb-6">per vCPU-hour</p>
+              <div className="space-y-2.5 text-[14px]">
+                <p>Up to 64 vCPU per VM</p>
+                <p>Up to 512 GB RAM</p>
+                <p>Expandable disk</p>
+                <p>Unlimited concurrent VMs</p>
+              </div>
+            </div>
+            <div className="p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)]">
+              <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-4">Enterprise</p>
+              <p className="font-heading text-[36px] tracking-[-1px] mb-1">Custom</p>
+              <p className="font-mono-brand text-[13px] text-muted-foreground mb-6">volume discounts</p>
+              <div className="space-y-2.5 text-[14px]">
+                <p>Dedicated infrastructure</p>
+                <p>Custom VM sizes</p>
+                <p>Priority support</p>
+                <p><a href="https://cal.com/team/digger/opencomputer-founder-chat" target="_blank" className="underline hover:text-muted-foreground transition-colors">Talk to us</a></p>
+              </div>
+            </div>
           </div>
         </div>
       </FadeIn>
