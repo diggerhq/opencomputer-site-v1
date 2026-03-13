@@ -57,6 +57,12 @@ const Callout = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
+const InlineCode = ({ children }: { children: React.ReactNode }) => (
+  <code className="font-mono-brand text-[15px] bg-[hsl(0,0%,93%)] px-1.5 py-0.5 rounded">
+    {children}
+  </code>
+);
+
 /* ---------- Architecture diagram boxes ---------- */
 const DiagramBox = ({
   label,
@@ -70,9 +76,9 @@ const DiagramBox = ({
   <div
     className={`px-5 py-4 rounded-lg border text-center ${
       accent
-        ? "bg-foreground text-background border-foreground"
-        : "bg-[hsl(0,0%,98%)] text-foreground border-border"
-    }`}
+      ? "bg-foreground text-background border-foreground"
+      : "bg-[hsl(0,0%,98%)] text-foreground border-border"
+      }`}
   >
     <p className={`font-mono-brand text-[13px] font-medium ${accent ? "text-background" : ""}`}>
       {label}
@@ -458,8 +464,8 @@ const BuildingOpenLovablePart1 = () => {
 
         <FadeIn>
           <Callout>
-             Our setup is so simple that all it takes is a React app to build the most
-             basic clone of Lovable &mdash; no servers needed!
+            Our setup is so simple that all it takes is a React app to build the most
+            basic clone of Lovable &mdash; no servers needed!
           </Callout>
         </FadeIn>
 
@@ -585,7 +591,7 @@ const BuildingOpenLovablePart1 = () => {
             {"}"});
           </InlineCodeBlock>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
-             Oh, by the way, this is our{" "}
+            Oh, by the way, this is our{" "}
             <a
               href="https://github.com/diggerhq/openlovable/blob/main/src/hooks/useSandboxAgent.ts#L6"
               target="_blank"
@@ -593,7 +599,7 @@ const BuildingOpenLovablePart1 = () => {
             >
               system prompt
             </a>{" "}
-             in case you're curious. The prompt is what the user inputs.
+            in case you're curious. The prompt is what the user inputs.
           </p>
         </FadeIn>
 
@@ -642,10 +648,13 @@ const BuildingOpenLovablePart1 = () => {
             3/ Stream events back to the UI
           </h3>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-4">
-             Now the `agent.start` interface also allows us to stream back all the tool
-             calling and thinking happening within our agent loop, which is running in
-             our sandbox. So we get back all these messages, which we can then display
-             nicely to the user. This is what our `handleEvent` callback looks like:
+            Now the{" "}
+            <InlineCode>agent.start</InlineCode>{" "}
+            interface also allows us to stream back all the tool calling and thinking
+            happening within our agent loop, which is running in our sandbox. So we
+            get back all these messages, which we can then display nicely to the
+            user. This is what our <InlineCode>handleEvent</InlineCode>{" "}
+            callback looks like:
           </p>
           <InlineCodeBlock filename="events.ts" code={CODE_EVENTS}>
             <span className="text-[hsl(300,30%,68%)]">const</span> <span className="text-[hsl(210,60%,70%)]">handleEvent</span> = <span className="text-[hsl(50,60%,70%)]">useCallback</span>((event: AgentEvent) =&gt; {"{"}{"\n"}
@@ -735,9 +744,7 @@ const BuildingOpenLovablePart1 = () => {
           <div className="space-y-7">
             <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
               And once the agent signals that it is done with{" "}
-              <code className="font-mono-brand text-[15px] bg-[hsl(0,0%,93%)] px-1.5 py-0.5 rounded">
-                turn_complete
-              </code>{" "}
+              <InlineCode>turn_complete</InlineCode>{" "}
               , we do the final refresh from the preview URL and fetch all the files so
               that our file browser can show them to the user.
             </p>
@@ -750,10 +757,10 @@ const BuildingOpenLovablePart1 = () => {
             4/ Follow up requests and conversations
           </h3>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
-             For follow-up requests from the user, we do the same process while
-             ensuring that all follow-up messages use the same Claude session for
-             context reasons. Once again, we leave the message history and context
-             management to Claude Agent SDK.
+            For follow-up requests from the user, we do the same process while
+            ensuring that all follow-up messages use the same Claude session for
+            context reasons. Once again, we leave the message history and context
+            management to Claude Agent SDK.
           </p>
         </FadeIn>
 
