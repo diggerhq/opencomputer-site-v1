@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Copy, Check } from "lucide-react";
 import FadeIn from "@/components/FadeIn";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
+import SitePageLayout from "@/components/SitePageLayout";
 
 interface InlineCodeBlockProps {
   filename: string;
@@ -159,11 +158,7 @@ const CODE_EVENTS = `const handleEvent = useCallback((event: AgentEvent) => {
 
 const BuildingOpenLovablePart1 = () => {
   return (
-    <div className="min-h-screen">
-      <SiteHeader activeSection="guides" />
-
-      {/* Article */}
-      <article className="max-w-[994px] mx-auto px-10 pt-10 pb-[60px]">
+    <SitePageLayout activeSection="guides" contentAs="article">
         <FadeIn>
           <Link
             to="/guides"
@@ -806,11 +801,7 @@ const BuildingOpenLovablePart1 = () => {
             </p>
           </div>
         </FadeIn>
-
-      </article>
-
-      <SiteFooter />
-    </div>
+    </SitePageLayout>
   );
 };
 

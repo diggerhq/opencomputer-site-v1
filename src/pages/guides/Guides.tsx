@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
+import SitePageLayout from "@/components/SitePageLayout";
 
 const guides = [
   {
@@ -16,11 +15,7 @@ const guides = [
 
 const Guides = () => {
   return (
-    <div className="min-h-screen">
-      <SiteHeader activeSection="guides" />
-
-      {/* Main */}
-      <main className="max-w-[994px] mx-auto px-10 pt-10 pb-[60px]">
+    <SitePageLayout activeSection="guides">
         <FadeIn>
           <h1 className="font-heading text-[clamp(42px,6vw,64px)] leading-[1.15] tracking-[-1.5px] mb-10">
             Guides
@@ -47,10 +42,7 @@ const Guides = () => {
             </FadeIn>
           ))}
         </div>
-      </main>
-
-      <SiteFooter />
-    </div>
+    </SitePageLayout>
   );
 };
 

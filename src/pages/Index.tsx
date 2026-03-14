@@ -2,8 +2,7 @@ import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
+import SitePageLayout from "@/components/SitePageLayout";
 
 const SDK_CODE = `import { Sandbox } from '@opencomputer/sdk';
 
@@ -55,12 +54,7 @@ const Index = () => {
   };
 
   return (
-  <div className="min-h-screen">
-    {/* Nav */}
-    <SiteHeader />
-
-    {/* Main */}
-    <main className="max-w-[994px] mx-auto px-10 pt-10 pb-[60px]">
+  <SitePageLayout>
       <FadeIn>
         <h1 className="font-heading text-[clamp(42px,6vw,64px)] leading-[1.15] tracking-[-1.5px] mb-10">
           Beyond sandboxes.
@@ -294,11 +288,7 @@ const Index = () => {
           </div>
         </div>
       </FadeIn>
-    </main>
-
-    {/* Footer */}
-    <SiteFooter />
-  </div>
+  </SitePageLayout>
   );
 };
 
