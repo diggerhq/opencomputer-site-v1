@@ -45,6 +45,7 @@ const features = [
 
 const Index = () => {
   const [copied, setCopied] = useState(false);
+  // TODO: Hide this link behind a preview/local toggle before production launch.
 
   const handleCopy = () => {
     navigator.clipboard.writeText(SDK_CODE);
@@ -81,6 +82,12 @@ const Index = () => {
           className="font-mono-brand text-[13px] text-muted-foreground hover:text-foreground transition-colors no-underline"
         >
           guides
+        </Link>
+        <Link
+          to="/animation-lab?scene=ephemeral-sessions"
+          className="font-mono-brand text-[13px] text-muted-foreground hover:text-foreground transition-colors no-underline"
+        >
+          animation lab
         </Link>
         <a
           href="https://cal.com/team/digger/opencomputer-founder-chat"

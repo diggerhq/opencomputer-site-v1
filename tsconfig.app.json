@@ -24,6 +24,7 @@
 
     "baseUrl": ".",
     "paths": {
+      "@/dev-routes": ["./src/dev/DevRoutes.tsx"],
       "@/*": ["./src/*"]
     }
   },
