@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
+import { eventStyles } from "@/animations/presets";
 import { Bot, Database, SlidersHorizontal, UserRound, Webhook } from "lucide-react";
 import { nodePresets } from "@/animations/presets";
 import type { NodeGeometry } from "@/animations/layout";
-import type { NodeIcon } from "@/animations/schema";
+import type { EventStyleKey, NodeIcon } from "@/animations/schema";
 
 type ArchitectureNodeProps = {
   node: NodeGeometry;
@@ -10,6 +11,11 @@ type ArchitectureNodeProps = {
   progress: number;
   progressOpacity: number;
   statusLabel?: string;
+  residentEvent?: {
+    style: EventStyleKey;
+    label?: string;
+    slot?: "left" | "right" | "center";
+  };
   visible: boolean;
 };
 
@@ -63,7 +69,7 @@ function renderShape(node: NodeGeometry, fill: string, stroke: string) {
   return <rect x={x} y={y} width={node.width} height={node.height} rx={16} fill={fill} stroke={stroke} strokeWidth={1.5} />;
 }
 
-export default function ArchitectureNode({ node, active, progress, progressOpacity, statusLabel, visible }: ArchitectureNodeProps) {
+export default function ArchitectureNode({ node, active, progress, progressOpacity, statusLabel, residentEvent, visible }: ArchitectureNodeProps) {
   const preset = nodePresets[node.kind];
   const palette = {
     fill: node.fill ?? preset.fill,
@@ -75,6 +81,19 @@ export default function ArchitectureNode({ node, active, progress, progressOpaci
   const meterWidth = Math.max(0, node.width - 32);
   const Icon = node.icon ? iconMap[node.icon] : null;
   const showProgress = node.showProgress ?? true;
+  const standardTextX = Icon ? node.cx + 14 : node.cx;
+  const residentStyle = residentEvent ? eventStyles[residentEvent.style] : null;
+  const residentMarker = residentStyle
+    ? {
+        x:
+          residentEvent?.slot === "left"
+            ? node.cx - 42
+            : residentEvent?.slot === "right"
+              ? node.cx + 42
+              : node.cx,
+        y: node.cy + 22,
+      }
+    : null;
 
   return (
     <motion.g
@@ -123,6 +142,16 @@ export default function ArchitectureNode({ node, active, progress, progressOpaci
                   {statusLabel}
                 </text>
               ) : null}
+              {residentStyle && residentMarker ? (
+                <g>
+                  <circle cx={residentMarker.x} cy={residentMarker.y} r={residentStyle.radius + 1} fill={residentStyle.fill} stroke={residentStyle.stroke} strokeWidth={2} opacity={0.95} />
+                  {residentEvent?.label ? (
+                    <text x={residentMarker.x} y={residentMarker.y + 22} textAnchor="middle" className="fill-muted-foreground text-[9px] tracking-[0.12em] uppercase">
+                      {residentEvent.label}
+                    </text>
+                  ) : null}
+                </g>
+              ) : null}
             </>
           ) : (
             <>
@@ -163,11 +192,21 @@ export default function ArchitectureNode({ node, active, progress, progressOpaci
           />
           )}
           {Icon ? <Icon x={isDatabase ? node.cx - 102 : node.left + 20} y={isDatabase ? node.cy - 13 : node.cy - 12} width={22} height={22} stroke={palette.stroke} strokeWidth={2} /> : null}
-          <text x={isDatabase ? node.cx + 34 : node.cx + 14} y={node.cy + 2} textAnchor="middle" className="fill-foreground text-[20px] font-semibold tracking-[0.01em]">
+          <text x={isDatabase ? node.cx + 34 : standardTextX} y={node.cy + 2} textAnchor="middle" className="fill-foreground text-[20px] font-semibold tracking-[0.01em]">
             {node.label}
           </text>
+          {residentStyle && residentMarker ? (
+            <g>
+              <circle cx={residentMarker.x} cy={residentMarker.y} r={residentStyle.radius + 1} fill={residentStyle.fill} stroke={residentStyle.stroke} strokeWidth={2} opacity={0.95} />
+              {residentEvent?.label ? (
+                <text x={residentMarker.x} y={residentMarker.y + 22} textAnchor="middle" className="fill-muted-foreground text-[9px] tracking-[0.12em] uppercase">
+                  {residentEvent.label}
+                </text>
+              ) : null}
+            </g>
+          ) : null}
           {statusLabel ?? node.subtitle ? (
-            <text x={isDatabase ? node.cx : node.cx + 14} y={node.cy + 27} textAnchor="middle" className="fill-muted-foreground text-[14px] tracking-[0.08em] uppercase">
+            <text x={isDatabase ? node.cx : standardTextX} y={node.cy + 27} textAnchor="middle" className="fill-muted-foreground text-[14px] tracking-[0.08em] uppercase">
               {statusLabel ?? node.subtitle}
             </text>
           ) : null}

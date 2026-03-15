@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Pause, Play, RotateCcw } from "lucide-react";
+import { computeScene } from "@/animations/layout";
+import { simulateScene, type SimulationControls } from "@/animations/simulation";
 import ArchitectureCanvas from "@/components/architecture/ArchitectureCanvas";
 import { getScene, scenes } from "@/animations/scenes";
 
@@ -9,13 +11,33 @@ export default function AnimationLab() {
   const scene = useMemo(() => getScene(searchParams.get("scene")), [searchParams]);
   const [isPlaying, setIsPlaying] = useState(true);
   const [timeMs, setTimeMs] = useState(0);
+  const [controlValues, setControlValues] = useState<SimulationControls>({});
   const rafRef = useRef<number | null>(null);
   const previousRef = useRef<number | null>(null);
+
+  const playbackSpeed = controlValues.playbackSpeed ?? 1;
+  const computedScene = useMemo(() => computeScene(scene), [scene]);
+
+  const resolvedControlValues = useMemo(() => {
+    return Object.fromEntries(
+      scene.controls.map((control) => [control.key, controlValues[control.key] ?? control.defaultValue]),
+    );
+  }, [controlValues, scene.controls]);
+
+  const simulation = useMemo(() => {
+    return simulateScene(scene, timeMs, computedScene.edgesById, resolvedControlValues);
+  }, [computedScene.edgesById, resolvedControlValues, scene, timeMs]);
+
+  const effectiveDurationMs = simulation?.durationMs ?? scene.meta.durationMs;
 
   useEffect(() => {
     setTimeMs(0);
     previousRef.current = null;
   }, [scene.meta.id]);
+
+  useEffect(() => {
+    setControlValues(Object.fromEntries(scene.controls.map((control) => [control.key, control.defaultValue])));
+  }, [scene.meta.id, scene.controls]);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -31,7 +53,7 @@ export default function AnimationLab() {
       const previous = previousRef.current ?? timestamp;
       const delta = Math.min(48, timestamp - previous);
       previousRef.current = timestamp;
-      setTimeMs((current) => current + delta);
+      setTimeMs((current) => current + delta * playbackSpeed);
       rafRef.current = requestAnimationFrame(tick);
     };
 
@@ -44,9 +66,9 @@ export default function AnimationLab() {
       rafRef.current = null;
       previousRef.current = null;
     };
-  }, [isPlaying]);
+  }, [isPlaying, playbackSpeed]);
 
-  const loopedTimeMs = ((timeMs % scene.meta.durationMs) + scene.meta.durationMs) % scene.meta.durationMs;
+  const loopedTimeMs = ((timeMs % effectiveDurationMs) + effectiveDurationMs) % effectiveDurationMs;
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,_#fbf7ef_0%,_#f4ede3_52%,_#efe5d8_100%)] text-foreground">
@@ -101,6 +123,58 @@ export default function AnimationLab() {
                 <p className="text-sm leading-6 text-[#625744]">{scene.meta.description}</p>
               </div>
 
+              {scene.controls.length > 0 ? (
+                <div className="space-y-3 rounded-[20px] border border-[#e3d9ca] bg-[rgba(255,255,255,0.72)] p-4">
+                  <p className="font-mono-brand text-[11px] uppercase tracking-[0.18em] text-[#8a6d46]">Scenario controls</p>
+                  {scene.controls.map((control) => {
+                    const value = resolvedControlValues[control.key] ?? control.defaultValue;
+                    const selectedOption = control.options?.find((option) => option.value === value);
+                    return (
+                      <div key={control.key} className="space-y-1.5">
+                        <div className="flex items-center justify-between gap-3 text-[11px] uppercase tracking-[0.14em] text-[#8a6d46]">
+                          <span>{control.label}</span>
+                          <span>
+                            {selectedOption?.label ?? (Number.isInteger(value) ? value : value.toFixed(1))}
+                            {selectedOption ? "" : control.unit ?? ""}
+                          </span>
+                        </div>
+                        {control.options ? (
+                          <select
+                            value={value}
+                            onChange={(event) => {
+                              const nextValue = Number(event.target.value);
+                              setControlValues((current) => ({ ...current, [control.key]: nextValue }));
+                              previousRef.current = null;
+                            }}
+                            className="w-full rounded-2xl border border-[#d8c9b3] bg-background px-4 py-3 text-sm outline-none transition focus:border-[#8a6d46]"
+                          >
+                            {control.options.map((option) => (
+                              <option key={option.label} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type="range"
+                            min={control.min}
+                            max={control.max}
+                            step={control.step}
+                            value={value}
+                            onChange={(event) => {
+                              const nextValue = Number(event.target.value);
+                              setControlValues((current) => ({ ...current, [control.key]: nextValue }));
+                              previousRef.current = null;
+                            }}
+                            className="w-full accent-[#8a6d46]"
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+
               <div className="space-y-3 rounded-[20px] border border-[#e3d9ca] bg-[rgba(255,255,255,0.72)] p-4">
                 <div className="flex items-center gap-3">
                   <button
@@ -131,12 +205,12 @@ export default function AnimationLab() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between font-mono-brand text-[11px] uppercase tracking-[0.18em] text-[#8a6d46]">
                     <span>Timeline</span>
-                    <span>{Math.round(loopedTimeMs)}ms / {scene.meta.durationMs}ms</span>
+                    <span>{Math.round(loopedTimeMs)}ms / {Math.round(effectiveDurationMs)}ms</span>
                   </div>
                   <input
                     type="range"
                     min={0}
-                    max={scene.meta.durationMs}
+                    max={effectiveDurationMs}
                     value={loopedTimeMs}
                     onChange={(event) => {
                       setTimeMs(Number(event.target.value));
@@ -159,7 +233,49 @@ export default function AnimationLab() {
             </aside>
 
             <section className="space-y-4">
-              <ArchitectureCanvas scene={scene} timeMs={timeMs} />
+              <ArchitectureCanvas scene={scene} timeMs={timeMs} simulation={simulation} />
+              {simulation && simulation.timelineSteps.length > 0 ? (
+                <div className="rounded-[24px] border border-[#ddcfba] bg-[rgba(252,248,241,0.92)] p-4">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-mono-brand text-[11px] uppercase tracking-[0.18em] text-[#8a6d46]">Event timeline</p>
+                      <p className="text-sm text-[#625744]">Click a step to jump directly to that point in the simulation.</p>
+                    </div>
+                    <p className="font-mono-brand text-[11px] uppercase tracking-[0.18em] text-[#8a6d46]">
+                      {Math.round(simulation.loopedTimeMs)}ms simulated
+                    </p>
+                  </div>
+                  <div className="max-h-[320px] space-y-1 overflow-y-auto rounded-[16px] border border-[#e3d9ca] bg-[rgba(255,255,255,0.72)] p-2">
+                    {simulation.timelineSteps.map((step, index) => {
+                      const isActive = simulation.activeStepId === step.id;
+                      return (
+                        <button
+                          key={step.id}
+                          type="button"
+                          onClick={() => {
+                            setTimeMs(step.startMs);
+                            previousRef.current = null;
+                            setIsPlaying(false);
+                          }}
+                          className={`flex w-full items-start gap-3 rounded-2xl px-3 py-2 text-left transition ${isActive ? "bg-[#f4ede3]" : "hover:bg-[rgba(244,237,227,0.65)]"}`}
+                        >
+                          <span className="mt-0.5 font-mono-brand text-[10px] uppercase tracking-[0.16em] text-[#8a6d46]">{index + 1}</span>
+                          <span className="mt-1 h-2.5 w-2.5 rounded-full" style={{ backgroundColor: step.color }} />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 text-sm text-[#332b1f]">
+                              <span className="font-medium">{step.label}</span>
+                              <span className="font-mono-brand text-[10px] uppercase tracking-[0.16em] text-[#8a6d46]">
+                                {step.from} {"->"} {step.to}
+                              </span>
+                            </div>
+                            {step.note ? <p className="mt-1 text-xs leading-5 text-[#625744]">{step.note}</p> : null}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
             </section>
           </div>
         </div>

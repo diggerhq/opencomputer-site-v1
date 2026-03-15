@@ -1,5 +1,6 @@
 import { timingPresets } from "./presets";
 import type { ComputedScene } from "./layout";
+import type { SimulationSnapshot } from "./simulation";
 import type { EventDef } from "./schema";
 
 export type PlaybackSnapshot = {
@@ -48,8 +49,9 @@ function getEffectiveNodeVisibility(nodeId: string, nodeVisibility: Record<strin
   return nodeVisibility[nodeId] ?? true;
 }
 
-export function getPlaybackSnapshot(scene: ComputedScene, timeMs: number): PlaybackSnapshot {
-  const loopedTimeMs = normalizeTime(timeMs, scene.meta.durationMs);
+export function getPlaybackSnapshot(scene: ComputedScene, timeMs: number, simulation?: SimulationSnapshot | null): PlaybackSnapshot {
+  const effectiveDurationMs = simulation?.durationMs ?? scene.meta.durationMs;
+  const loopedTimeMs = normalizeTime(timeMs, effectiveDurationMs);
   const nodeActivity: Record<string, number> = {};
   const nodeProgress: Record<string, number> = {};
   const nodeProgressOpacity: Record<string, number> = {};
@@ -170,10 +172,32 @@ export function getPlaybackSnapshot(scene: ComputedScene, timeMs: number): Playb
     return [{ ...event, progress, edgePath: edge.path }];
   });
 
+  if (simulation) {
+    for (const [nodeId, progress] of Object.entries(simulation.nodeProgress)) {
+      nodeProgress[nodeId] = progress;
+    }
+
+    for (const [nodeId, opacity] of Object.entries(simulation.nodeProgressOpacity)) {
+      nodeProgressOpacity[nodeId] = opacity;
+    }
+
+    for (const [nodeId, status] of Object.entries(simulation.nodeStatus)) {
+      nodeStatus[nodeId] = status;
+    }
+
+    for (const [nodeId, activity] of Object.entries(simulation.nodeActivity)) {
+      nodeActivity[nodeId] = Math.max(nodeActivity[nodeId] ?? 0, activity);
+    }
+
+    for (const [edgeId, emphasis] of Object.entries(simulation.emphasizedEdges)) {
+      emphasizedEdges[edgeId] = Math.max(emphasizedEdges[edgeId] ?? 0, emphasis);
+    }
+  }
+
   return {
     timeMs,
     loopedTimeMs,
-    activeEvents,
+    activeEvents: [...activeEvents, ...(simulation?.activeEvents ?? [])],
     nodeActivity,
     nodeProgress,
     nodeProgressOpacity,
