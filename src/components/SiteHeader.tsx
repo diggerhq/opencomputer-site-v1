@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-type SiteSection = "guides";
+type SiteSection = "guides" | "blog";
 
 interface SiteHeaderProps {
   activeSection?: SiteSection;
@@ -14,7 +14,7 @@ const navLinkClass = (isActive: boolean) =>
 
 const SiteHeader = ({ activeSection }: SiteHeaderProps) => {
   return (
-    <nav className="max-w-[994px] mx-auto px-10 py-6 flex items-center justify-between">
+    <nav className="mx-auto flex max-w-[994px] flex-col gap-4 px-6 py-6 sm:px-10 md:flex-row md:items-center md:justify-between md:gap-6">
       <span
         className="glitch-logo font-mono text-[15px] font-medium tracking-tight text-foreground"
         data-text="digger"
@@ -37,9 +37,12 @@ const SiteHeader = ({ activeSection }: SiteHeaderProps) => {
         </a>
       </span>
 
-      <div className="flex items-center gap-5">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 md:justify-end">
         <Link to="/guides" className={navLinkClass(activeSection === "guides")}>
           guides
+        </Link>
+        <Link to="/blog" className={navLinkClass(activeSection === "blog")}>
+          blog
         </Link>
         <a
           href="https://cal.com/team/digger/opencomputer-founder-chat"
