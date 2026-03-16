@@ -5,6 +5,9 @@ import { devRoutes } from "@/dev-routes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Blog from "./pages/blog/Blog";
+import SandboxStatefulnessDesigns from "./pages/blog/SandboxStatefulnessDesigns";
+import WhereShouldTheAgentLive from "./pages/blog/WhereShouldTheAgentLive";
 import Guides from "./pages/guides/Guides";
 import BuildingOpenLovablePart1 from "./pages/guides/BuildingOpenLovablePart1";
 import NotFound from "./pages/NotFound";
@@ -19,6 +22,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/sandbox-statefulness-designs" element={<SandboxStatefulnessDesigns />} />
+          <Route path="/blog/where-should-the-agent-live" element={<WhereShouldTheAgentLive />} />
           <Route path="/guides" element={<Guides />} />
           <Route path="/guides/building-open-lovable-part-1" element={<BuildingOpenLovablePart1 />} />
           {devRoutes}
