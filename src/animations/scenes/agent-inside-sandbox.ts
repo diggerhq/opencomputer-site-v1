@@ -28,10 +28,10 @@ export const agentInsideSandboxScene = defineScene({
     title: "Agent Inside Sandbox",
     description: "The agent, tools, and filesystem all live in the same sandbox, so tool calls stay local and only model requests cross the network boundary.",
     durationMs: 12000,
-    viewport: { width: 1280, height: 720, padding: 56 },
+    viewport: { width: 770, height: 480, padding: 28 },
   },
   controls: [...controls],
-  zones: [{ id: "inside-sandbox-zone", label: "Sandbox boundary", x: 100, y: 130, width: 400, height: 410, style: "external" }],
+  zones: [{ id: "inside-sandbox-zone", label: "Sandbox boundary", x: 30, y: 40, width: 400, height: 410, style: "external" }],
   metrics: [],
   simulation: {
     kind: "singleAgentFlow",
@@ -46,9 +46,9 @@ export const agentInsideSandboxScene = defineScene({
     toolResultEdgeId: "tools-to-agent",
   },
   nodes: [
-    { id: "agent", kind: "sandbox", x: 300, y: 245, width: 320, height: 132, label: "🤖 Agent (Inside Sandbox)", fill: "#eefbf3", stroke: "#3f7d5e", accent: "#61b184", showProgress: false },
-    { id: "model-api", kind: "service", x: 675, y: 245, width: 260, height: 110, label: "Model Provider API", subtitle: "" },
-    { id: "tools", kind: "service", x: 300, y: 445, width: 210, height: 120, label: "Tools + FS", subtitle: "" },
+    { id: "agent", kind: "sandbox", x: 230, y: 155, width: 320, height: 132, label: "🤖 Agent (Inside Sandbox)", fill: "#eefbf3", stroke: "#3f7d5e", accent: "#61b184", showProgress: false },
+    { id: "model-api", kind: "service", x: 605, y: 155, width: 260, height: 110, label: "Model Provider API", subtitle: "" },
+    { id: "tools", kind: "service", x: 230, y: 355, width: 210, height: 120, label: "Tools + FS", subtitle: "" },
   ],
   edges: [
     { id: "agent-to-model", from: "agent", to: "model-api", route: "straight" },

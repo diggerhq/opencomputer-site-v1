@@ -5,17 +5,9 @@ import SitePageLayout from "@/components/SitePageLayout";
 const posts = [
   {
     slug: "where-should-the-agent-live",
-    title: "Where Should the Agent Live?",
+    title: "Where Should the Agent(s) Live?",
     description:
       "A framework for deciding whether your coding agent should run outside the sandbox, inside the sandbox, or in a hybrid setup.",
-    author: "TODO: placeholder",
-    date: "March 15, 2026",
-  },
-  {
-    slug: "sandbox-statefulness-designs",
-    title: "Sandbox Statefulness Designs",
-    description:
-      "A practical guide to ephemeral, long-running, hybrid, and shared-environment sandbox designs for production agent systems.",
     author: "TODO: placeholder",
     date: "March 15, 2026",
   },

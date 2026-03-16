@@ -28,12 +28,12 @@ export const agentOutsideSandboxScene = defineScene({
     title: "Agent Outside Sandbox",
     description: "The agent runs outside the sandbox, so every tool and filesystem interaction crosses the sandbox boundary before returning to the model loop.",
     durationMs: 12000,
-    viewport: { width: 1280, height: 720, padding: 56 },
+    viewport: { width: 770, height: 480, padding: 28 },
   },
   controls: [...controls],
   zones: [
-    { id: "outside-sandbox-zone", label: "Sandbox boundary", x: 100, y: 340, width: 400, height: 200, style: "sandbox" },
-    { id: "safe-zone", label: "Agent environment", x: 100, y: 130, width: 400, height: 195, style: "sandbox" }
+    { id: "outside-sandbox-zone", label: "Sandbox boundary", x: 30, y: 250, width: 400, height: 200, style: "sandbox" },
+    { id: "safe-zone", label: "Agent environment", x: 30, y: 40, width: 400, height: 195, style: "sandbox" }
   ],
   metrics: [],
   simulation: {
@@ -49,9 +49,9 @@ export const agentOutsideSandboxScene = defineScene({
     toolResultEdgeId: "tools-to-agent",
   },
   nodes: [
-    { id: "agent", kind: "sandbox", x: 300, y: 245, width: 320, height: 132, label: "🤖 Agent (Outside Sandbox)", fill: "#edf3ff", stroke: "#4667b4", accent: "#6f8fe1", showProgress: false },
-    { id: "model-api", kind: "service", x: 675, y: 245, width: 260, height: 110, label: "Model Provider API", subtitle: "" },
-    { id: "tools", kind: "service", x: 300, y: 445, width: 210, height: 120, label: "Tools + FS", subtitle: "" },
+    { id: "agent", kind: "sandbox", x: 230, y: 155, width: 320, height: 132, label: "🤖 Agent (Outside Sandbox)", fill: "#edf3ff", stroke: "#4667b4", accent: "#6f8fe1", showProgress: false },
+    { id: "model-api", kind: "service", x: 605, y: 155, width: 260, height: 110, label: "Model Provider API", subtitle: "" },
+    { id: "tools", kind: "service", x: 230, y: 355, width: 210, height: 120, label: "Tools + FS", subtitle: "" },
   ],
   edges: [
     { id: "agent-to-model", from: "agent", to: "model-api", route: "straight" },
