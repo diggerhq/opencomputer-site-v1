@@ -4,6 +4,7 @@ import { Pause, Play, RotateCcw } from "lucide-react";
 import { computeScene } from "@/animations/layout";
 import { simulateScene, type SimulationControls } from "@/animations/simulation";
 import ArchitectureCanvas from "@/components/architecture/ArchitectureCanvas";
+import SimulationSummary from "@/components/architecture/SimulationSummary";
 import { getScene, scenes } from "@/animations/scenes";
 
 export default function AnimationLab() {
@@ -129,13 +130,15 @@ export default function AnimationLab() {
                   {scene.controls.map((control) => {
                     const value = resolvedControlValues[control.key] ?? control.defaultValue;
                     const selectedOption = control.options?.find((option) => option.value === value);
+                    const selectedRange = control.ranges?.find((range) => value >= range.min && value <= range.max);
+                    const valueLabel = selectedOption?.label ?? (Number.isInteger(value) ? value : value.toFixed(1));
+                    const suffix = selectedOption ? "" : control.unit ?? "";
                     return (
                       <div key={control.key} className="space-y-1.5">
                         <div className="flex items-center justify-between gap-3 text-[11px] uppercase tracking-[0.14em] text-[#8a6d46]">
                           <span>{control.label}</span>
                           <span>
-                            {selectedOption?.label ?? (Number.isInteger(value) ? value : value.toFixed(1))}
-                            {selectedOption ? "" : control.unit ?? ""}
+                            {valueLabel}{suffix}{selectedRange && !selectedOption ? ` (${selectedRange.label}: ${selectedRange.min}-${selectedRange.max})` : ""}
                           </span>
                         </div>
                         {control.options ? (
@@ -234,6 +237,7 @@ export default function AnimationLab() {
 
             <section className="space-y-4">
               <ArchitectureCanvas scene={scene} timeMs={timeMs} simulation={simulation} />
+              {simulation?.summary ? <SimulationSummary scene={scene} controls={resolvedControlValues} simulation={simulation} /> : null}
               {simulation && simulation.timelineSteps.length > 0 ? (
                 <div className="rounded-[24px] border border-[#ddcfba] bg-[rgba(252,248,241,0.92)] p-4">
                   <div className="mb-3 flex items-center justify-between gap-3">

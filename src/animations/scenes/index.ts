@@ -1,12 +1,13 @@
 import type { Scene } from "../schema";
-import { agentEventFlowScene } from "./agent-event-flow";
+import { agentHybridSandboxScene } from "./agent-hybrid-sandbox";
+import { agentInsideSandboxScene } from "./agent-inside-sandbox";
+import { agentOutsideSandboxScene } from "./agent-outside-sandbox";
 import { ephemeralSessionsScene } from "./ephemeral-sessions";
 import { hybridSessionsScene } from "./hybrid-sessions";
-import { insideVsOutsideSandboxScene } from "./inside-vs-outside-sandbox";
 import { longRunningSessionsScene } from "./long-running-sessions";
 import { singleContainerScene } from "./single-container";
 
-export const scenes: Scene[] = [ephemeralSessionsScene, longRunningSessionsScene, hybridSessionsScene, singleContainerScene, insideVsOutsideSandboxScene, agentEventFlowScene];
+export const scenes: Scene[] = [ephemeralSessionsScene, longRunningSessionsScene, hybridSessionsScene, singleContainerScene, agentOutsideSandboxScene, agentInsideSandboxScene, agentHybridSandboxScene];
 
 export const sceneMap = Object.fromEntries(scenes.map((scene) => [scene.meta.id, scene]));
 

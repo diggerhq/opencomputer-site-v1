@@ -34,12 +34,7 @@ export const insideVsOutsideSandboxScene = defineScene({
     { id: "outside-sandbox-zone", label: "Sandbox boundary", x: 100, y: 330, width: 410, height: 185, style: "sandbox" },
     { id: "inside-sandbox-zone", label: "Sandbox boundary", x: 770, y: 140, width: 360, height: 380, style: "external" },
   ],
-  metrics: [
-    { id: "outsideTotal", label: "Outside total", x: 74, y: 76, tone: "warning" },
-    { id: "insideTotal", label: "Inside total", x: 74, y: 142, tone: "positive" },
-    { id: "boundaryPenalty", label: "Boundary cost", x: 74, y: 540, tone: "warning" },
-    { id: "modelLoop", label: "Model loop", x: 74, y: 606, tone: "positive" },
-  ],
+  metrics: [],
   simulation: {
     kind: "insideOutsideComparison",
     outsideNodeId: "outside-agent",
@@ -67,9 +62,9 @@ export const insideVsOutsideSandboxScene = defineScene({
       width: 282,
       height: 122,
       label: "Agent (Outside Sandbox)",
-      fill: "#f6efe7",
-      stroke: "#8a6745",
-      accent: "#c39b6c",
+      fill: "#edf3ff",
+      stroke: "#4667b4",
+      accent: "#6f8fe1",
       showProgress: false,
     },
     {
