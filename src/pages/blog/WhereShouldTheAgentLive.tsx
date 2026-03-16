@@ -237,7 +237,7 @@ const WhereShouldTheAgentLive = () => {
               The broad access that makes agents so powerful also makes them dangerous. For many applications, agents need filesystem access, process control, network access, and the ability to generate and execute arbitrary code.
             </p>
             <p>
-              In practice, isolation usually happens in two layers: an OS sandbox around the agent process itself, and a stronger execution boundary around the whole environment it operates in. Anthropic&apos;s <a href="https://code.claude.com/docs/en/sandboxing#how-it-works" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">sandboxing guidance</a> and <a href="https://developers.openai.com/codex/agent-approvals-security/#os-level-sandbox" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">OpenAI&apos;s Codex docs</a> are useful references for the first layer; <a href="https://www.luiscardoso.dev/blog/sandboxes-for-ai" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">Luis Cardoso</a> and <a href="https://pierce.dev/notes/a-deep-dive-on-agent-sandboxes" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">Pierce Freeman</a> are good references for the second.
+              Isolation usually happens in two layers: an OS sandbox around the agent process itself, and a stronger execution boundary around the whole environment it operates in. Anthropic&apos;s <a href="https://code.claude.com/docs/en/sandboxing#how-it-works" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">sandboxing guidance</a> and <a href="https://developers.openai.com/codex/agent-approvals-security/#os-level-sandbox" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">OpenAI&apos;s Codex docs</a> are useful references for the first layer; <a href="https://www.luiscardoso.dev/blog/sandboxes-for-ai" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">Luis Cardoso</a> and <a href="https://pierce.dev/notes/a-deep-dive-on-agent-sandboxes" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">Pierce Freeman</a> are good references for the second.
             </p>
             <DiagramPanel eyebrow="Security model" title="Isolation works in layers">
               <div className="space-y-3">
@@ -365,7 +365,7 @@ const WhereShouldTheAgentLive = () => {
               Once isolation is a given, the next design choice is where the agent should live relative to the environment where code actually executes. Should the agent run inside the same isolated computer where it reads files, installs dependencies, and executes commands? Or should it remain outside that environment and send tool calls across the boundary into a separate execution target?
             </p>
             <p>
-              That distinction turns out to matter a lot. It affects latency, security boundaries, state management, and how naturally the environment behaves like a real computer. In practice, the biggest performance question is whether repeated tool calls have to cross the sandbox boundary over and over again, or whether they can execute locally alongside the agent.
+              That distinction turns out to matter a lot. It affects latency, security boundaries, state management, and how naturally the environment behaves like a real computer. The biggest performance question is whether repeated tool calls have to cross the sandbox boundary over and over again, or whether they can execute locally alongside the agent.
             </p>
             <h3 className="font-heading text-[22px] tracking-[-0.4px]">The Basic Agent Loop</h3>
             <p>
@@ -443,7 +443,7 @@ const WhereShouldTheAgentLive = () => {
               Agent placement mostly changes what happens around tool calls. Local tools add little overhead beyond the work itself; remote tools add another network hop each time. On real tasks, that compounds quickly across dozens of loops, which is why agent placement is a performance decision as much as a security one.
             </p>
             <p>
-              In practice, the agent can live outside the sandbox, inside it, or in a hybrid setup. The security tradeoff is where trust accumulates: outside-the-sandbox designs keep more privileged state in the control plane, inside-the-sandbox designs require a stricter zero-secret posture, and hybrid designs reserve the strongest isolation for the riskiest actions.
+              The agent can live outside the sandbox, inside it, or in a hybrid setup.
             </p>
           </div>
         </section>
@@ -471,7 +471,7 @@ const WhereShouldTheAgentLive = () => {
                 Here, the agent is co-located with the tool and filesystem environment. Tool calls stay local, which removes the repeated sandbox round-trip penalty, but it also means the agent itself lives inside the stronger isolation boundary.
               </p>
               <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
-                This shrinks the gap between reasoning and execution, but it also means a compromised agent sits next to the same files and tools it is using. In practice, this pattern works best with a zero-trust posture toward the sandbox itself: even inside the isolation boundary, the agent should not be assumed trustworthy enough to hold durable secrets.
+                This shrinks the gap between reasoning and execution, but it also means a compromised agent sits next to the same files and tools it is using. This pattern works best with a zero-trust posture toward the sandbox itself: even inside the isolation boundary, the agent should not be assumed trustworthy enough to hold durable secrets.
               </p>
             </div>
             <SceneEmbed scene={agentInsideSandboxScene} />
@@ -622,7 +622,7 @@ const WhereShouldTheAgentLive = () => {
 
           <div className="space-y-7 text-[17px] leading-[1.75] tracking-[-0.1px]">
             <p>
-              In practice, long-lived and hybrid patterns tend to make the most sense from both a performance and economic perspective. Long-lived sessions minimize repeated startup and hydration costs for agents that are active continuously, while hybrid sessions preserve most of the same statefulness benefits without paying to keep every environment hot during idle periods.
+              Long-lived and hybrid patterns tend to make the most sense from both a performance and economic perspective. Long-lived sessions minimize repeated startup and hydration costs for agents that are active continuously, while hybrid sessions preserve most of the same statefulness benefits without paying to keep every environment hot during idle periods.
             </p>
             <p>
               Ephemeral sessions are still useful for narrow one-shot tasks, and shared containers can make sense for tightly coordinated multi-agent systems, but for most user-facing agent products the real decision is between long-lived and hybrid.
