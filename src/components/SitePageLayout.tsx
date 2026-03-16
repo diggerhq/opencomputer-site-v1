@@ -2,7 +2,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 
 interface SitePageLayoutProps {
-  activeSection?: "guides";
+  activeSection?: "blog";
   children: React.ReactNode;
   contentClassName?: string;
   contentAs?: "main" | "article";

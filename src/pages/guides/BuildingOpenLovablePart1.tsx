@@ -164,13 +164,13 @@ const CODE_EVENTS = `const handleEvent = useCallback((event: AgentEvent) => {
 
 const BuildingOpenLovablePart1 = () => {
   return (
-    <SitePageLayout activeSection="guides" contentAs="article">
+    <SitePageLayout activeSection="blog" contentAs="article">
         <FadeIn>
           <Link
-            to="/guides"
+            to="/blog"
             className="font-mono-brand text-[13px] text-muted-foreground hover:text-foreground transition-colors no-underline"
           >
-            &larr; Back to guides
+            &larr; Back to blog
           </Link>
         </FadeIn>
 
