@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-type SiteSection = "guides" | "blog";
+type SiteSection = "blog";
 
 interface SiteHeaderProps {
   activeSection?: SiteSection;
@@ -38,9 +38,6 @@ const SiteHeader = ({ activeSection }: SiteHeaderProps) => {
       </span>
 
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 md:justify-end">
-        <Link to="/guides" className={navLinkClass(activeSection === "guides")}>
-          guides
-        </Link>
         <Link to="/blog" className={navLinkClass(activeSection === "blog")}>
           blog
         </Link>
