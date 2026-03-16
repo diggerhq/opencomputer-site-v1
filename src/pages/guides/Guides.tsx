@@ -2,7 +2,15 @@ import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 import SitePageLayout from "@/components/SitePageLayout";
 
-const guides = [
+const posts = [
+  {
+    slug: "the-agentic-workload",
+    title: "The Agentic Workload",
+    description:
+      "Agent code doesn't fit neatly into existing categories. It's not a traditional app, and it's not a CI job. It's something new.",
+    author: "Igor Zalutski",
+    date: "March 15, 2026",
+  },
   {
     slug: "building-open-lovable-part-1",
     title: "Building an Open Lovable - part 1",
@@ -13,30 +21,30 @@ const guides = [
   },
 ];
 
-const Guides = () => {
+const Blog = () => {
   return (
-    <SitePageLayout activeSection="guides">
+    <SitePageLayout activeSection="blog">
         <FadeIn>
           <h1 className="font-heading text-[clamp(42px,6vw,64px)] leading-[1.15] tracking-[-1.5px] mb-10">
-            Guides
+            Blog
           </h1>
         </FadeIn>
 
         <div className="space-y-8">
-          {guides.map((guide) => (
-            <FadeIn key={guide.slug} delay={0.08}>
+          {posts.map((post) => (
+            <FadeIn key={post.slug} delay={0.08}>
               <Link
-                to={`/guides/${guide.slug}`}
+                to={`/blog/${post.slug}`}
                 className="block p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
               >
                 <h2 className="font-heading text-[24px] tracking-[-0.3px] mb-2 text-foreground">
-                  {guide.title}
+                  {post.title}
                 </h2>
                 <p className="text-[15px] leading-[1.7] text-muted-foreground mb-3">
-                  {guide.description}
+                  {post.description}
                 </p>
                 <p className="font-mono-brand text-[12px] text-muted-foreground">
-                  {guide.author} &middot; {guide.date}
+                  {post.author} &middot; {post.date}
                 </p>
               </Link>
             </FadeIn>
@@ -46,4 +54,4 @@ const Guides = () => {
   );
 };
 
-export default Guides;
+export default Blog;
