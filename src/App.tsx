@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Blog from "./pages/blog/Blog";
 import BuildingOpenLovablePart1 from "./pages/blog/BuildingOpenLovablePart1";
-import SandboxStatefulnessDesigns from "./pages/blog/SandboxStatefulnessDesigns";
 import TheAgenticWorkload from "./pages/blog/TheAgenticWorkload";
 import WhereShouldTheAgentLive from "./pages/blog/WhereShouldTheAgentLive";
 import NotFound from "./pages/NotFound";
@@ -28,7 +27,6 @@ const App = () => (
           <Route path="/guides/building-open-lovable-part-1" element={<BuildingOpenLovablePart1 />} />
           <Route path="/blog/the-agentic-workload" element={<TheAgenticWorkload />} />
           <Route path="/blog/where-should-the-agent-live" element={<WhereShouldTheAgentLive />} />
-          <Route path="/blog/sandbox-statefulness-designs" element={<SandboxStatefulnessDesigns />} />
           {devRoutes}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
