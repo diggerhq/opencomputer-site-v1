@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-type SiteSection = "guides";
+type SiteSection = "blog";
 
 interface SiteHeaderProps {
   activeSection?: SiteSection;
@@ -38,8 +38,8 @@ const SiteHeader = ({ activeSection }: SiteHeaderProps) => {
       </span>
 
       <div className="flex items-center gap-5">
-        <Link to="/guides" className={navLinkClass(activeSection === "guides")}>
-          guides
+        <Link to="/blog" className={navLinkClass(activeSection === "blog")}>
+          blog
         </Link>
         <a
           href="https://cal.com/team/digger/opencomputer-founder-chat"
