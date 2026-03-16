@@ -182,8 +182,11 @@ export default function AgentPlacementComparison() {
 
       <div className="grid gap-8 xl:grid-cols-3">
         {simulations.map(({ scene, simulation }) => (
-          <section key={scene.meta.id} className="space-y-4">
-            <div className="space-y-1">
+          <section
+            key={scene.meta.id}
+            className="mx-auto grid w-full max-w-[500px] gap-4 md:max-w-[760px] md:grid-cols-[minmax(0,1.35fr)_minmax(220px,0.9fr)] md:items-start xl:max-w-none xl:block xl:space-y-4"
+          >
+            <div className="space-y-1 md:col-span-2 xl:col-span-1">
               <h3 className="font-heading text-[22px] tracking-[-0.4px]">{scene.meta.title}</h3>
             </div>
             <div className="overflow-hidden rounded-[24px] border border-[#ddcfba] bg-[rgba(255,255,255,0.72)] p-3">
