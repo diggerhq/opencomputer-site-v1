@@ -209,7 +209,7 @@ const WhereShouldTheAgentLive = () => {
             In <Link to="/blog/the-agentic-workload" className="underline transition-colors hover:text-muted-foreground">The Agentic Workload</Link>, we explained why software agent workloads are fundamentally different from traditional applications. Agents introduce a new set of deployment needs and constraints, and this post explores those constraints and what they mean for designing agentic systems.
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
-            In particular, this post is focused on host applications that provide generative AI capabilities directly to end users, such as Lovable or Bolt. Companies designing internal background agents often operate under a somewhat more trusted user model, but many of the same ideas still apply.
+            The ideas here apply broadly, but they matter most for platforms that give end users direct access to generative AI capabilities, like <a href="https://lovable.dev" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">Lovable</a> or <a href="https://bolt.new" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">Bolt</a>, where untrusted input can reach the agent. Internal background agents often operate under a more trusted user model, but many of the same isolation and placement tradeoffs still come up.
           </p>
           <div className="space-y-4 rounded-lg border border-border/70 bg-[hsl(0,0%,98%)] p-6">
             <p className="font-mono-brand text-[12px] uppercase tracking-[0.15em] text-muted-foreground">
@@ -245,13 +245,9 @@ const WhereShouldTheAgentLive = () => {
                   name="OS sandbox"
                   detail="Constrains the agent process itself with filesystem, process, and network boundaries."
                 />
-                <div className="flex items-center justify-center">
-                  <span className="font-mono-brand text-[18px] text-muted-foreground">↓</span>
-                </div>
                 <IsolationLayer
                   name="Execution environment"
                   detail="Container sandbox or microVM isolates the whole computer the agent operates in."
-                  accent
                 />
                 <div className="grid gap-3 pt-1 md:grid-cols-[1.2fr_0.8fr]">
                   <div className="rounded-xl border border-border/80 bg-[hsl(0,0%,98.5%)] px-4 py-4">
@@ -273,7 +269,7 @@ const WhereShouldTheAgentLive = () => {
                     <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Default takeaway</p>
                     <p className="mt-2 text-[15px] leading-[1.65] text-muted-foreground">
                       Use both layers together: OS sandboxing limits what the agent process can do,
-                      while the execution boundary providers another layer of defense and contains the full machine-level blast radius.
+                      while the execution boundary provides another layer of defense and contains the full machine-level blast radius.
                     </p>
                   </div>
                 </div>
@@ -296,62 +292,64 @@ const WhereShouldTheAgentLive = () => {
               At a minimum, the agent needs to authenticate to the model provider, so the real design problem is how to minimize blast radius if that environment is compromised. Prompt injection, policy bypass attempts, and the simple fact that the agent can execute arbitrary code all push in the same direction: assume the environment may eventually be coerced into trying to exfiltrate whatever credentials it can reach.
             </p>
             <p>
-              A common answer is to give the sandbox only a short-lived session token and route privileged operations through a proxy or control plane. Browser Use pushes this idea further with a &quot;zero-secret sandbox&quot; approach, where even an in-sandbox agent relies on a control plane for model access and other sensitive operations.
+              A common answer is to give the sandbox only a short-lived session token and route privileged operations through a proxy or control plane. <a href="https://browser-use.com/posts/two-ways-to-sandbox-agents" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">Browser Use</a> pushes this idea further with what they call a &quot;zero-secret sandbox&quot; approach: the agent inside the sandbox holds no credentials at all, and every privileged operation, including model inference, is routed through an external control plane that owns the secrets on the agent&apos;s behalf.
             </p>
-            <DiagramPanel eyebrow="Credentials" title="Short-lived token proxy flow">
-              <div className="grid gap-4 lg:grid-cols-[0.95fr_auto_1.05fr_auto_1fr] lg:items-stretch">
-                <TokenCard
-                  title="Sandbox agent"
-                  lines={[
-                    "gets per-session token",
-                    "cannot see provider secret",
-                    "token bound to user or org",
-                  ]}
-                />
-                <div className="flex items-center justify-center py-1 lg:py-0">
-                  <span className="font-mono-brand text-[18px] text-muted-foreground">→</span>
-                </div>
-                <TokenCard
-                  title="Auth proxy"
-                  tone="accent"
-                  lines={[
-                    "validates short TTL",
-                    "checks session scope",
-                    "applies attribution + limits",
-                  ]}
-                />
-                <div className="flex items-center justify-center py-1 lg:py-0">
-                  <span className="font-mono-brand text-[18px] text-muted-foreground">→</span>
-                </div>
-                <TokenCard
-                  title="Model provider"
-                  lines={[
-                    "receives proxied request",
-                    "uses platform-owned credential",
-                    "never exposes root key to agent",
-                  ]}
-                />
+            <DiagramPanel eyebrow="Credentials" title="Token design goals">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {[
+                  { number: "1", label: "Short-lived", text: "If leaked, the token expires quickly." },
+                  { number: "2", label: "Session-bound", text: "A stolen token only works for one environment." },
+                  { number: "3", label: "Scoped", text: "Usage stays attributable to the right user or org." },
+                  { number: "4", label: "Revocable", text: "The control plane can kill a token immediately if a session looks compromised." },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-lg bg-[hsl(0,0%,98.5%)] px-3 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-foreground font-mono-brand text-[10px] text-background">
+                        {item.number}
+                      </span>
+                      <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">{item.label}</p>
+                    </div>
+                    <p className="mt-2 text-[14px] leading-[1.65] text-muted-foreground">{item.text}</p>
+                  </div>
+                ))}
               </div>
               <div className="mt-5 rounded-xl border border-dashed border-border/80 bg-[hsl(0,0%,99.2%)] px-4 py-4">
                 <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
-                  Token design goals
+                  Proxy flow
                 </p>
-                <div className="mt-3 grid gap-3 md:grid-cols-3">
-                  {[
-                    { number: "1", label: "Short-lived", text: "If leaked, the token expires quickly." },
-                    { number: "2", label: "Session-bound", text: "A stolen token only works for one environment." },
-                    { number: "3", label: "Scoped", text: "Usage stays attributable to the right user or org." },
-                  ].map((item) => (
-                    <div key={item.label} className="rounded-lg bg-white px-3 py-3">
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-foreground font-mono-brand text-[10px] text-background">
-                          {item.number}
-                        </span>
-                        <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">{item.label}</p>
-                      </div>
-                      <p className="mt-2 text-[14px] leading-[1.65] text-muted-foreground">{item.text}</p>
-                    </div>
-                  ))}
+                <div className="mt-3 grid gap-4 lg:grid-cols-[0.95fr_auto_1.05fr_auto_1fr] lg:items-stretch">
+                  <TokenCard
+                    title="Sandbox agent"
+                    lines={[
+                      "gets per-session token",
+                      "cannot see provider secret",
+                      "token bound to user or org",
+                    ]}
+                  />
+                  <div className="flex items-center justify-center py-1 lg:py-0">
+                    <span className="font-mono-brand text-[18px] text-muted-foreground lg:inline hidden">→</span>
+                    <span className="font-mono-brand text-[18px] text-muted-foreground lg:hidden">↓</span>
+                  </div>
+                  <TokenCard
+                    title="Auth proxy"
+                    lines={[
+                      "validates short TTL",
+                      "checks session scope",
+                      "applies attribution + limits",
+                    ]}
+                  />
+                  <div className="flex items-center justify-center py-1 lg:py-0">
+                    <span className="font-mono-brand text-[18px] text-muted-foreground lg:inline hidden">→</span>
+                    <span className="font-mono-brand text-[18px] text-muted-foreground lg:hidden">↓</span>
+                  </div>
+                  <TokenCard
+                    title="Model provider"
+                    lines={[
+                      "receives proxied request",
+                      "uses platform-owned credential",
+                      "never exposes root key to agent",
+                    ]}
+                  />
                 </div>
               </div>
             </DiagramPanel>
@@ -364,7 +362,7 @@ const WhereShouldTheAgentLive = () => {
           <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px]">Agent Placement</h2>
           <div className="space-y-7 text-[17px] leading-[1.75] tracking-[-0.1px]">
             <p>
-              Once you have decided that isolation is necessary, the next design choice is where the agent should live relative to the environment where code actually executes. Should the agent run inside the same isolated computer where it reads files, installs dependencies, and executes commands? Or should it remain outside that environment and send tool calls across the boundary into a separate execution target?
+              Once isolation is a given, the next design choice is where the agent should live relative to the environment where code actually executes. Should the agent run inside the same isolated computer where it reads files, installs dependencies, and executes commands? Or should it remain outside that environment and send tool calls across the boundary into a separate execution target?
             </p>
             <p>
               That distinction turns out to matter a lot. It affects latency, security boundaries, state management, and how naturally the environment behaves like a real computer. In practice, the biggest performance question is whether repeated tool calls have to cross the sandbox boundary over and over again, or whether they can execute locally alongside the agent.
@@ -417,7 +415,7 @@ const WhereShouldTheAgentLive = () => {
             <p>
               There are four main sources of time in that loop:
             </p>
-            <DiagramPanel eyebrow="Latency" title="Four sources of time accumulate in every loop">
+            <DiagramPanel eyebrow="Latency + runtime" title="Four sources of time accumulate in every loop">
               <div className="grid gap-3 md:grid-cols-2">
                 <LatencyCard
                   title="Model network latency"
@@ -442,7 +440,7 @@ const WhereShouldTheAgentLive = () => {
               </div>
             </DiagramPanel>
             <p>
-              Placement mostly changes what happens around tool calls. Local tools add little overhead beyond the work itself; remote tools add another network hop each time. On real tasks, that compounds quickly across dozens of loops, which is why agent placement is a performance decision as much as a security one.
+              Agent placement mostly changes what happens around tool calls. Local tools add little overhead beyond the work itself; remote tools add another network hop each time. On real tasks, that compounds quickly across dozens of loops, which is why agent placement is a performance decision as much as a security one.
             </p>
             <p>
               In practice, the agent can live outside the sandbox, inside it, or in a hybrid setup. The security tradeoff is where trust accumulates: outside-the-sandbox designs keep more privileged state in the control plane, inside-the-sandbox designs require a stricter zero-secret posture, and hybrid designs reserve the strongest isolation for the riskiest actions.
@@ -455,12 +453,12 @@ const WhereShouldTheAgentLive = () => {
         <div className="mt-8 space-y-10">
           <section className="space-y-4">
             <div className="space-y-2">
-              <h3 className="font-heading text-[22px] tracking-[-0.4px]">Agent outside the sandbox</h3>
+              <h3 className="font-heading text-[22px] tracking-[-0.4px]">1/ Agent outside the sandbox</h3>
               <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
                 In this model, the agent lives in its own environment and reaches across the sandbox boundary whenever it needs to execute tools or touch the filesystem. This keeps orchestration separate, but every tool call pays the cost of crossing that boundary.
               </p>
               <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
-                The security upside is that your durable credentials, orchestration logic, and conversation state can stay outside the sandbox. That reduces blast radius, but it does not make the system immune to prompt injection: a manipulated agent can still abuse whatever bridges and permissions the control plane exposes.
+                The security upside is that durable credentials, orchestration logic, and conversation state can stay outside the sandbox. That reduces blast radius, but it does not make the system immune to prompt injection: a manipulated agent can still abuse whatever bridges and permissions the control plane exposes.
               </p>
             </div>
             <SceneEmbed scene={agentOutsideSandboxScene} />
@@ -468,7 +466,7 @@ const WhereShouldTheAgentLive = () => {
 
           <section className="space-y-4">
             <div className="space-y-2">
-              <h3 className="font-heading text-[22px] tracking-[-0.4px]">Agent inside the sandbox</h3>
+              <h3 className="font-heading text-[22px] tracking-[-0.4px]">2/ Agent inside the sandbox</h3>
               <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
                 Here, the agent is co-located with the tool and filesystem environment. Tool calls stay local, which removes the repeated sandbox round-trip penalty, but it also means the agent itself lives inside the stronger isolation boundary.
               </p>
@@ -481,12 +479,12 @@ const WhereShouldTheAgentLive = () => {
 
           <section className="space-y-4">
             <div className="space-y-2">
-              <h3 className="font-heading text-[22px] tracking-[-0.4px]">Hybrid placement</h3>
+              <h3 className="font-heading text-[22px] tracking-[-0.4px]">3/ Hybrid placement</h3>
               <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
                 A hybrid model keeps safe, common tool calls close to the agent while routing risky actions into a sandboxed execution target. This preserves much of the latency benefit of co-location without giving every capability the same trust boundary.
               </p>
               <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
-                Here, &quot;safe&quot; means low-blast-radius operations such as workspace file access or routine local commands. &quot;Risky&quot; means actions that cross trust boundaries, such as networked installs, privileged system access, or anything that could expose secrets or affect external systems.
+                Here, &quot;safe&quot; means low-blast-radius operations such as workspace file access or routine local commands. &quot;Risky&quot; means actions that cross trust boundaries, such as networked installs, privileged system access, or anything that could expose secrets or affect external systems. For example, reading and writing project files might execute locally alongside the agent, while a <code className="rounded bg-[hsl(0,0%,94%)] px-1.5 py-0.5 font-mono-brand text-[14px]">pip install</code> or <code className="rounded bg-[hsl(0,0%,94%)] px-1.5 py-0.5 font-mono-brand text-[14px]">npm install</code> gets routed into the sandboxed environment where network access and process execution are more tightly controlled.
               </p>
             </div>
             <SceneEmbed scene={agentHybridSandboxScene} />
@@ -504,7 +502,7 @@ const WhereShouldTheAgentLive = () => {
           <div className="space-y-7 text-[17px] leading-[1.75] tracking-[-0.1px]">
             <h3 className="font-heading text-[22px] tracking-[-0.4px]">Speed and Latency</h3>
             <p>
-              The real impact of these placement decisions becomes clearer when you hold the task constant and vary only the system design. The comparison below uses the same workload and latency assumptions across all three models so you can see how placement alone changes execution behavior and total task completion time.
+              The real impact of these placement decisions becomes clearer when the task is held constant and only the system design varies. The interactive comparison below runs the same workload across all three placement models. The latency assumptions are adjustable, so it is possible to see how placement alone changes execution behavior and total task completion time.
             </p>
           </div>
           <AgentPlacementComparison />
@@ -570,7 +568,7 @@ const WhereShouldTheAgentLive = () => {
           <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px]">Sandbox Lifecycle Patterns</h2>
           <div className="space-y-7 text-[17px] leading-[1.75] tracking-[-0.1px]">
             <p>
-              In addition to securing the isolated environment and deciding where to place the agent, you also need to decide how that environment should live over time. Anthropic&apos;s <a href="https://platform.claude.com/docs/en/agent-sdk/hosting" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">Agent SDK hosting guidance</a> and related docs on <a href="https://platform.claude.com/docs/en/agent-sdk/secure-deployment" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">secure deployment</a> lay out a useful set of patterns here: ephemeral sessions, long-running sessions, hybrid sessions, and shared containers. These patterns describe how compute is created, how long it persists, and how state carries across work.
+              Beyond securing the isolated environment and deciding where to place the agent, there is still the question of how that environment should live over time. Anthropic&apos;s <a href="https://platform.claude.com/docs/en/agent-sdk/hosting" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">Agent SDK hosting guidance</a> and related docs on <a href="https://platform.claude.com/docs/en/agent-sdk/secure-deployment" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">secure deployment</a> lay out a useful set of patterns here: ephemeral sessions, long-running sessions, hybrid sessions, and shared containers. These patterns describe how compute is created, how long it persists, and how state carries across work.
             </p>
             <p>
               The right choice depends on the shape of the workload. Some agents do one-shot work and can safely disappear when they are done. Others need to stay warm, preserve state, or serve a continuous stream of user and system events. The diagrams below make those differences concrete.
@@ -580,9 +578,9 @@ const WhereShouldTheAgentLive = () => {
           <div className="mt-8 space-y-10">
             <section className="space-y-4">
               <div className="space-y-2">
-                <h3 className="font-heading text-[22px] tracking-[-0.4px]">Ephemeral sessions</h3>
+                <h3 className="font-heading text-[22px] tracking-[-0.4px]">1/ Ephemeral sessions</h3>
                 <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
-                  A new sandbox is created for a task, the agent does its work, and the environment is destroyed when the task completes. This is operationally simple, but it starts to break down when complexity extends beyond what is possible to accomplish with a single prompt
+                  A new sandbox is created for a task, the agent does its work, and the environment is destroyed when the task completes. This is operationally simple, but it starts to break down when complexity extends beyond what is possible to accomplish with a single prompt.
                 </p>
               </div>
               <SceneEmbed scene={ephemeralSessionsScene} />
@@ -590,7 +588,7 @@ const WhereShouldTheAgentLive = () => {
 
             <section className="space-y-4">
               <div className="space-y-2">
-                <h3 className="font-heading text-[22px] tracking-[-0.4px]">Long-running sessions</h3>
+                <h3 className="font-heading text-[22px] tracking-[-0.4px]">2/ Long-running sessions</h3>
                 <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
                   The sandbox stays alive across tasks and interactions. This reduces repeated startup cost, keeps state close to the work, and is often the best fit for high-frequency or proactive agents.
                 </p>
@@ -600,7 +598,7 @@ const WhereShouldTheAgentLive = () => {
 
             <section className="space-y-4">
               <div className="space-y-2">
-                <h3 className="font-heading text-[22px] tracking-[-0.4px]">Hybrid sessions</h3>
+                <h3 className="font-heading text-[22px] tracking-[-0.4px]">3/ Hybrid sessions</h3>
                 <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
                   The sandbox can shut down between bursts of work, but state is preserved and reloaded when the user or system returns. This pattern trades some startup overhead for much better economics than keeping everything hot all the time.
                 </p>
@@ -610,12 +608,12 @@ const WhereShouldTheAgentLive = () => {
 
             <section className="space-y-4">
               <div className="space-y-2">
-                <h3 className="font-heading text-[22px] tracking-[-0.4px]">Shared container</h3>
+                <h3 className="font-heading text-[22px] tracking-[-0.4px]">4/ Shared container</h3>
                 <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
                   Multiple agents or processes share one long-lived environment. This can work when close collaboration is essential, but it increases the risk of conflicts and makes isolation between agents much weaker.
                 </p>
                 <Callout>
-                  This pattern is also somewhat orthogonal to the sandbox lifecycle decision. A shared-container approach can be combined with ephemeral, long-running, or hybrid lifecycle models depending on how long the environment needs to persist and how state should be managed over time.
+                  Unlike the patterns above, shared containers are less about lifecycle and more about tenancy. A shared environment can itself be ephemeral, long-running, or hybrid — the key difference is that multiple agents or users share the same boundary, which weakens isolation in exchange for tighter collaboration.
                 </Callout>
               </div>
               <SceneEmbed scene={singleContainerScene} />
@@ -651,10 +649,10 @@ const WhereShouldTheAgentLive = () => {
               For most user-facing agent products, this means combining OS-level sandboxing, strong environment isolation, and trust-minimized credentials. Colocating the agent with its execution environment inside that boundary keeps latency low and operational complexity to a minimum.
             </p>
             <p>
-              On the lifecycle side, the most practical production choices are usually long-lived or hybrid environments. They preserve continuity where agents need it while still allowing environments to hibernate to avoids wasted compute during periods of inactivity.
+              On the lifecycle side, the most practical production choices are usually long-lived or hybrid environments. They preserve continuity where agents need it while still allowing environments to hibernate to avoid wasted compute during periods of inactivity.
             </p>
             <p>
-              The broader takeaway is simple: agents do not just need sandboxes. They need computers with the right isolation, the right placement, and the right lifecycle model for the workload they are serving.
+              The broader takeaway is simple: agents do not just need sandboxes. They need computers with the right isolation, the right placement, and the right lifecycle model for the workload they are serving. That is what we are building with OpenComputer.
             </p>
           </div>
         </section>
