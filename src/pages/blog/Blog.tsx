@@ -4,22 +4,6 @@ import SitePageLayout from "@/components/SitePageLayout";
 
 const posts = [
   {
-    slug: "the-agentic-workload",
-    title: "The Agentic Workload",
-    description:
-      "Agent code doesn't fit neatly into existing categories. It's not a traditional app, and it's not a CI job. It's something new.",
-    author: "Igor Zalutski",
-    date: "March 15, 2026",
-  },
-  {
-    slug: "building-open-lovable-part-1",
-    title: "Building an Open Lovable - part 1",
-    description:
-      "A series to build a lovable clone to learn how lovable works under the hood using Claude Agent SDK and OpenComputer.",
-    author: "Mohamed Habib, CTO Digger",
-    date: "March 11, 2026",
-  },
-  {
     slug: "where-should-the-agent-live",
     title: "Where Should the Agent Live?",
     description:
@@ -34,6 +18,22 @@ const posts = [
       "A practical guide to ephemeral, long-running, hybrid, and shared-environment sandbox designs for production agent systems.",
     author: "TODO: placeholder",
     date: "March 15, 2026",
+  },
+  {
+    slug: "the-agentic-workload",
+    title: "The Agentic Workload",
+    description:
+      "Agent code doesn't fit neatly into existing categories. It's not a traditional app, and it's not a CI job. It's something new.",
+    author: "Igor Zalutski",
+    date: "March 15, 2026",
+  },
+  {
+    slug: "building-open-lovable-part-1",
+    title: "Building an Open Lovable - part 1",
+    description:
+      "A series to build a lovable clone to learn how lovable works under the hood using Claude Agent SDK and OpenComputer.",
+    author: "Mohamed Habib, CTO Digger",
+    date: "March 11, 2026",
   },
 ];
 
