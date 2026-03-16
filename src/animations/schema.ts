@@ -17,7 +17,7 @@ export const edgeRouteSchema = z.enum(["straight", "smooth", "elbow"]);
 export const nodeIconSchema = z.enum(["user", "webhook", "agent", "controlPlane", "database"]);
 
 export const eventStatusSchema = z.enum(["ok"]);
-export const eventStyleSchema = z.enum(["message", "stream", "warm"]);
+export const eventStyleSchema = z.enum(["message", "stream", "warm", "hybrid"]);
 export const effectKindSchema = z.enum(["nodePulse", "nodePresence", "nodeProgress", "nodeStatus", "edgeEmphasis"]);
 
 export const controlDefSchema = z.object({
@@ -36,6 +36,15 @@ export const controlDefSchema = z.object({
       }),
     )
     .optional(),
+  ranges: z
+    .array(
+      z.object({
+        label: z.string().min(1),
+        min: z.number(),
+        max: z.number(),
+      }),
+    )
+    .optional(),
 });
 
 export const zoneDefSchema = z.object({
@@ -45,7 +54,7 @@ export const zoneDefSchema = z.object({
   y: z.number(),
   width: z.number().positive(),
   height: z.number().positive(),
-  style: z.enum(["sandbox", "external", "neutral"]).default("neutral"),
+  style: z.enum(["sandbox", "external", "neutral", "hybrid"]).default("neutral"),
 });
 
 export const metricDefSchema = z.object({
@@ -74,29 +83,34 @@ const insideOutsideComparisonSimSchema = z.object({
   insideToolResultEdgeId: z.string().min(1),
 });
 
-const agentEventFlowSimSchema = z.object({
-  kind: z.literal("agentEventFlow"),
-  outsideAgentNodeId: z.string().min(1),
-  insideAgentNodeId: z.string().min(1),
-  insideSandboxNodeId: z.string().min(1),
-  outsideUserAgentEdgeId: z.string().min(1),
-  outsideAgentLlmEdgeId: z.string().min(1),
-  outsideAgentFsEdgeId: z.string().min(1),
-  outsideAgentShellEdgeId: z.string().min(1),
-  outsideShellNetEdgeId: z.string().min(1),
-  insideUserSandboxEdgeId: z.string().min(1),
-  insideSandboxAgentEdgeId: z.string().min(1),
-  insideSandboxLlmEdgeId: z.string().min(1),
-  insideAgentOfsEdgeId: z.string().min(1),
-  insideAgentShellEdgeId: z.string().min(1),
-  insideShellSandboxEdgeId: z.string().min(1),
-  insideSandboxNetEdgeId: z.string().min(1),
+const singleAgentFlowSimSchema = z.object({
+  kind: z.literal("singleAgentFlow"),
+  mode: z.enum(["outside", "inside"]),
+  agentNodeId: z.string().min(1),
+  modelNodeId: z.string().min(1),
+  toolsNodeId: z.string().min(1),
+  entryEdgeId: z.string().min(1),
+  modelCallEdgeId: z.string().min(1),
+  modelResultEdgeId: z.string().min(1),
+  toolCallEdgeId: z.string().min(1),
+  toolResultEdgeId: z.string().min(1),
 });
 
-export const simulationDefSchema = z.discriminatedUnion("kind", [
-  insideOutsideComparisonSimSchema,
-  agentEventFlowSimSchema,
-]);
+const hybridAgentFlowSimSchema = z.object({
+  kind: z.literal("hybridAgentFlow"),
+  agentNodeId: z.string().min(1),
+  modelNodeId: z.string().min(1),
+  safeToolsNodeId: z.string().min(1),
+  riskyToolsNodeId: z.string().min(1),
+  modelCallEdgeId: z.string().min(1),
+  modelResultEdgeId: z.string().min(1),
+  safeToolCallEdgeId: z.string().min(1),
+  safeToolResultEdgeId: z.string().min(1),
+  riskyToolCallEdgeId: z.string().min(1),
+  riskyToolResultEdgeId: z.string().min(1),
+});
+
+export const simulationDefSchema = z.discriminatedUnion("kind", [insideOutsideComparisonSimSchema, singleAgentFlowSimSchema, hybridAgentFlowSimSchema]);
 
 export const nodeDefSchema = z.object({
   id: z.string().min(1),

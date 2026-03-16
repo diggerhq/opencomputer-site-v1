@@ -8,6 +8,7 @@ const zoneStyles: Record<ZoneDef["style"], { fill: string; stroke: string; label
   sandbox: { fill: "rgba(237, 243, 255, 0.45)", stroke: "rgba(70, 103, 180, 0.38)", label: "#4667b4" },
   external: { fill: "rgba(238, 251, 243, 0.52)", stroke: "rgba(63, 125, 94, 0.34)", label: "#3f7d5e" },
   neutral: { fill: "rgba(247, 243, 237, 0.7)", stroke: "rgba(106, 96, 80, 0.28)", label: "#6a6050" },
+  hybrid: { fill: "rgba(245, 240, 255, 0.56)", stroke: "rgba(124, 58, 237, 0.34)", label: "#7c3aed" },
 };
 
 export default function ZoneLayer({ zones }: ZoneLayerProps) {

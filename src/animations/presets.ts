@@ -29,6 +29,7 @@ export const eventStyles: Record<
   message: { radius: 6, fill: "#2d8cff", stroke: "#dbeafe", shape: "circle" },
   stream: { radius: 6, fill: "#3bb273", stroke: "#dcfce7", shape: "circle" },
   warm: { radius: 6, fill: "#c0884a", stroke: "#f6e5cf", shape: "circle" },
+  hybrid: { radius: 6, fill: "#8b5cf6", stroke: "#ede9fe", shape: "circle" },
 };
 
 export const timingPresets = {
