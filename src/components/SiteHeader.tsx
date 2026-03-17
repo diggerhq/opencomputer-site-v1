@@ -38,6 +38,13 @@ const SiteHeader = ({ activeSection }: SiteHeaderProps) => {
       </span>
 
       <div className="flex items-center gap-5">
+        <a
+          href="https://docs.opencomputer.dev"
+          target="_blank"
+          className="font-mono-brand text-[13px] text-muted-foreground hover:text-foreground transition-colors no-underline"
+        >
+          docs
+        </a>
         <Link to="/blog" className={navLinkClass(activeSection === "blog")}>
           blog
         </Link>

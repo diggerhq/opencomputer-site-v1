@@ -44,8 +44,19 @@ const features = [
   },
 ];
 
+const pricingTiers = [
+  { mem: "256 MB", cpu: "0.25 vCPU", month: "$0.50", sec: "$0.000000190" },
+  { mem: "512 MB", cpu: "1 vCPU", month: "$1", sec: "$0.000000380" },
+  { mem: "1 GB", cpu: "2 vCPU", month: "$4", sec: "$0.000001521" },
+  { mem: "2 GB", cpu: "4 vCPU", month: "$6", sec: "$0.000002282" },
+  { mem: "4 GB", cpu: "8 vCPU", month: "$12", sec: "$0.000004563" },
+  { mem: "8 GB", cpu: "16 vCPU", month: "$24", sec: "$0.000009126" },
+  { mem: "16 GB", cpu: "32 vCPU", month: "$48", sec: "$0.000018252" },
+];
+
 const Index = () => {
   const [copied, setCopied] = useState(false);
+  const [tierIndex, setTierIndex] = useState(2);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(SDK_CODE);
@@ -73,6 +84,17 @@ const Index = () => {
             Sandboxes are for throwaway tasks. Agents need something that
             sticks around.
           </p>
+        </div>
+      </FadeIn>
+
+      <FadeIn delay={0.12}>
+        <div className="mb-10">
+          <a
+            href="https://app.opencomputer.dev"
+            className="inline-block text-[15px] font-medium px-10 py-4 rounded-md bg-primary text-primary-foreground border border-primary hover:bg-foreground/90 transition-all duration-150"
+          >
+            Try it now &rarr;
+          </a>
         </div>
       </FadeIn>
 
@@ -166,43 +188,46 @@ const Index = () => {
             Pricing
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-8">
-            Pay per VM-hour. Hibernated VMs don't count.
+            Resizable memory with proportional CPU. 20 GB disk per VM. Hibernated VMs are not billed.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)]">
-              <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-4">Free</p>
-              <p className="font-heading text-[36px] tracking-[-1px] mb-1">$0</p>
-              <p className="font-mono-brand text-[13px] text-muted-foreground mb-6">forever</p>
-              <div className="space-y-2.5 text-[14px]">
-                <p>Up to 2 vCPU (shared)</p>
-                <p>Up to 2 GB RAM (shared)</p>
-                <p>3 GB disk per VM</p>
-                <p>5 concurrent VMs</p>
+
+          <div className="p-8 rounded-xl border border-border/50 bg-[hsl(0,0%,98.5%)]">
+            {/* Slider */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-3">
+                <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Memory</p>
+                <p className="font-heading text-[28px] tracking-[-0.5px]">{pricingTiers[tierIndex].mem}</p>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={pricingTiers.length - 1}
+                value={tierIndex}
+                onChange={(e) => setTierIndex(Number(e.target.value))}
+                className="w-full h-2 rounded-full appearance-none cursor-pointer bg-border accent-foreground"
+              />
+              <div className="flex justify-between mt-2">
+                <span className="font-mono-brand text-[11px] text-muted-foreground">256 MB</span>
+                <span className="font-mono-brand text-[11px] text-muted-foreground">16 GB</span>
               </div>
             </div>
-            <div className="p-6 rounded-lg border-2 border-foreground/80 bg-[hsl(0,0%,98%)]">
-              <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-4">Pro</p>
-              <p className="font-heading text-[36px] tracking-[-1px] mb-1">$0.04<span className="text-[20px] text-muted-foreground">/hr</span></p>
-              <p className="font-mono-brand text-[13px] text-muted-foreground mb-6">per vCPU-hour</p>
-              <div className="space-y-2.5 text-[14px]">
-                <p>Up to 64 vCPU per VM</p>
-                <p>Up to 512 GB RAM</p>
-                <p>Expandable disk</p>
-                <p>Unlimited concurrent VMs</p>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-6">
+              <div className="text-center p-4 rounded-lg bg-white border border-border/50">
+                <p className="font-heading text-[28px] tracking-[-0.5px]">{pricingTiers[tierIndex].cpu}</p>
+                <p className="font-mono-brand text-[11px] text-muted-foreground mt-1">compute</p>
               </div>
-            </div>
-            <div className="p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)]">
-              <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-4">Enterprise</p>
-              <p className="font-heading text-[36px] tracking-[-1px] mb-1">Custom</p>
-              <p className="font-mono-brand text-[13px] text-muted-foreground mb-6">volume discounts</p>
-              <div className="space-y-2.5 text-[14px]">
-                <p>Dedicated infrastructure</p>
-                <p>Custom VM sizes</p>
-                <p>Priority support</p>
-                <p><a href="https://cal.com/team/digger/opencomputer-founder-chat" target="_blank" className="underline hover:text-muted-foreground transition-colors">Talk to us</a></p>
+              <div className="text-center p-4 rounded-lg bg-white border border-border/50">
+                <p className="font-heading text-[28px] tracking-[-0.5px]">{pricingTiers[tierIndex].month}<span className="text-[16px] text-muted-foreground">/mo</span></p>
+                <p className="font-mono-brand text-[11px] text-muted-foreground mt-1">{pricingTiers[tierIndex].sec} / sec</p>
               </div>
             </div>
           </div>
+
+          <p className="mt-4 text-[13px] text-muted-foreground">
+            Need more? <a href="https://cal.com/team/digger/opencomputer-founder-chat" target="_blank" className="underline hover:text-foreground transition-colors">Talk to us</a> about custom sizing and volume discounts.
+          </p>
         </div>
       </FadeIn>
 
@@ -276,23 +301,9 @@ const Index = () => {
           <div className="flex gap-3 items-center flex-wrap">
             <a
               href="https://app.opencomputer.dev"
-              className="inline-block text-sm font-medium px-7 py-3 rounded-md bg-primary text-primary-foreground border border-primary hover:bg-foreground/90 transition-all duration-150"
+              className="inline-block text-[15px] font-medium px-10 py-4 rounded-md bg-primary text-primary-foreground border border-primary hover:bg-foreground/90 transition-all duration-150"
             >
-              Get started
-            </a>
-            <a
-              href="https://docs.opencomputer.dev"
-              className="inline-block text-sm font-medium px-7 py-3 rounded-md bg-background text-foreground border border-border hover:border-foreground transition-all duration-150"
-            >
-              Read the docs
-            </a>
-            <a
-              href="https://github.com/diggerhq/opencomputer"
-              target="_blank"
-              className="inline-flex items-center gap-2 text-sm font-medium px-7 py-3 rounded-md bg-background text-foreground border border-border hover:border-foreground transition-all duration-150"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-              Star on GitHub
+              Try it now &rarr;
             </a>
             <a
               href="https://cal.com/team/digger/opencomputer-founder-chat"
