@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Blog from "./pages/guides/Guides";
 import BuildingOpenLovablePart1 from "./pages/guides/BuildingOpenLovablePart1";
 import TheAgenticWorkload from "./pages/guides/TheAgenticWorkload";
+import SandboxFingerprinting from "./pages/guides/SandboxFingerprinting";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/blog/building-open-lovable-part-1" element={<BuildingOpenLovablePart1 />} />
           <Route path="/guides/building-open-lovable-part-1" element={<BuildingOpenLovablePart1 />} />
           <Route path="/blog/the-agentic-workload" element={<TheAgenticWorkload />} />
+          <Route path="/blog/sandbox-fingerprinting" element={<SandboxFingerprinting />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
