@@ -289,7 +289,7 @@ const WhereShouldTheAgentLive = () => {
             <p>
               Even with strong isolation, agents still need a safe way to access external services.
 
-              At a minimum, the agent needs to authenticate to the model provider, so the real design problem is how to minimize blast radius if that environment is compromised. Prompt injection, policy bypass attempts, and the simple fact that the agent can execute arbitrary code all push in the same direction: assume the environment may eventually be coerced into trying to exfiltrate whatever credentials it can reach.
+              At a minimum, the agent needs to authenticate to the model provider, so it is important to design the system to minimize blast radius if that environment is compromised. Prompt injection, policy bypass attempts, and the simple fact that the agent can execute arbitrary code all push in the same direction: assume the environment may eventually be coerced into trying to exfiltrate whatever credentials it can reach.
             </p>
             <p>
               A common answer is to give the sandbox only a short-lived session token and route privileged operations through a proxy or control plane. <a href="https://browser-use.com/posts/two-ways-to-sandbox-agents" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">Browser Use</a> pushes this idea further with what they call a &quot;zero-secret sandbox&quot; approach: the agent inside the sandbox holds no credentials at all, and every privileged operation, including model inference, is routed through an external control plane that owns the secrets on the agent&apos;s behalf.
@@ -502,7 +502,7 @@ const WhereShouldTheAgentLive = () => {
           <div className="space-y-7 text-[17px] leading-[1.75] tracking-[-0.1px]">
             <h3 className="font-heading text-[22px] tracking-[-0.4px]">Speed and Latency</h3>
             <p>
-              The real impact of these placement decisions becomes clearer when the task is held constant and only the system design varies. The interactive comparison below runs the same workload across all three placement models. The latency assumptions are adjustable, so it is possible to see how placement alone changes execution behavior and total task completion time.
+              The effect of these placement decisions becomes clearer when the task is held constant and only the system design varies. The interactive comparison below runs the same workload across all three placement models. The latency assumptions are adjustable, so it is possible to see how placement alone changes execution behavior and total task completion time.
             </p>
           </div>
           <AgentPlacementComparison />
@@ -613,7 +613,7 @@ const WhereShouldTheAgentLive = () => {
                   Multiple agents or processes share one long-lived environment. This can work when close collaboration is essential, but it increases the risk of conflicts and makes isolation between agents much weaker.
                 </p>
                 <Callout>
-                  Unlike the patterns above, shared containers are less about lifecycle and more about tenancy. A shared environment can itself be ephemeral, long-running, or hybrid — the key difference is that multiple agents or users share the same boundary, which weakens isolation in exchange for tighter collaboration.
+                  Unlike the patterns above, shared containers are less about lifecycle and more about tenancy. A shared environment can itself be ephemeral, long-running, or hybrid; the key difference is that multiple agents or users share the same boundary, which weakens isolation in exchange for tighter collaboration.
                 </Callout>
               </div>
               <SceneEmbed scene={singleContainerScene} />
@@ -625,7 +625,7 @@ const WhereShouldTheAgentLive = () => {
               Long-lived and hybrid patterns tend to make the most sense from both a performance and economic perspective. Long-lived sessions minimize repeated startup and hydration costs for agents that are active continuously, while hybrid sessions preserve most of the same statefulness benefits without paying to keep every environment hot during idle periods.
             </p>
             <p>
-              Ephemeral sessions are still useful for narrow one-shot tasks, and shared containers can make sense for tightly coordinated multi-agent systems, but for most user-facing agent products the real decision is between long-lived and hybrid.
+              Ephemeral sessions are still useful for narrow one-shot tasks, and shared containers can make sense for tightly coordinated multi-agent systems, but for most user-facing agent products a long-lived or hybrid approach is best.
             </p>
             <Callout>
               OpenComputer takes a middle path between long-lived and hybrid designs. Where possible, environments are paused and resumed on the same host so they can preserve local state and avoid unnecessary cold starts. At the same time, state can also be persisted and restored externally when a workload is more intermittent or when the environment needs to move between hosts.
