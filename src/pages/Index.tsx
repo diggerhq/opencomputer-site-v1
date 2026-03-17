@@ -23,24 +23,24 @@ await sandbox.kill();`;
 
 const features = [
   {
+    title: "Agent Friendly",
+    description:
+      "Purpose built for running harnesses such as Claude Agent SDK.",
+  },
+  {
+    title: "Elastic Compute",
+    description:
+      "Resize memory and CPU while VM is running.",
+  },
+  {
     title: "Persistent VMs",
     description:
-      "Hibernate/wake instead of timeouts. Your VM sleeps when idle and wakes in seconds -right where you left off.",
+      "VMs stay on forever until you hibernate or delete them.",
   },
   {
     title: "Checkpoints",
     description:
-      "Instant snapshots. Fork or restore to any point. Break something, roll back in a second.",
-  },
-  {
-    title: "Preview URLs",
-    description:
-      "Expose ports externally with auth (Clerk) and custom domains. Give every environment a live URL.",
-  },
-  {
-    title: "Per-tenant package control",
-    description:
-      "Manage and hot-swap software versions inside running VMs. Every tenant gets exactly the stack they need.",
+      "Instant snapshots. Fork or restore to any point. Bad VM state? Roll back in a second.",
   },
 ];
 
@@ -246,14 +246,14 @@ const Index = () => {
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
             Ephemeral sandboxes are stateless - every session starts from
-            scratch. OpenComputer VMs are stateful - they hibernate instead of
-            dying, so state survives across sessions without you having to
-            snapshot/restore manually.
+            scratch. OpenComputer VMs are persistent - they stay on until you
+            explicitly stop or delete them, so state survives across sessions
+            without any extra work.
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
             No more re-installing node_modules from scratch because the
-            container died between API calls. Your VM stays alive as long as
-            you need it. When it's idle, it hibernates to disk, not nuked.
+            container timed out. Your VM stays alive as long as you need it.
+            Need more CPU mid-session? Resize on the fly without restarting.
           </p>
         </div>
       </FadeIn>
