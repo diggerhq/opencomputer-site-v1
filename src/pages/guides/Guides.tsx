@@ -4,6 +4,14 @@ import SitePageLayout from "@/components/SitePageLayout";
 
 const posts = [
   {
+    slug: "sandbox-fingerprinting",
+    title: "I Asked Opus 4.6 to Fingerprint Sandbox Vendors",
+    description:
+      "We fingerprinted 6 sandbox providers to understand their isolation models - from containers to microVMs to full hypervisors. Here's what we found.",
+    author: "Mohamed Habib",
+    date: "March 17, 2026",
+  },
+  {
     slug: "the-agentic-workload",
     title: "The Agentic Workload",
     description:
@@ -16,7 +24,7 @@ const posts = [
     title: "Building an Open Lovable - part 1",
     description:
       "A series to build a lovable clone to learn how lovable works under the hood using Claude Agent SDK and OpenComputer.",
-    author: "Mohamed Habib, CTO Digger",
+    author: "Mohamed Habib",
     date: "March 11, 2026",
   },
 ];
