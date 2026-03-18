@@ -265,6 +265,20 @@ const Index = () => {
           </p>
           <div className="space-y-4">
             <Link
+              to="/blog/agent-execution-new-http-request"
+              className="block p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
+            >
+              <h3 className="font-heading text-[22px] tracking-[-0.3px] mb-2 text-foreground">
+                Agent Execution Is the New HTTP Request
+              </h3>
+              <p className="text-[15px] leading-[1.7] text-muted-foreground mb-3">
+                From CGI scripts to serverless, web infrastructure evolved over 30 years. Now agents are taking us full circle.
+              </p>
+              <p className="font-mono-brand text-[12px] text-muted-foreground">
+                Igor Zalutski &middot; March 17, 2026
+              </p>
+            </Link>
+            <Link
               to="/blog/sandbox-fingerprinting"
               className="block p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
             >
