@@ -23,30 +23,40 @@ await sandbox.kill();`;
 
 const features = [
   {
+    title: "Agent Friendly",
+    description:
+      "Purpose built for running harnesses such as Claude Agent SDK.",
+  },
+  {
+    title: "Elastic Compute",
+    description:
+      "Resize memory and CPU while VM is running.",
+  },
+  {
     title: "Persistent VMs",
     description:
-      "Hibernate/wake instead of timeouts. Your VM sleeps when idle and wakes in seconds -right where you left off.",
+      "VMs stay on forever until you hibernate or delete them.",
   },
   {
     title: "Checkpoints",
     description:
-      "Instant snapshots. Fork or restore to any point. Break something, roll back in a second.",
+      "Instant snapshots. Fork or restore to any point. Bad VM state? Roll back in a second.",
   },
-  {
-    title: "Preview URLs",
-    description:
-      "Expose ports externally with auth (Clerk) and custom domains. Give every environment a live URL.",
-  },
-  {
-    title: "Per-tenant package control",
-    description:
-      "Manage and hot-swap software versions inside running VMs. Every tenant gets exactly the stack they need.",
-  },
+];
+
+const pricingTiers = [
+  { mem: "256 MB", cpu: "0.25 vCPU", month: "$0.50", sec: "$0.000000190" },
+  { mem: "512 MB", cpu: "1 vCPU", month: "$1", sec: "$0.000000380" },
+  { mem: "1 GB", cpu: "2 vCPU", month: "$4", sec: "$0.000001521" },
+  { mem: "2 GB", cpu: "4 vCPU", month: "$6", sec: "$0.000002282" },
+  { mem: "4 GB", cpu: "8 vCPU", month: "$12", sec: "$0.000004563" },
+  { mem: "8 GB", cpu: "16 vCPU", month: "$24", sec: "$0.000009126" },
+  { mem: "16 GB", cpu: "32 vCPU", month: "$48", sec: "$0.000018252" },
 ];
 
 const Index = () => {
   const [copied, setCopied] = useState(false);
-  // TODO: Hide this link behind a preview/local toggle before production launch.
+  const [tierIndex, setTierIndex] = useState(2);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(SDK_CODE);
@@ -74,6 +84,17 @@ const Index = () => {
             Sandboxes are for throwaway tasks. Agents need something that
             sticks around.
           </p>
+        </div>
+      </FadeIn>
+
+      <FadeIn delay={0.12}>
+        <div className="mb-10">
+          <a
+            href="https://app.opencomputer.dev"
+            className="inline-block text-[15px] font-medium px-10 py-4 rounded-md bg-primary text-primary-foreground border border-primary hover:bg-foreground/90 transition-all duration-150"
+          >
+            Try it now &rarr;
+          </a>
         </div>
       </FadeIn>
 
@@ -167,43 +188,46 @@ const Index = () => {
             Pricing
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-8">
-            Pay per VM-hour. Hibernated VMs don't count.
+            Resizable memory with proportional CPU. 20 GB disk per VM. Hibernated VMs are not billed.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)]">
-              <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-4">Free</p>
-              <p className="font-heading text-[36px] tracking-[-1px] mb-1">$0</p>
-              <p className="font-mono-brand text-[13px] text-muted-foreground mb-6">forever</p>
-              <div className="space-y-2.5 text-[14px]">
-                <p>Up to 2 vCPU (shared)</p>
-                <p>Up to 2 GB RAM (shared)</p>
-                <p>3 GB disk per VM</p>
-                <p>5 concurrent VMs</p>
+
+          <div className="p-8 rounded-xl border border-border/50 bg-[hsl(0,0%,98.5%)]">
+            {/* Slider */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-3">
+                <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Memory</p>
+                <p className="font-heading text-[28px] tracking-[-0.5px]">{pricingTiers[tierIndex].mem}</p>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={pricingTiers.length - 1}
+                value={tierIndex}
+                onChange={(e) => setTierIndex(Number(e.target.value))}
+                className="w-full h-2 rounded-full appearance-none cursor-pointer bg-border accent-foreground"
+              />
+              <div className="flex justify-between mt-2">
+                <span className="font-mono-brand text-[11px] text-muted-foreground">256 MB</span>
+                <span className="font-mono-brand text-[11px] text-muted-foreground">16 GB</span>
               </div>
             </div>
-            <div className="p-6 rounded-lg border-2 border-foreground/80 bg-[hsl(0,0%,98%)]">
-              <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-4">Pro</p>
-              <p className="font-heading text-[36px] tracking-[-1px] mb-1">$0.04<span className="text-[20px] text-muted-foreground">/hr</span></p>
-              <p className="font-mono-brand text-[13px] text-muted-foreground mb-6">per vCPU-hour</p>
-              <div className="space-y-2.5 text-[14px]">
-                <p>Up to 64 vCPU per VM</p>
-                <p>Up to 512 GB RAM</p>
-                <p>Expandable disk</p>
-                <p>Unlimited concurrent VMs</p>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-6">
+              <div className="text-center p-4 rounded-lg bg-white border border-border/50">
+                <p className="font-heading text-[28px] tracking-[-0.5px]">{pricingTiers[tierIndex].cpu}</p>
+                <p className="font-mono-brand text-[11px] text-muted-foreground mt-1">compute</p>
               </div>
-            </div>
-            <div className="p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)]">
-              <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-4">Enterprise</p>
-              <p className="font-heading text-[36px] tracking-[-1px] mb-1">Custom</p>
-              <p className="font-mono-brand text-[13px] text-muted-foreground mb-6">volume discounts</p>
-              <div className="space-y-2.5 text-[14px]">
-                <p>Dedicated infrastructure</p>
-                <p>Custom VM sizes</p>
-                <p>Priority support</p>
-                <p><a href="https://cal.com/team/digger/opencomputer-founder-chat" target="_blank" className="underline hover:text-muted-foreground transition-colors">Talk to us</a></p>
+              <div className="text-center p-4 rounded-lg bg-white border border-border/50">
+                <p className="font-heading text-[28px] tracking-[-0.5px]">{pricingTiers[tierIndex].month}<span className="text-[16px] text-muted-foreground">/mo</span></p>
+                <p className="font-mono-brand text-[11px] text-muted-foreground mt-1">{pricingTiers[tierIndex].sec} / sec</p>
               </div>
             </div>
           </div>
+
+          <p className="mt-4 text-[13px] text-muted-foreground">
+            Need more? <a href="https://cal.com/team/digger/opencomputer-founder-chat" target="_blank" className="underline hover:text-foreground transition-colors">Talk to us</a> about custom sizing and volume discounts.
+          </p>
         </div>
       </FadeIn>
 
@@ -222,14 +246,14 @@ const Index = () => {
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
             Ephemeral sandboxes are stateless - every session starts from
-            scratch. OpenComputer VMs are stateful - they hibernate instead of
-            dying, so state survives across sessions without you having to
-            snapshot/restore manually.
+            scratch. OpenComputer VMs are persistent - they stay on until you
+            explicitly stop or delete them, so state survives across sessions
+            without any extra work.
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
             No more re-installing node_modules from scratch because the
-            container died between API calls. Your VM stays alive as long as
-            you need it. When it's idle, it hibernates to disk, not nuked.
+            container timed out. Your VM stays alive as long as you need it.
+            Need more CPU mid-session? Resize on the fly without restarting.
           </p>
         </div>
       </FadeIn>
@@ -240,6 +264,48 @@ const Index = () => {
             Blog
           </p>
           <div className="space-y-4">
+            <Link
+              to="/blog/agent-execution-new-http-request"
+              className="block p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
+            >
+              <h3 className="font-heading text-[22px] tracking-[-0.3px] mb-2 text-foreground">
+                Agent Execution Is the New HTTP Request
+              </h3>
+              <p className="text-[15px] leading-[1.7] text-muted-foreground mb-3">
+                From CGI scripts to serverless, web infrastructure evolved over 30 years. Now agents are taking us full circle.
+              </p>
+              <p className="font-mono-brand text-[12px] text-muted-foreground">
+                Igor Zalutski &middot; March 17, 2026
+              </p>
+            </Link>
+            <Link
+              to="/blog/sandbox-fingerprinting"
+              className="block p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
+            >
+              <h3 className="font-heading text-[22px] tracking-[-0.3px] mb-2 text-foreground">
+                I Asked Opus 4.6 to Fingerprint Sandbox Vendors
+              </h3>
+              <p className="text-[15px] leading-[1.7] text-muted-foreground mb-3">
+                We fingerprinted 6 sandbox providers to understand their isolation models. Here's what we found.
+              </p>
+              <p className="font-mono-brand text-[12px] text-muted-foreground">
+                Mohamed Habib &middot; March 17, 2026
+              </p>
+            </Link>
+            <Link
+              to="/blog/where-should-the-agent-live"
+              className="block p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
+            >
+              <h3 className="font-heading text-[22px] tracking-[-0.3px] mb-2 text-foreground">
+                Where Should the Agent(s) Live?
+              </h3>
+              <p className="text-[15px] leading-[1.7] text-muted-foreground mb-3">
+                Isolation models, agent placement tradeoffs, credential design, and sandbox lifecycle patterns for agentic systems.
+              </p>
+              <p className="font-mono-brand text-[12px] text-muted-foreground">
+                TODO: placeholder &middot; March 15, 2026
+              </p>
+            </Link>
             <Link
               to="/blog/the-agentic-workload"
               className="block p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
@@ -277,9 +343,9 @@ const Index = () => {
           <div className="flex gap-3 items-center flex-wrap">
             <a
               href="https://app.opencomputer.dev"
-              className="inline-block text-sm font-medium px-7 py-3 rounded-md bg-primary text-primary-foreground border border-primary hover:bg-foreground/90 transition-all duration-150"
+              className="inline-block text-[15px] font-medium px-10 py-4 rounded-md bg-primary text-primary-foreground border border-primary hover:bg-foreground/90 transition-all duration-150"
             >
-              Get started
+              Try it now &rarr;
             </a>
             <a
               href="https://docs.opencomputer.dev"
