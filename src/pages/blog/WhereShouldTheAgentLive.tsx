@@ -199,7 +199,7 @@ const WhereShouldTheAgentLive = () => {
 
       <FadeIn delay={0.08}>
         <p className="mb-10 font-mono-brand text-[13px] text-muted-foreground">
-          Written by TODO: placeholder &middot; March 15, 2026
+          Written by TODO: placeholder &middot; March 20, 2026
         </p>
       </FadeIn>
 
@@ -276,7 +276,7 @@ const WhereShouldTheAgentLive = () => {
               </div>
             </DiagramPanel>
             <Callout>
-              OpenComputer uses Firecracker microVMs because containers sit in an uncomfortable middle ground for agent execution: they are often not the strongest security boundary, and they are also awkward when the workload itself needs to run containers or other system-level tooling. Given the long history of <a href="https://www.sysdig.com/blog/runc-container-escape-vulnerabilities" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-foreground">container escape vulnerabilities in runtimes like runc</a>, we chose a stronger isolation model that still behaves like a real machine, without relying on Docker-in-Docker-style workarounds.
+              OpenComputer uses Firecracker microVMs because they offer a strong isolation boundary while preserving the ergonomics of a real machine. For agent workloads that need broad system access, full filesystems, and developer tooling, that is often a better fit than container-based setups. It lets us support more capable environments without relying on Docker-in-Docker-style workarounds.
             </Callout>
           </div>
         </section>

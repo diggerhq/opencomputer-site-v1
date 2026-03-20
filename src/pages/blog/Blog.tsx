@@ -4,6 +4,14 @@ import SitePageLayout from "@/components/SitePageLayout";
 
 const posts = [
   {
+    slug: "where-should-the-agent-live",
+    title: "Where Should the Agent(s) Live?",
+    description:
+      "Isolation models, agent placement tradeoffs, credential design, and sandbox lifecycle patterns for agentic systems.",
+    author: "TODO: placeholder",
+    date: "March 20, 2026",
+  },
+  {
     slug: "agent-execution-new-http-request",
     title: "Agent Execution Is the New HTTP Request",
     description:
@@ -18,14 +26,6 @@ const posts = [
       "We fingerprinted 6 sandbox providers to understand their isolation models - from containers to microVMs to full hypervisors. Here's what we found.",
     author: "Mohamed Habib",
     date: "March 17, 2026",
-  },
-  {
-    slug: "where-should-the-agent-live",
-    title: "Where Should the Agent(s) Live?",
-    description:
-      "Isolation models, agent placement tradeoffs, credential design, and sandbox lifecycle patterns for agentic systems.",
-    author: "TODO: placeholder",
-    date: "March 15, 2026",
   },
   {
     slug: "the-agentic-workload",

@@ -51,7 +51,7 @@ const SiteHeader = ({ activeSection }: SiteHeaderProps) => {
         <a
           href="https://cal.com/team/digger/opencomputer-founder-chat"
           target="_blank"
-          className="hidden sm:inline font-mono-brand text-[13px] text-muted-foreground hover:text-foreground transition-colors no-underline"
+          className="font-mono-brand text-[13px] text-muted-foreground hover:text-foreground transition-colors no-underline"
         >
           talk to founders
         </a>
