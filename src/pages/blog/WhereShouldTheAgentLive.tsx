@@ -507,6 +507,13 @@ const WhereShouldTheAgentLive = () => {
           </div>
           <AgentPlacementComparison />
           <div className="space-y-7 text-[17px] leading-[1.75] tracking-[-0.1px]">
+            <h3 className="font-heading text-[22px] tracking-[-0.4px]">Security Boundaries</h3>
+            <p>
+              The broader security model does not change, but the risk concentrates in different places depending on where the agent runs. On the surface, placing the agent outside the sandbox is the safest default, hybrid sits in the middle, and placing the agent inside is the riskiest if the question is simply what a compromised agent can touch directly. This is because an agent that can execute arbitrary code from within the environment is also closer to the files, tools, networked systems, and credentials that exist there.
+            </p>
+            <p>
+              In practice, though, that ordering does not materially change the security posture you need to design for. The attack surfaces differ across the three patterns, but all of them still need strong environment isolation and strong secret isolation, especially because prompt injection has the potential to be routed through whatever tools and permissions the system exposes.
+            </p>
             <h3 className="font-heading text-[22px] tracking-[-0.4px]">System Complexity</h3>
             <p>
               Latency is only part of the tradeoff. Every additional execution boundary also increases operational complexity.
@@ -550,10 +557,10 @@ const WhereShouldTheAgentLive = () => {
           </div>
           <div className="mt-4 border-t border-border/70 pt-4">
             <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
-              Across both comparisons
+              Across all three comparisons
             </p>
             <Callout>
-              Taking both speed and system complexity together, placing the agent inside the isolated compute environment where it will actually execute code is usually the best default. It improves performance, keeps the security posture broadly similar as long as credentials are handled correctly, and minimizes unnecessary boundaries between the agent and its tools.
+              Taking speed, security boundaries, and system complexity together, we favor placing the agent inside the isolated compute environment where it will actually execute code. It is usually the fastest and simplest approach, and it does not materially change the security posture as long as the sandbox is strongly isolated, treated as untrusted, and durable credentials stay outside it.
             </Callout>
           </div>
         </section>
