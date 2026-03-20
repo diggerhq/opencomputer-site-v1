@@ -265,6 +265,20 @@ const Index = () => {
           </p>
           <div className="space-y-4">
             <Link
+              to="/blog/where-should-the-agent-live"
+              className="block p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
+            >
+              <h3 className="font-heading text-[22px] tracking-[-0.3px] mb-2 text-foreground">
+                Where Should the Agent(s) Live?
+              </h3>
+              <p className="text-[15px] leading-[1.7] text-muted-foreground mb-3">
+                Isolation models, agent placement tradeoffs, credential design, and sandbox lifecycle patterns for agentic systems.
+              </p>
+              <p className="font-mono-brand text-[12px] text-muted-foreground">
+                TODO: placeholder &middot; March 20, 2026
+              </p>
+            </Link>
+            <Link
               to="/blog/agent-execution-new-http-request"
               className="block p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
             >
@@ -290,20 +304,6 @@ const Index = () => {
               </p>
               <p className="font-mono-brand text-[12px] text-muted-foreground">
                 Mohamed Habib &middot; March 17, 2026
-              </p>
-            </Link>
-            <Link
-              to="/blog/where-should-the-agent-live"
-              className="block p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
-            >
-              <h3 className="font-heading text-[22px] tracking-[-0.3px] mb-2 text-foreground">
-                Where Should the Agent(s) Live?
-              </h3>
-              <p className="text-[15px] leading-[1.7] text-muted-foreground mb-3">
-                Isolation models, agent placement tradeoffs, credential design, and sandbox lifecycle patterns for agentic systems.
-              </p>
-              <p className="font-mono-brand text-[12px] text-muted-foreground">
-                TODO: placeholder &middot; March 15, 2026
               </p>
             </Link>
             <Link
