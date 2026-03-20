@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
 // https://vitejs.dev/config/
-// TODO: Switch animation lab exposure back behind a preview-only toggle before production launch.
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
@@ -15,7 +14,11 @@ export default defineConfig(({ mode }) => ({
   plugins: [react()],
   resolve: {
     alias: {
-      "@/dev-routes": path.resolve(__dirname, "./src/dev/DevRoutes.tsx"),
+      // Local-only routes power internal animation tooling and should not ship in non-local builds.
+      "@/dev-routes": path.resolve(
+        __dirname,
+        mode === "development" ? "./src/dev/DevRoutes.tsx" : "./src/dev/NoopRoutes.tsx",
+      ),
       "@": path.resolve(__dirname, "./src"),
     },
   },
