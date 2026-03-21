@@ -14,7 +14,7 @@ const navLinkClass = (isActive: boolean) =>
 
 const SiteHeader = ({ activeSection }: SiteHeaderProps) => {
   return (
-    <nav className="max-w-[994px] mx-auto px-4 sm:px-10 py-6 flex items-center justify-between overflow-x-hidden">
+    <nav className="mx-auto flex max-w-[994px] flex-col gap-4 px-6 py-6 sm:px-10 md:flex-row md:items-center md:justify-between md:gap-6">
       <span
         className="glitch-logo font-mono text-[15px] font-medium tracking-tight text-foreground"
         data-text="digger"
@@ -37,7 +37,7 @@ const SiteHeader = ({ activeSection }: SiteHeaderProps) => {
         </a>
       </span>
 
-      <div className="flex items-center gap-3 sm:gap-5 flex-shrink-0">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 md:justify-end">
         <a
           href="https://docs.opencomputer.dev"
           target="_blank"
@@ -51,7 +51,7 @@ const SiteHeader = ({ activeSection }: SiteHeaderProps) => {
         <a
           href="https://cal.com/team/digger/opencomputer-founder-chat"
           target="_blank"
-          className="hidden sm:inline font-mono-brand text-[13px] text-muted-foreground hover:text-foreground transition-colors no-underline"
+          className="font-mono-brand text-[13px] text-muted-foreground hover:text-foreground transition-colors no-underline"
         >
           talk to founders
         </a>

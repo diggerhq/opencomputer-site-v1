@@ -1,14 +1,16 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { devRoutes } from "@/dev-routes";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import Blog from "./pages/guides/Guides";
-import BuildingOpenLovablePart1 from "./pages/guides/BuildingOpenLovablePart1";
-import TheAgenticWorkload from "./pages/guides/TheAgenticWorkload";
-import SandboxFingerprinting from "./pages/guides/SandboxFingerprinting";
-import AgentExecutionNewHttpRequest from "./pages/guides/AgentExecutionNewHttpRequest";
+import Blog from "./pages/blog/Blog";
+import BuildingOpenLovablePart1 from "./pages/blog/BuildingOpenLovablePart1";
+import TheAgenticWorkload from "./pages/blog/TheAgenticWorkload";
+import WhereShouldTheAgentLive from "./pages/blog/WhereShouldTheAgentLive";
+import SandboxFingerprinting from "./pages/blog/SandboxFingerprinting";
+import AgentExecutionNewHttpRequest from "./pages/blog/AgentExecutionNewHttpRequest";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,8 +28,14 @@ const App = () => (
           <Route path="/blog/building-open-lovable-part-1" element={<BuildingOpenLovablePart1 />} />
           <Route path="/guides/building-open-lovable-part-1" element={<BuildingOpenLovablePart1 />} />
           <Route path="/blog/the-agentic-workload" element={<TheAgenticWorkload />} />
+          <Route path="/guides/the-agentic-workload" element={<TheAgenticWorkload />} />
+          <Route path="/blog/where-should-the-agent-live" element={<WhereShouldTheAgentLive />} />
+          <Route path="/guides/where-should-the-agent-live" element={<WhereShouldTheAgentLive />} />
           <Route path="/blog/sandbox-fingerprinting" element={<SandboxFingerprinting />} />
+          <Route path="/guides/sandbox-fingerprinting" element={<SandboxFingerprinting />} />
           <Route path="/blog/agent-execution-new-http-request" element={<AgentExecutionNewHttpRequest />} />
+          <Route path="/guides/agent-execution-new-http-request" element={<AgentExecutionNewHttpRequest />} />
+          {devRoutes}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
