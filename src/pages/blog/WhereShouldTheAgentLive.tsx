@@ -79,20 +79,39 @@ const ExecutionComparison = ({
 }: {
   rows: Array<{ label: string; container: string; vm: string }>;
 }) => (
-  <div className="overflow-hidden rounded-lg border border-border/70 bg-white">
-    <div className="grid grid-cols-[110px_1fr_1fr] border-b border-border/70 bg-[hsl(0,0%,97.5%)]">
-      <div className="px-3 py-2" />
-      <p className="border-l border-border/70 px-3 py-2 font-mono-brand text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Container profile</p>
-      <p className="border-l border-border/70 px-3 py-2 font-mono-brand text-[10px] uppercase tracking-[0.14em] text-muted-foreground">VM profile</p>
+  <>
+    <div className="overflow-hidden rounded-lg border border-border/70 bg-white md:hidden">
+      {rows.map((row) => (
+        <div key={row.label} className="border-b border-border/50 p-3 last:border-b-0">
+          <p className="font-mono-brand text-[10px] uppercase tracking-[0.08em] text-muted-foreground">{row.label}</p>
+          <div className="mt-2 space-y-2">
+            <div className="rounded-md border border-border/60 bg-[hsl(0,0%,98.5%)] px-3 py-2">
+              <p className="font-mono-brand text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Container profile</p>
+              <p className="mt-1 text-[13px] leading-[1.55] text-foreground/80">{row.container}</p>
+            </div>
+            <div className="rounded-md border border-border/60 bg-[hsl(0,0%,98.5%)] px-3 py-2">
+              <p className="font-mono-brand text-[10px] uppercase tracking-[0.14em] text-muted-foreground">VM profile</p>
+              <p className="mt-1 text-[13px] leading-[1.55] text-foreground/80">{row.vm}</p>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
-    {rows.map((row) => (
-      <div key={row.label} className="grid grid-cols-[110px_1fr_1fr] border-b border-border/50 last:border-b-0">
-        <p className="px-3 py-3 font-mono-brand text-[10px] uppercase tracking-[0.08em] text-muted-foreground">{row.label}</p>
-        <p className="border-l border-border/50 px-3 py-3 text-[13px] leading-[1.55] text-foreground/80">{row.container}</p>
-        <p className="border-l border-border/50 px-3 py-3 text-[13px] leading-[1.55] text-foreground/80">{row.vm}</p>
+    <div className="hidden overflow-hidden rounded-lg border border-border/70 bg-white md:block">
+      <div className="grid grid-cols-[110px_1fr_1fr] border-b border-border/70 bg-[hsl(0,0%,97.5%)]">
+        <div className="px-3 py-2" />
+        <p className="border-l border-border/70 px-3 py-2 font-mono-brand text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Container profile</p>
+        <p className="border-l border-border/70 px-3 py-2 font-mono-brand text-[10px] uppercase tracking-[0.14em] text-muted-foreground">VM profile</p>
       </div>
-    ))}
-  </div>
+      {rows.map((row) => (
+        <div key={row.label} className="grid grid-cols-[110px_1fr_1fr] border-b border-border/50 last:border-b-0">
+          <p className="px-3 py-3 font-mono-brand text-[10px] uppercase tracking-[0.08em] text-muted-foreground">{row.label}</p>
+          <p className="border-l border-border/50 px-3 py-3 text-[13px] leading-[1.55] text-foreground/80">{row.container}</p>
+          <p className="border-l border-border/50 px-3 py-3 text-[13px] leading-[1.55] text-foreground/80">{row.vm}</p>
+        </div>
+      ))}
+    </div>
+  </>
 );
 
 const TokenCard = ({
