@@ -315,7 +315,7 @@ const SandboxFingerprinting = () => {
 
       {/* ====== Isolation categories ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
+        <h2 id="isolation-categories" className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6 scroll-mt-24">
           Isolation categories
         </h2>
       </FadeIn>

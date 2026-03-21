@@ -9,6 +9,7 @@ import { singleContainerScene } from "@/animations/scenes/single-container";
 import AgentPlacementComparison from "@/components/architecture/AgentPlacementComparison";
 import SceneEmbed from "@/components/architecture/SceneEmbed";
 import FadeIn from "@/components/FadeIn";
+import ShikiCodeBlock from "@/components/ShikiCodeBlock";
 import SitePageLayout from "@/components/SitePageLayout";
 
 const Callout = ({ children }: { children: React.ReactNode }) => (
@@ -57,6 +58,40 @@ const IsolationLayer = ({
     </p>
     <p className="mt-1 font-heading text-[22px] tracking-[-0.4px]">{name}</p>
     <p className={`mt-2 text-[14px] leading-[1.6] ${accent ? "text-background/78" : "text-muted-foreground"}`}>{detail}</p>
+  </div>
+);
+
+const CLAUDE_SANDBOX_POLICY = `{
+  "sandbox": {
+    "enabled": true,
+    "filesystem": {
+      "allowWrite": ["/tmp/build"],
+      "denyRead": ["~/.aws/credentials"]
+    },
+    "network": {
+      "allowedDomains": ["github.com", "*.npmjs.org"]
+    }
+  }
+}`;
+
+const ExecutionComparison = ({
+  rows,
+}: {
+  rows: Array<{ label: string; container: string; vm: string }>;
+}) => (
+  <div className="overflow-hidden rounded-lg border border-border/70 bg-white">
+    <div className="grid grid-cols-[110px_1fr_1fr] border-b border-border/70 bg-[hsl(0,0%,97.5%)]">
+      <div className="px-3 py-2" />
+      <p className="border-l border-border/70 px-3 py-2 font-mono-brand text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Container profile</p>
+      <p className="border-l border-border/70 px-3 py-2 font-mono-brand text-[10px] uppercase tracking-[0.14em] text-muted-foreground">VM profile</p>
+    </div>
+    {rows.map((row) => (
+      <div key={row.label} className="grid grid-cols-[110px_1fr_1fr] border-b border-border/50 last:border-b-0">
+        <p className="px-3 py-3 font-mono-brand text-[10px] uppercase tracking-[0.08em] text-muted-foreground">{row.label}</p>
+        <p className="border-l border-border/50 px-3 py-3 text-[13px] leading-[1.55] text-foreground/80">{row.container}</p>
+        <p className="border-l border-border/50 px-3 py-3 text-[13px] leading-[1.55] text-foreground/80">{row.vm}</p>
+      </div>
+    ))}
   </div>
 );
 
@@ -237,46 +272,70 @@ const WhereShouldTheAgentLive = () => {
               The broad access that makes agents so powerful also makes them dangerous. For many applications, agents need filesystem access, process control, network access, and the ability to generate and execute arbitrary code.
             </p>
             <p>
-              Isolation usually happens in two layers: an OS sandbox around the agent process itself, and a stronger execution boundary around the whole environment it operates in. Anthropic&apos;s <a href="https://code.claude.com/docs/en/sandboxing#how-it-works" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">sandboxing guidance</a> and <a href="https://developers.openai.com/codex/agent-approvals-security/#os-level-sandbox" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">OpenAI&apos;s Codex docs</a> are useful references for the first layer; <a href="https://www.luiscardoso.dev/blog/sandboxes-for-ai" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">Luis Cardoso</a> and <a href="https://pierce.dev/notes/a-deep-dive-on-agent-sandboxes" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">Pierce Freeman</a> are good references for the second.
+              Isolation usually happens in two layers: an OS sandbox around the agent process itself, and a stronger execution boundary around the whole environment it operates in. Anthropic&apos;s <a href="https://code.claude.com/docs/en/sandboxing#how-it-works" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">sandboxing guidance</a> and <a href="https://developers.openai.com/codex/agent-approvals-security/#os-level-sandbox" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">OpenAI&apos;s Codex docs</a> are useful references for the first layer; <a href="https://www.luiscardoso.dev/blog/sandboxes-for-ai" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">Luis Cardoso</a>, <a href="https://pierce.dev/notes/a-deep-dive-on-agent-sandboxes" target="_blank" rel="noreferrer" className="underline transition-colors hover:text-muted-foreground">Pierce Freeman</a>, and our <a href="http://localhost:8080/blog/sandbox-fingerprinting#isolation-categories" className="underline transition-colors hover:text-muted-foreground">Sandbox Fingerprinting</a> writeup are good references for the second.
             </p>
             <DiagramPanel eyebrow="Security model" title="Isolation works in layers">
               <div className="space-y-3">
-                <IsolationLayer
-                  name="OS sandbox"
-                  detail="Constrains the agent process itself with filesystem, process, and network boundaries."
-                />
-                <IsolationLayer
-                  name="Execution environment"
-                  detail="Container sandbox or microVM isolates the whole computer the agent operates in."
-                />
-                <div className="grid gap-3 pt-1 md:grid-cols-[1.2fr_0.8fr]">
-                  <div className="rounded-xl border border-border/80 bg-[hsl(0,0%,98.5%)] px-4 py-4">
-                    <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Protected surfaces</p>
-                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                      {[
-                        "filesystem + code",
-                        "running processes",
-                        "network egress",
-                        "host machine",
-                      ].map((item) => (
-                        <div key={item} className="rounded-lg border border-border/70 bg-white px-3 py-2 font-mono-brand text-[11px] text-[hsl(0,0%,42%)]">
-                          {item}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="rounded-xl border border-dashed border-border/80 bg-white px-4 py-4">
-                    <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Default takeaway</p>
-                    <p className="mt-2 text-[15px] leading-[1.65] text-muted-foreground">
-                      Use both layers together: OS sandboxing limits what the agent process can do,
-                      while the execution boundary provides another layer of defense and contains the full machine-level blast radius.
+                <div className="rounded-xl border border-border/80 bg-[hsl(0,0%,98.5%)] px-5 py-4 text-foreground">
+                  <p className="font-mono-brand text-[13px] uppercase tracking-[0.12em] text-muted-foreground">
+                    Layer
+                  </p>
+                  <p className="mt-1 font-heading text-[22px] tracking-[-0.4px]">OS sandbox</p>
+                  <p className="mt-2 text-[14px] leading-[1.6] text-muted-foreground">
+                    Constrains the agent process itself with filesystem, process, and network boundaries.
+                  </p>
+                  <div className="mt-4 rounded-lg border border-border/70 bg-white p-3">
+                    <p className="font-mono-brand text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Example: Claude Code policy</p>
+                    <ShikiCodeBlock code={CLAUDE_SANDBOX_POLICY} language="json" className="mt-2" />
+                    <p className="mt-2 text-[13px] leading-[1.6] text-muted-foreground">
+                      This example uses Claude Code&apos;s sandbox settings, but other agent tools expose similar OS-level controls. Here, the policy allows writes to `/tmp/build`, blocks reads from local AWS credentials, and limits outbound access to a small domain allowlist.
                     </p>
+                  </div>
+                </div>
+                <div className="rounded-xl border border-border/80 bg-[hsl(0,0%,98.5%)] px-5 py-4 text-foreground">
+                  <p className="font-mono-brand text-[13px] uppercase tracking-[0.12em] text-muted-foreground">
+                    Layer
+                  </p>
+                  <p className="mt-1 font-heading text-[22px] tracking-[-0.4px]">Execution environment</p>
+                  <p className="mt-2 text-[14px] leading-[1.6] text-muted-foreground">
+                    Container or VM isolation defines the boundary around the whole computer the agent operates in.
+                  </p>
+                  <div className="mt-4">
+                    <ExecutionComparison
+                      rows={[
+                        {
+                          label: "Kernel",
+                          container: "Shared with the host.",
+                          vm: "Separate guest kernel and a stronger isolation boundary.",
+                        },
+                        {
+                          label: "Filesystem",
+                          container: "Mounted workspace plus a small writable scratch area.",
+                          vm: "Full guest filesystem that behaves more like a real machine.",
+                        },
+                        {
+                          label: "Network",
+                          container: "Optional and policy-controlled, often narrowed or disabled entirely.",
+                          vm: "Optional and policy-controlled at the machine boundary.",
+                        },
+                        {
+                          label: "Tooling",
+                          container: "Good for packaged environments, but some developer setups need extra work.",
+                          vm: "Usually closer to \"just works\" for broad developer tooling.",
+                        },
+                        {
+                          label: "Nested containers",
+                          container: "Possible, but often awkward without extra privileges or indirection.",
+                          vm: "Typically more natural for Docker-style inner workflows.",
+                        },
+                      ]}
+                    />
                   </div>
                 </div>
               </div>
             </DiagramPanel>
             <Callout>
-              OpenComputer uses Firecracker microVMs because they offer a strong isolation boundary while preserving the ergonomics of a real machine. For agent workloads that need broad system access, full filesystems, and developer tooling, that is often a better fit than container-based setups. It lets us support more capable environments without relying on Docker-in-Docker-style workarounds.
+              Use both layers together: OS sandboxing limits what the agent process can do, while the execution boundary provides another layer of defense and contains the full machine-level blast radius.
             </Callout>
           </div>
         </section>
