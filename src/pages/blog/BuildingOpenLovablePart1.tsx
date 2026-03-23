@@ -1,53 +1,7 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Copy, Check } from "lucide-react";
 import FadeIn from "@/components/FadeIn";
+import ShikiCodeBlock from "@/components/ShikiCodeBlock";
 import SitePageLayout from "@/components/SitePageLayout";
-
-interface InlineCodeBlockProps {
-  filename: string;
-  code: string;
-  children: React.ReactNode;
-}
-
-const InlineCodeBlock = ({ filename, code, children }: InlineCodeBlockProps) => {
-  const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  return (
-    <div className="my-8 rounded-lg overflow-hidden border border-border/50 shadow-lg">
-      <div className="bg-[hsl(0,0%,95%)] border-b border-[hsl(0,0%,88%)] px-4 py-2.5 flex justify-between items-center">
-        <div className="flex gap-2">
-          <span className="w-3 h-3 rounded-full bg-[hsl(0,0%,75%)]" />
-          <span className="w-3 h-3 rounded-full bg-[hsl(0,0%,75%)]" />
-          <span className="w-3 h-3 rounded-full bg-[hsl(0,0%,75%)]" />
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="font-mono-brand text-xs text-[hsl(0,0%,55%)]">
-            {filename}
-          </span>
-          <button
-            onClick={handleCopy}
-            className="text-[hsl(0,0%,55%)] hover:text-[hsl(0,0%,30%)] transition-colors"
-            aria-label="Copy to clipboard"
-          >
-            {copied ? (
-              <Check className="w-4 h-4" />
-            ) : (
-              <Copy className="w-4 h-4" />
-            )}
-          </button>
-        </div>
-      </div>
-      <pre className="px-6 py-5 bg-[hsl(0,0%,8%)] font-mono-brand text-[13.5px] leading-[1.9] overflow-x-auto text-[hsl(0,0%,85%)]">
-        <code>{children}</code>
-      </pre>
-    </div>
-  );
-};
 
 /* ---------- Callout ---------- */
 const Callout = ({ children }: { children: React.ReactNode }) => (
@@ -487,29 +441,15 @@ const BuildingOpenLovablePart1 = () => {
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-4">
             Of course, since without the sandbox we have no place to run our agent!
           </p>
-          <InlineCodeBlock filename="sandbox.ts" code={CODE_SANDBOX}>
-            <span className="text-[hsl(0,0%,40%)]">{"// Create the sandbox via OpenComputer SDK"}</span>{"\n"}
-            <span className="text-[hsl(300,30%,68%)]">const</span> <span className="text-[hsl(210,60%,70%)]">sandbox</span> = <span className="text-[hsl(300,30%,68%)]">await</span> Sandbox.<span className="text-[hsl(50,60%,70%)]">create</span>({"{"}{"\n"}
-            {"  "}<span className="text-[hsl(210,60%,70%)]">template</span>: <span className="text-[hsl(130,40%,60%)]">"default"</span>,{"\n"}
-            {"  "}<span className="text-[hsl(210,60%,70%)]">timeout</span>: <span className="text-[hsl(35,70%,65%)]">600</span>,{"\n"}
-            {"  "}<span className="text-[hsl(210,60%,70%)]">apiKey</span>: settings.apiKey,{"\n"}
-            {"  "}<span className="text-[hsl(210,60%,70%)]">apiUrl</span>: settings.apiUrl,{"\n"}
-            {"  "}<span className="text-[hsl(210,60%,70%)]">envs</span>: {"{"} <span className="text-[hsl(210,60%,70%)]">ANTHROPIC_API_KEY</span>: settings.anthropicApiKey {"}"},  {"\n"}
-            {"  "}<span className="text-[hsl(210,60%,70%)]">memoryMB</span>: <span className="text-[hsl(35,70%,65%)]">1024</span>,{"\n"}
-            {"  "}<span className="text-[hsl(210,60%,70%)]">cpuCount</span>: <span className="text-[hsl(35,70%,65%)]">2</span>,{"\n"}
-            {"}"});{"\n"}
-            {"\n"}
-            <span className="text-[hsl(0,0%,40%)]">{"// Create a preview URL for the sandbox's port 80"}</span>{"\n"}
-            <span className="text-[hsl(300,30%,68%)]">const</span> <span className="text-[hsl(210,60%,70%)]">preview</span> = <span className="text-[hsl(300,30%,68%)]">await</span> sandbox.<span className="text-[hsl(50,60%,70%)]">createPreviewURL</span>({"{"} <span className="text-[hsl(210,60%,70%)]">port</span>: <span className="text-[hsl(35,70%,65%)]">80</span> {"}"});{"\n"}
-            <span className="text-[hsl(300,30%,68%)]">const</span> <span className="text-[hsl(210,60%,70%)]">previewUrl</span> = hostname.<span className="text-[hsl(50,60%,70%)]">includes</span>(<span className="text-[hsl(130,40%,60%)]">"nip.io"</span>){"\n"}
-            {"  "}? <span className="text-[hsl(130,40%,60%)]">{"`http://${hostname}:8081`"}</span>{"\n"}
-            {"  "}: <span className="text-[hsl(130,40%,60%)]">{"`https://${hostname}`"}</span>;{"\n"}
-            {"\n"}
-            {"\n"}
-            <span className="text-[hsl(0,0%,40%)]">{"// Scaffold the Vite project and start the dev server"}</span>{"\n"}
-            <span className="text-[hsl(0,0%,40%)]">{"// (we do this so we have a placeholder app to display while our agent is cooking)"}</span>{"\n"}
-            <span className="text-[hsl(300,30%,68%)]">await</span> <span className="text-[hsl(50,60%,70%)]">scaffoldProject</span>(sandbox);
-          </InlineCodeBlock>
+          <ShikiCodeBlock
+            filename="sandbox.ts"
+            code={CODE_SANDBOX}
+            language="typescript"
+            theme="dark-plus"
+            copyable
+            className="my-8 border border-border/50 shadow-lg"
+            bodyClassName="[&_pre]:px-6 [&_pre]:py-5 [&_pre]:text-[13.5px] [&_pre]:leading-[1.9]"
+          />
         </FadeIn>
 
         {/* ── Visual: What the sandbox gives us ── */}
@@ -539,15 +479,15 @@ const BuildingOpenLovablePart1 = () => {
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-4">
             Conveniently, OpenComputer gives us a nice abstraction around that too:
           </p>
-          <InlineCodeBlock filename="agent.ts" code={CODE_AGENT}>
-            <span className="text-[hsl(300,30%,68%)]">const</span> <span className="text-[hsl(210,60%,70%)]">session</span> = <span className="text-[hsl(300,30%,68%)]">await</span> sandbox.agent.<span className="text-[hsl(50,60%,70%)]">start</span>({"{"}{"\n"}
-            {"  "}<span className="text-[hsl(210,60%,70%)]">prompt</span>,{"\n"}
-            {"  "}<span className="text-[hsl(210,60%,70%)]">systemPrompt</span>: SYSTEM_PROMPT,{"\n"}
-            {"  "}<span className="text-[hsl(210,60%,70%)]">maxTurns</span>: <span className="text-[hsl(35,70%,65%)]">30</span>,{"\n"}
-            {"  "}<span className="text-[hsl(210,60%,70%)]">cwd</span>: <span className="text-[hsl(130,40%,60%)]">"/workspace"</span>,{"\n"}
-            {"  "}<span className="text-[hsl(210,60%,70%)]">onEvent</span>: handleEvent,{"\n"}
-            {"}"});
-          </InlineCodeBlock>
+          <ShikiCodeBlock
+            filename="agent.ts"
+            code={CODE_AGENT}
+            language="typescript"
+            theme="dark-plus"
+            copyable
+            className="my-8 border border-border/50 shadow-lg"
+            bodyClassName="[&_pre]:px-6 [&_pre]:py-5 [&_pre]:text-[13.5px] [&_pre]:leading-[1.9]"
+          />
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
             Oh, by the way, this is our{" "}
             <a
@@ -614,37 +554,15 @@ const BuildingOpenLovablePart1 = () => {
             user. This is what our <InlineCode>handleEvent</InlineCode>{" "}
             callback looks like:
           </p>
-          <InlineCodeBlock filename="events.ts" code={CODE_EVENTS}>
-            <span className="text-[hsl(300,30%,68%)]">const</span> <span className="text-[hsl(210,60%,70%)]">handleEvent</span> = <span className="text-[hsl(50,60%,70%)]">useCallback</span>((event: AgentEvent) =&gt; {"{"}{"\n"}
-            {"  "}<span className="text-[hsl(300,30%,68%)]">switch</span> (event.type) {"{"}{"\n"}
-            {"    "}<span className="text-[hsl(300,30%,68%)]">case</span> <span className="text-[hsl(130,40%,60%)]">"assistant"</span>: {"{"}{"\n"}
-            {"      "}<span className="text-[hsl(0,0%,40%)]">{"// Extract text blocks and tool_use blocks from the assistant message"}</span>{"\n"}
-            {"      "}<span className="text-[hsl(300,30%,68%)]">const</span> <span className="text-[hsl(210,60%,70%)]">content</span> = event.message?.content;{"\n"}
-            {"      "}<span className="text-[hsl(300,30%,68%)]">if</span> (Array.<span className="text-[hsl(50,60%,70%)]">isArray</span>(content)) {"{"}{"\n"}
-            {"        "}<span className="text-[hsl(300,30%,68%)]">for</span> (<span className="text-[hsl(300,30%,68%)]">const</span> block <span className="text-[hsl(300,30%,68%)]">of</span> content) {"{"}{"\n"}
-            {"          "}<span className="text-[hsl(300,30%,68%)]">if</span> (block.type === <span className="text-[hsl(130,40%,60%)]">"text"</span>) {"{"}{"\n"}
-            {"            "}<span className="text-[hsl(50,60%,70%)]">resetToolAccumulator</span>();{"\n"}
-            {"            "}<span className="text-[hsl(50,60%,70%)]">addLog</span>(<span className="text-[hsl(130,40%,60%)]">"assistant"</span>, block.text);{"\n"}
-            {"          "}{"}"} <span className="text-[hsl(300,30%,68%)]">else if</span> (block.type === <span className="text-[hsl(130,40%,60%)]">"tool_use"</span>) {"{"}{"\n"}
-            {"            "}<span className="text-[hsl(50,60%,70%)]">addOrUpdateToolSummary</span>(block.name, block.input);{"\n"}
-            {"          "}{"}"}{"\n"}
-            {"        "}{"}"}{"\n"}
-            {"      "}{"}"}{"\n"}
-            {"      "}<span className="text-[hsl(300,30%,68%)]">break</span>;{"\n"}
-            {"    "}{"}"}{"\n"}
-            {"    "}<span className="text-[hsl(300,30%,68%)]">case</span> <span className="text-[hsl(130,40%,60%)]">"turn_complete"</span>:{"\n"}
-            {"      "}<span className="text-[hsl(0,0%,40%)]">{"// Agent finished its turn — resolve the promise so we can scan files"}</span>{"\n"}
-            {"      "}<span className="text-[hsl(300,30%,68%)]">if</span> (turnResolveRef.current) {"{"}{"\n"}
-            {"        "}turnResolveRef.current();{"\n"}
-            {"        "}turnResolveRef.current = <span className="text-[hsl(300,30%,68%)]">null</span>;{"\n"}
-            {"      "}{"}"}{"\n"}
-            {"      "}<span className="text-[hsl(300,30%,68%)]">break</span>;{"\n"}
-            {"    "}<span className="text-[hsl(300,30%,68%)]">case</span> <span className="text-[hsl(130,40%,60%)]">"error"</span>:{"\n"}
-            {"      "}<span className="text-[hsl(50,60%,70%)]">addLog</span>(<span className="text-[hsl(130,40%,60%)]">"error"</span>, String(event.message));{"\n"}
-            {"      "}<span className="text-[hsl(300,30%,68%)]">break</span>;{"\n"}
-            {"  "}{"}"}{"\n"}
-            {"}"}, []);
-          </InlineCodeBlock>
+          <ShikiCodeBlock
+            filename="events.ts"
+            code={CODE_EVENTS}
+            language="typescript"
+            theme="dark-plus"
+            copyable
+            className="my-8 border border-border/50 shadow-lg"
+            bodyClassName="[&_pre]:px-6 [&_pre]:py-5 [&_pre]:text-[13.5px] [&_pre]:leading-[1.9]"
+          />
         </FadeIn>
 
         {/* ── Visual: Event types ── */}
