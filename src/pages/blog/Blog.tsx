@@ -8,7 +8,7 @@ const posts = [
     title: "Where Should the Agent(s) Live?",
     description:
       "Isolation models, agent placement tradeoffs, credential design, and sandbox lifecycle patterns for agentic systems.",
-    author: "TODO: placeholder",
+    author: "Utpal Nadiger, Mohamed Habib, Igor Zalutski",
     date: "March 20, 2026",
   },
   {

@@ -253,7 +253,7 @@ const WhereShouldTheAgentLive = () => {
 
       <FadeIn delay={0.08}>
         <p className="mb-10 font-mono-brand text-[13px] text-muted-foreground">
-          Written by TODO: placeholder &middot; March 20, 2026
+          Utpal Nadiger, Mohamed Habib, Igor Zalutski &middot; March 20, 2026
         </p>
       </FadeIn>
 
