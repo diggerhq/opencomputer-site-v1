@@ -65,7 +65,7 @@ const Index = () => {
   };
 
   return (
-  <SitePageLayout>
+    <SitePageLayout>
       <FadeIn>
         <h1 className="font-heading text-[clamp(42px,6vw,64px)] leading-[1.15] tracking-[-1.5px] mb-10">
           Beyond sandboxes.
@@ -265,6 +265,20 @@ const Index = () => {
           </p>
           <div className="space-y-4">
             <Link
+              to="/blog/where-should-the-agent-live"
+              className="block p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
+            >
+              <h3 className="font-heading text-[22px] tracking-[-0.3px] mb-2 text-foreground">
+                Where Should the Agent(s) Live?
+              </h3>
+              <p className="text-[15px] leading-[1.7] text-muted-foreground mb-3">
+                Isolation models, agent placement tradeoffs, credential design, and sandbox lifecycle patterns for agentic systems.
+              </p>
+              <p className="font-mono-brand text-[12px] text-muted-foreground">
+                TODO: placeholder &middot; March 20, 2026
+              </p>
+            </Link>
+            <Link
               to="/blog/agent-execution-new-http-request"
               className="block p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
             >
@@ -334,6 +348,20 @@ const Index = () => {
               Try it now &rarr;
             </a>
             <a
+              href="https://docs.opencomputer.dev"
+              className="inline-block text-sm font-medium px-7 py-3 rounded-md bg-background text-foreground border border-border hover:border-foreground transition-all duration-150"
+            >
+              Read the docs
+            </a>
+            <a
+              href="https://github.com/diggerhq/opencomputer"
+              target="_blank"
+              className="inline-flex items-center gap-2 text-sm font-medium px-7 py-3 rounded-md bg-background text-foreground border border-border hover:border-foreground transition-all duration-150"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" /></svg>
+              Star on GitHub
+            </a>
+            <a
               href="https://cal.com/team/digger/opencomputer-founder-chat"
               target="_blank"
               className="inline-block text-sm font-medium px-7 py-3 rounded-md bg-background text-foreground border border-border hover:border-foreground transition-all duration-150"
@@ -343,7 +371,7 @@ const Index = () => {
           </div>
         </div>
       </FadeIn>
-  </SitePageLayout>
+    </SitePageLayout>
   );
 };
 
