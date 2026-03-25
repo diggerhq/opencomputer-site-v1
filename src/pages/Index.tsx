@@ -45,13 +45,11 @@ const features = [
 ];
 
 const pricingTiers = [
-  { mem: "256 MB", cpu: "0.25 vCPU", month: "$0.50", sec: "$0.000000190" },
-  { mem: "512 MB", cpu: "1 vCPU", month: "$1", sec: "$0.000000380" },
-  { mem: "1 GB", cpu: "2 vCPU", month: "$4", sec: "$0.000001521" },
-  { mem: "2 GB", cpu: "4 vCPU", month: "$6", sec: "$0.000002282" },
-  { mem: "4 GB", cpu: "8 vCPU", month: "$12", sec: "$0.000004563" },
-  { mem: "8 GB", cpu: "16 vCPU", month: "$24", sec: "$0.000009126" },
-  { mem: "16 GB", cpu: "32 vCPU", month: "$48", sec: "$0.000018252" },
+  { mem: "4 GB", cpu: "1 vCPU", month: "$2.80", sec: "$0.000000190" },
+  { mem: "8 GB", cpu: "2 vCPU", month: "$3.62", sec: "$0.000000380" },
+  { mem: "16 GB", cpu: "4 vCPU", month: "$7.29", sec: "$0.000001521" },
+  { mem: "32 GB", cpu: "8 vCPU", month: "$14.58", sec: "$0.000002282" },
+  { mem: "64 GB", cpu: "16 vCPU", month: "$29.17", sec: "$0.000004563" },
 ];
 
 const Index = () => {
