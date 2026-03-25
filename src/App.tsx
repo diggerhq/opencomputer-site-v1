@@ -11,6 +11,7 @@ import TheAgenticWorkload from "./pages/blog/TheAgenticWorkload";
 import WhereShouldTheAgentLive from "./pages/blog/WhereShouldTheAgentLive";
 import SandboxFingerprinting from "./pages/blog/SandboxFingerprinting";
 import AgentExecutionNewHttpRequest from "./pages/blog/AgentExecutionNewHttpRequest";
+import DesignPartners from "./pages/DesignPartners";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/guides/sandbox-fingerprinting" element={<SandboxFingerprinting />} />
           <Route path="/blog/agent-execution-new-http-request" element={<AgentExecutionNewHttpRequest />} />
           <Route path="/guides/agent-execution-new-http-request" element={<AgentExecutionNewHttpRequest />} />
+          <Route path="/partners" element={<DesignPartners />} />
           {devRoutes}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
