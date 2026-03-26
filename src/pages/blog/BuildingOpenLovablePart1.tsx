@@ -344,7 +344,7 @@ const BuildingOpenLovablePart1 = () => {
                 <div className="mt-3 flex items-center gap-2">
                   <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                   <span className="font-mono-brand text-[11px] text-muted-foreground">
-                    hibernates when idle, wakes in seconds
+                    always on, resizable at runtime
                   </span>
                 </div>
               </div>
@@ -362,9 +362,9 @@ const BuildingOpenLovablePart1 = () => {
               >
                 OpenComputer
               </a>{" "}
-              helps here by giving users a long-lived sandbox environment to run agent
-              loops inside. The sandboxes hibernate and wake up quickly, so they never
-              really die. We are going to build our open Lovable clone around
+              helps here by giving users an always-on sandbox environment to run agent
+              loops inside. The sandboxes stay running and can be resized at runtime, so
+              they're always ready. We are going to build our open Lovable clone around
               OpenComputer. Since this is being written in 2026, we are going to
               package a ready-made harness - Claude Agent SDK - into a sandbox and have
               it do its thing with the agentic loop, while we surface its thinking to

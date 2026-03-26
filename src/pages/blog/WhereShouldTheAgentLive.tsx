@@ -734,7 +734,7 @@ const WhereShouldTheAgentLive = () => {
               For most user-facing agent products, this means combining OS-level sandboxing, strong environment isolation, and trust-minimized credentials. Colocating the agent with its execution environment inside that boundary keeps latency low and operational complexity to a minimum.
             </p>
             <p>
-              On the lifecycle side, the most practical production choices are usually long-lived or hybrid environments. They preserve continuity where agents need it while still allowing environments to hibernate to avoid wasted compute during periods of inactivity.
+              On the lifecycle side, the most practical production choices are usually always-on, long-lived environments. They preserve continuity where agents need it while allowing elastic resizing at runtime to match the workload.
             </p>
             <p>
               The broader takeaway is simple: agents do not just need sandboxes. They need computers with the right isolation, the right placement, and the right lifecycle model for the workload they are serving. That is what we are building with OpenComputer.

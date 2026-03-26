@@ -2,17 +2,17 @@
 
 > Persistent cloud VMs for AI agents. Beyond sandboxes.
 
-OpenComputer provides long-running cloud infrastructure for AI agents. Every OpenComputer is a real machine with a full filesystem, full OS access, and persistent state. It hibernates when idle and wakes in seconds.
+OpenComputer provides long-running cloud infrastructure for AI agents. Every OpenComputer is a real machine with a full filesystem, full OS access, and persistent state. It stays always on, and you can resize memory and CPU at runtime or hibernate and wake it up at any point.
 
 ## What it is
 
 OpenComputer is purpose-built for B2B agent platforms. If you're building the next Lovable, Devin, or Bolt, your users need a computer that remembers what it installed yesterday, keeps files between sessions, and picks up where it left off.
 
-Ephemeral sandboxes are stateless - every session starts from scratch. OpenComputer VMs are stateful - they hibernate instead of dying, so state survives across sessions without snapshot/restore pipelines.
+Ephemeral sandboxes are stateless - every session starts from scratch. OpenComputer VMs are stateful and always on - state survives across sessions without snapshot/restore pipelines. Resize at runtime or hibernate when not needed.
 
 ## Features
 
-- Persistent VMs: Hibernate/wake instead of timeouts. Your VM sleeps when idle and wakes in seconds.
+- Persistent VMs: Always on with elastic resizing. Scale memory and CPU at runtime, or hibernate and wake when needed.
 - Checkpoints: Instant snapshots. Fork or restore to any point.
 - Preview URLs: Expose ports externally with auth (Clerk) and custom domains.
 - Per-tenant package control: Manage and hot-swap software versions inside running VMs.
