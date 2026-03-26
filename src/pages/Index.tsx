@@ -35,7 +35,7 @@ const features = [
   {
     title: "Persistent VMs",
     description:
-      "VMs stay on forever until you hibernate or delete them.",
+      "Always-on VMs with elastic resizing. Hibernate when not needed, wake at any point.",
   },
   {
     title: "Checkpoints",
@@ -45,11 +45,11 @@ const features = [
 ];
 
 const pricingTiers = [
-  { mem: "4 GB", cpu: "1 vCPU", month: "$2.80", sec: "$0.000001065" },
-  { mem: "8 GB", cpu: "2 vCPU", month: "$3.62", sec: "$0.000000380" },
-  { mem: "16 GB", cpu: "4 vCPU", month: "$7.29", sec: "$0.000001521" },
-  { mem: "32 GB", cpu: "8 vCPU", month: "$14.58", sec: "$0.000002282" },
-  { mem: "64 GB", cpu: "16 vCPU", month: "$29.17", sec: "$0.000004563" },
+  { mem: "4 GB", cpu: "1 vCPU", sec: "$0.0000324074" },
+  { mem: "8 GB", cpu: "2 vCPU", sec: "$0.0001504630" },
+  { mem: "16 GB", cpu: "4 vCPU", sec: "$0.0008101852" },
+  { mem: "32 GB", cpu: "8 vCPU", sec: "$0.0057870370" },
+  { mem: "64 GB", cpu: "16 vCPU", sec: "$0.0162037037" },
 ];
 
 const Index = () => {
@@ -109,15 +109,15 @@ const Index = () => {
       <FadeIn>
         <div className="mb-14 space-y-7">
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
-            Every OpenComputer is a real machine - a full filesystem, full OS
-            access, and persistent state. It hibernates when idle and wakes in
-            seconds. No timeouts, no teardowns. Your computer is just there.
+            Every OpenComputer is a real machine — a full filesystem, full OS
+            access, and persistent state. It stays always on, ready when you
+            need it. No timeouts, no teardowns. Your computer is just there.
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
-            Think of it as the compute equivalent of a laptop that sleeps when
-            you close the lid and is right where you left off when you open it.
-            Except it's in the cloud, it scales to thousands, and you're not
-            paying for it while it's asleep.
+            Resize memory and CPU at runtime to match your workload. When you
+            don't need it, hibernate and wake it up at any point — your state
+            is exactly where you left it. It scales to thousands in the cloud,
+            and you only pay for what you use.
           </p>
         </div>
       </FadeIn>
@@ -186,7 +186,7 @@ const Index = () => {
             Pricing
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-8">
-            Resizable memory with proportional CPU. 20 GB disk per VM. Hibernated VMs are not billed.
+            Elastic memory and CPU — resize at runtime. 20 GB disk per VM. Pay only while running.
           </p>
 
           <div className="p-8 rounded-xl border border-border/50 bg-[hsl(0,0%,98.5%)]">
@@ -205,8 +205,8 @@ const Index = () => {
                 className="w-full h-2 rounded-full appearance-none cursor-pointer bg-border accent-foreground"
               />
               <div className="flex justify-between mt-2">
-                <span className="font-mono-brand text-[11px] text-muted-foreground">256 MB</span>
-                <span className="font-mono-brand text-[11px] text-muted-foreground">16 GB</span>
+                <span className="font-mono-brand text-[11px] text-muted-foreground">4 GB</span>
+                <span className="font-mono-brand text-[11px] text-muted-foreground">64 GB</span>
               </div>
             </div>
 
@@ -217,8 +217,8 @@ const Index = () => {
                 <p className="font-mono-brand text-[11px] text-muted-foreground mt-1">compute</p>
               </div>
               <div className="text-center p-4 rounded-lg bg-white border border-border/50">
-                <p className="font-heading text-[28px] tracking-[-0.5px]">{pricingTiers[tierIndex].month}<span className="text-[16px] text-muted-foreground">/mo</span></p>
-                <p className="font-mono-brand text-[11px] text-muted-foreground mt-1">{pricingTiers[tierIndex].sec} / sec</p>
+                <p className="font-heading text-[28px] tracking-[-0.5px]">{pricingTiers[tierIndex].sec}<span className="text-[16px] text-muted-foreground"> / sec</span></p>
+                <p className="font-mono-brand text-[11px] text-muted-foreground mt-1">per second</p>
               </div>
             </div>
           </div>
