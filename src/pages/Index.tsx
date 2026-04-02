@@ -45,16 +45,17 @@ const features = [
 ];
 
 const pricingTiers = [
-  { mem: "4 GB", cpu: "1 vCPU", sec: "$0.0000324074" },
-  { mem: "8 GB", cpu: "2 vCPU", sec: "$0.0001504630" },
-  { mem: "16 GB", cpu: "4 vCPU", sec: "$0.0008101852" },
-  { mem: "32 GB", cpu: "8 vCPU", sec: "$0.0057870370" },
-  { mem: "64 GB", cpu: "16 vCPU", sec: "$0.0162037037" },
+  { mem: "1 GB", cpu: "0.25 vCPU", sec: "$0.000001080246914" },
+  { mem: "4 GB", cpu: "1 vCPU", sec: "$0.000005787037037" },
+  { mem: "8 GB", cpu: "2 vCPU", sec: "$0.000005015432099" },
+  { mem: "16 GB", cpu: "4 vCPU", sec: "$0.00002700617284" },
+  { mem: "32 GB", cpu: "8 vCPU", sec: "$0.0001929012346" },
+  { mem: "64 GB", cpu: "16 vCPU", sec: "$0.0005401234568" },
 ];
 
 const Index = () => {
   const [copied, setCopied] = useState(false);
-  const [tierIndex, setTierIndex] = useState(2);
+  const [tierIndex, setTierIndex] = useState(1);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(SDK_CODE);
