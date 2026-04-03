@@ -274,7 +274,7 @@ const Index = () => {
                 Isolation models, agent placement tradeoffs, credential design, and sandbox lifecycle patterns for agentic systems.
               </p>
               <p className="font-mono-brand text-[12px] text-muted-foreground">
-                TODO: placeholder &middot; March 20, 2026
+                Utpal Nadiger, Mohamed Habib, Igor Zalutski &middot; March 20, 2026
               </p>
             </Link>
             <Link
