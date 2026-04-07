@@ -264,6 +264,20 @@ const Index = () => {
           </p>
           <div className="space-y-4">
             <Link
+              to="/blog/what-elastic-compute-means"
+              className="block p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
+            >
+              <h3 className="font-heading text-[22px] tracking-[-0.3px] mb-2 text-foreground">
+                What "elastic compute" means in 2026
+              </h3>
+              <p className="text-[15px] leading-[1.7] text-muted-foreground mb-3">
+                From EC2 to agent sandboxes — how agents broke the compute paradigms we've relied on for 20 years, and what elasticity looks like now.
+              </p>
+              <p className="font-mono-brand text-[12px] text-muted-foreground">
+                Igor Zalutski &middot; April 7, 2026
+              </p>
+            </Link>
+            <Link
               to="/blog/where-should-the-agent-live"
               className="block p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
             >
