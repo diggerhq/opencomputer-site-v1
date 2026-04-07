@@ -4,6 +4,14 @@ import SitePageLayout from "@/components/SitePageLayout";
 
 const posts = [
   {
+    slug: "what-elastic-compute-means",
+    title: "What \"elastic compute\" means in 2026",
+    description:
+      "From EC2 to agent sandboxes — how agents broke the compute paradigms we've relied on for 20 years, and what elasticity looks like now.",
+    author: "Igor Zalutski",
+    date: "April 7, 2026",
+  },
+  {
     slug: "where-should-the-agent-live",
     title: "Where Should the Agent(s) Live?",
     description:

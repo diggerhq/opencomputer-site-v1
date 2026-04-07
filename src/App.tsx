@@ -11,6 +11,7 @@ import TheAgenticWorkload from "./pages/blog/TheAgenticWorkload";
 import WhereShouldTheAgentLive from "./pages/blog/WhereShouldTheAgentLive";
 import SandboxFingerprinting from "./pages/blog/SandboxFingerprinting";
 import AgentExecutionNewHttpRequest from "./pages/blog/AgentExecutionNewHttpRequest";
+import WhatElasticComputeMeans from "./pages/blog/WhatElasticComputeMeans";
 import DesignPartners from "./pages/DesignPartners";
 import NotFound from "./pages/NotFound";
 
@@ -36,6 +37,8 @@ const App = () => (
           <Route path="/guides/sandbox-fingerprinting" element={<SandboxFingerprinting />} />
           <Route path="/blog/agent-execution-new-http-request" element={<AgentExecutionNewHttpRequest />} />
           <Route path="/guides/agent-execution-new-http-request" element={<AgentExecutionNewHttpRequest />} />
+          <Route path="/blog/what-elastic-compute-means" element={<WhatElasticComputeMeans />} />
+          <Route path="/guides/what-elastic-compute-means" element={<WhatElasticComputeMeans />} />
           <Route path="/partners" element={<DesignPartners />} />
           {devRoutes}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
