@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 import SitePageLayout from "@/components/SitePageLayout";
+import SEO from "@/components/SEO";
 
 /* ---------- Callout ---------- */
 const Callout = ({ children }: { children: React.ReactNode }) => (
@@ -14,6 +15,13 @@ const Callout = ({ children }: { children: React.ReactNode }) => (
 const WhatElasticComputeMeans = () => {
   return (
     <SitePageLayout activeSection="blog" contentAs="article">
+      <SEO
+        title='What "elastic compute" means in 2026'
+        description="From EC2 to agent sandboxes — how agents broke the compute paradigms we've relied on for 20 years, and what elasticity looks like now."
+        author="Igor Zalutski"
+        path="/blog/what-elastic-compute-means"
+        type="article"
+      />
       <FadeIn>
         <Link
           to="/blog"

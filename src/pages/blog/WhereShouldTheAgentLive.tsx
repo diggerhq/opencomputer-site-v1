@@ -11,6 +11,7 @@ import SceneEmbed from "@/components/architecture/SceneEmbed";
 import FadeIn from "@/components/FadeIn";
 import ShikiCodeBlock from "@/components/ShikiCodeBlock";
 import SitePageLayout from "@/components/SitePageLayout";
+import SEO from "@/components/SEO";
 
 const Callout = ({ children }: { children: React.ReactNode }) => (
   <div className="my-8 border-l-[3px] border-foreground/80 py-1 pl-5">
@@ -236,6 +237,13 @@ const ComplexityColumn = ({
 const WhereShouldTheAgentLive = () => {
   return (
     <SitePageLayout activeSection="blog" contentAs="article">
+      <SEO
+        title="Where Should the Agent(s) Live?"
+        description="Isolation models, agent placement tradeoffs, credential design, and sandbox lifecycle patterns for agentic systems."
+        author="Utpal Nadiger, Mohamed Habib, Igor Zalutski"
+        path="/blog/where-should-the-agent-live"
+        type="article"
+      />
       <FadeIn>
         <Link
           to="/blog"

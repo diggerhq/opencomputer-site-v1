@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 import SitePageLayout from "@/components/SitePageLayout";
+import SEO from "@/components/SEO";
 
 /* ---------- Reusable components ---------- */
 
@@ -90,6 +91,13 @@ const ProviderCard = ({
 const SandboxFingerprinting = () => {
   return (
     <SitePageLayout activeSection="blog" contentAs="article">
+      <SEO
+        title="I Asked Opus 4.6 to Fingerprint Sandbox Vendors"
+        description="We fingerprinted 6 sandbox providers to understand their isolation models - from containers to microVMs to full hypervisors. Here's what we found."
+        author="Mohamed Habib"
+        path="/blog/sandbox-fingerprinting"
+        type="article"
+      />
       <FadeIn>
         <Link
           to="/blog"
