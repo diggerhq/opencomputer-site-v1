@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 import SitePageLayout from "@/components/SitePageLayout";
+import SEO from "@/components/SEO";
 
 const posts = [
   {
@@ -56,6 +57,11 @@ const posts = [
 const Blog = () => {
   return (
     <SitePageLayout activeSection="blog">
+        <SEO
+          title="Blog"
+          description="Thoughts on agentic compute, sandbox isolation, and building infrastructure for AI agents."
+          path="/blog"
+        />
         <FadeIn>
           <h1 className="font-heading text-[clamp(42px,6vw,64px)] leading-[1.15] tracking-[-1.5px] mb-10">
             Blog
