@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 import SitePageLayout from "@/components/SitePageLayout";
+import SEO from "@/components/SEO";
 
 /* ---------- Callout ---------- */
 const Callout = ({ children }: { children: React.ReactNode }) => (
@@ -14,6 +15,13 @@ const Callout = ({ children }: { children: React.ReactNode }) => (
 const TheAgenticWorkload = () => {
   return (
     <SitePageLayout activeSection="blog" contentAs="article">
+        <SEO
+          title="The Agentic Workload"
+          description="Agent code doesn't fit neatly into existing categories. It's not a traditional app, and it's not a CI job. It's something new."
+          author="Igor Zalutski"
+          path="/blog/the-agentic-workload"
+          type="article"
+        />
         <FadeIn>
           <Link
             to="/blog"

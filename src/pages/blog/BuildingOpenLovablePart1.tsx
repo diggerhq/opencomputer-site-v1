@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 import ShikiCodeBlock from "@/components/ShikiCodeBlock";
 import SitePageLayout from "@/components/SitePageLayout";
+import SEO from "@/components/SEO";
 
 /* ---------- Callout ---------- */
 const Callout = ({ children }: { children: React.ReactNode }) => (
@@ -119,6 +120,13 @@ const CODE_EVENTS = `const handleEvent = useCallback((event: AgentEvent) => {
 const BuildingOpenLovablePart1 = () => {
   return (
     <SitePageLayout activeSection="blog" contentAs="article">
+        <SEO
+          title="Building an Open Lovable - part 1"
+          description="A series to build a lovable clone to learn how lovable works under the hood using Claude Agent SDK and OpenComputer."
+          author="Mohamed Habib"
+          path="/blog/building-open-lovable-part-1"
+          type="article"
+        />
         <FadeIn>
           <Link
             to="/blog"

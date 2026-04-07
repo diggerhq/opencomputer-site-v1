@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 import SitePageLayout from "@/components/SitePageLayout";
+import SEO from "@/components/SEO";
 
 /* ---------- Reusable components ---------- */
 
@@ -75,6 +76,13 @@ const StackLayer = ({
 const AgentExecutionNewHttpRequest = () => {
   return (
     <SitePageLayout activeSection="blog" contentAs="article">
+      <SEO
+        title="Agent Execution Is the New HTTP Request"
+        description="From CGI scripts to serverless, web infrastructure evolved over 30 years. Now agents are taking us full circle - back to files and scripts."
+        author="Igor Zalutski"
+        path="/blog/agent-execution-new-http-request"
+        type="article"
+      />
       <FadeIn>
         <Link
           to="/blog"
