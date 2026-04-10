@@ -7,6 +7,7 @@ interface BlogMeta {
   title: string;
   description: string;
   author: string;
+  image?: string;
 }
 
 const SITE_NAME = "OpenComputer";
@@ -67,6 +68,7 @@ function replaceMeta(html: string, post: BlogMeta): string {
   const description = escapeAttr(post.description);
   const author = escapeAttr(post.author);
   const url = `${BASE_URL}/blog/${post.slug}`;
+  const image = post.image ? `${BASE_URL}${post.image}` : DEFAULT_IMAGE;
 
   return html
     // Title tag
@@ -101,6 +103,10 @@ function replaceMeta(html: string, post: BlogMeta): string {
       `<meta property="og:url" content="${url}"`
     )
     .replace(
+      /<meta property="og:image" content="[^"]*"/,
+      `<meta property="og:image" content="${image}"`
+    )
+    .replace(
       /<meta property="og:image:alt" content="[^"]*"/,
       `<meta property="og:image:alt" content="${fullTitle}"`
     )
@@ -112,6 +118,10 @@ function replaceMeta(html: string, post: BlogMeta): string {
     .replace(
       /<meta name="twitter:description" content="[^"]*"/,
       `<meta name="twitter:description" content="${description}"`
+    )
+    .replace(
+      /<meta name="twitter:image" content="[^"]*"/,
+      `<meta name="twitter:image" content="${image}"`
     )
     .replace(
       /<meta name="twitter:image:alt" content="[^"]*"/,
