@@ -6,15 +6,17 @@ interface SEOProps {
   author?: string;
   path?: string;
   type?: "website" | "article";
+  image?: string;
 }
 
 const SITE_NAME = "OpenComputer";
 const BASE_URL = "https://opencomputer.dev";
 const DEFAULT_IMAGE = `${BASE_URL}/social-preview.png`;
 
-const SEO = ({ title, description, author, path = "/", type = "website" }: SEOProps) => {
+const SEO = ({ title, description, author, path = "/", type = "website", image }: SEOProps) => {
   const url = `${BASE_URL}${path}`;
   const fullTitle = `${title} – ${SITE_NAME}`;
+  const imageUrl = image ? `${BASE_URL}${image}` : DEFAULT_IMAGE;
 
   return (
     <Helmet>
@@ -26,7 +28,7 @@ const SEO = ({ title, description, author, path = "/", type = "website" }: SEOPr
       <meta property="og:description" content={description} />
       <meta property="og:type" content={type} />
       <meta property="og:url" content={url} />
-      <meta property="og:image" content={DEFAULT_IMAGE} />
+      <meta property="og:image" content={imageUrl} />
       <meta property="og:image:alt" content={title} />
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:locale" content="en_US" />
@@ -34,7 +36,7 @@ const SEO = ({ title, description, author, path = "/", type = "website" }: SEOPr
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={DEFAULT_IMAGE} />
+      <meta name="twitter:image" content={imageUrl} />
       <meta name="twitter:image:alt" content={title} />
 
       {type === "article" && author && (
