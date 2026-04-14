@@ -47,7 +47,7 @@ const features = [
 const pricingTiers = [
   { mem: "1 GB", cpu: "1 vCPU", sec: "$0.000001080246914" },
   { mem: "4 GB", cpu: "1 vCPU", sec: "$0.000005787037037" },
-  { mem: "8 GB", cpu: "2 vCPU", sec: "$0.000005015432099" },
+  { mem: "8 GB", cpu: "2 vCPU", sec: "$0.00001350308642" },
   { mem: "16 GB", cpu: "4 vCPU", sec: "$0.00002700617284" },
   { mem: "32 GB", cpu: "8 vCPU", sec: "$0.0001929012346" },
   { mem: "64 GB", cpu: "16 vCPU", sec: "$0.0005401234568" },
