@@ -225,6 +225,9 @@ const Index = () => {
           </div>
 
           <p className="mt-4 text-[13px] text-muted-foreground">
+            Disk above the 20 GB included is metered at $0.0000001 / GB-second (≈ $0.26 / GB-month), billed for the lifetime of the sandbox — running or hibernated.
+          </p>
+          <p className="mt-2 text-[13px] text-muted-foreground">
             Need more? <a href="https://cal.com/team/digger/opencomputer-founder-chat" target="_blank" className="underline hover:text-foreground transition-colors">Talk to us</a> about custom sizing and volume discounts.
           </p>
         </div>
