@@ -14,6 +14,7 @@ import SandboxFingerprinting from "./pages/blog/SandboxFingerprinting";
 import AgentExecutionNewHttpRequest from "./pages/blog/AgentExecutionNewHttpRequest";
 import WhatElasticComputeMeans from "./pages/blog/WhatElasticComputeMeans";
 import DesignPartners from "./pages/DesignPartners";
+import Clawputer from "./pages/Clawputer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/blog/what-elastic-compute-means" element={<WhatElasticComputeMeans />} />
           <Route path="/guides/what-elastic-compute-means" element={<WhatElasticComputeMeans />} />
           <Route path="/partners" element={<DesignPartners />} />
+          <Route path="/clawputer" element={<Clawputer />} />
           {devRoutes}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
