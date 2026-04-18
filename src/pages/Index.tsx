@@ -190,7 +190,7 @@ const Index = () => {
             Elastic memory and CPU — resize at runtime. 20 GB disk per VM. Pay only while running.
           </p>
 
-          <div className="p-8 rounded-xl border border-border/50 bg-[hsl(0,0%,98.5%)]">
+          <div className="p-4 sm:p-8 rounded-xl border border-border/50 bg-[hsl(0,0%,98.5%)]">
             {/* Slider */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-3">
@@ -212,13 +212,13 @@ const Index = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div className="text-center p-4 rounded-lg bg-white border border-border/50">
                 <p className="font-heading text-[28px] tracking-[-0.5px]">{pricingTiers[tierIndex].cpu}</p>
                 <p className="font-mono-brand text-[11px] text-muted-foreground mt-1">compute</p>
               </div>
-              <div className="text-center p-4 rounded-lg bg-white border border-border/50">
-                <p className="font-heading text-[28px] tracking-[-0.5px]">{pricingTiers[tierIndex].sec}<span className="text-[16px] text-muted-foreground"> / sec</span></p>
+              <div className="text-center p-4 rounded-lg bg-white border border-border/50 overflow-hidden">
+                <p className="font-heading text-[clamp(16px,4vw,28px)] tracking-[-0.5px] break-all">{pricingTiers[tierIndex].sec}<span className="text-[clamp(12px,2.5vw,16px)] text-muted-foreground"> / sec</span></p>
                 <p className="font-mono-brand text-[11px] text-muted-foreground mt-1">per second</p>
               </div>
             </div>
