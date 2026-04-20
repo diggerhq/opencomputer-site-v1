@@ -13,9 +13,11 @@ import WhereShouldTheAgentLive from "./pages/blog/WhereShouldTheAgentLive";
 import SandboxFingerprinting from "./pages/blog/SandboxFingerprinting";
 import AgentExecutionNewHttpRequest from "./pages/blog/AgentExecutionNewHttpRequest";
 import WhatElasticComputeMeans from "./pages/blog/WhatElasticComputeMeans";
+import TheRaceToBuildTheNextWordpress from "./pages/blog/TheRaceToBuildTheNextWordpress";
 import DesignPartners from "./pages/DesignPartners";
 import Clawputer from "./pages/Clawputer";
 import NotFound from "./pages/NotFound";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +28,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/blog" element={<Blog />} />
@@ -42,6 +45,8 @@ const App = () => (
           <Route path="/guides/agent-execution-new-http-request" element={<AgentExecutionNewHttpRequest />} />
           <Route path="/blog/what-elastic-compute-means" element={<WhatElasticComputeMeans />} />
           <Route path="/guides/what-elastic-compute-means" element={<WhatElasticComputeMeans />} />
+          <Route path="/blog/the-race-to-build-the-next-wordpress" element={<TheRaceToBuildTheNextWordpress />} />
+          <Route path="/guides/the-race-to-build-the-next-wordpress" element={<TheRaceToBuildTheNextWordpress />} />
           <Route path="/partners" element={<DesignPartners />} />
           <Route path="/clawputer" element={<Clawputer />} />
           {devRoutes}
