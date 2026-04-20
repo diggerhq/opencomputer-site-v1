@@ -16,6 +16,13 @@ const DEFAULT_IMAGE = `${BASE_URL}/social-preview.png`;
 
 const blogPosts: BlogMeta[] = [
   {
+    slug: "the-race-to-build-the-next-wordpress",
+    title: "The Race to Build the Next WordPress",
+    description:
+      "Agent harnesses are to this era what WordPress was to the early 2000s internet. The race to build the next one is already on.",
+    author: "Igor Zalutski",
+  },
+  {
     slug: "what-elastic-compute-means",
     title: 'What "elastic compute" means in 2026',
     description:
