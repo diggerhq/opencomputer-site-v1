@@ -185,13 +185,13 @@ const Index = () => {
                 <span className="w-3 h-3 rounded-full bg-[hsl(0,0%,75%)]" />
                 <span className="w-3 h-3 rounded-full bg-[hsl(0,0%,75%)]" />
               </div>
-              <span className="font-mono-brand text-xs text-[hsl(0,0%,55%)]">DOOM @ sb-465f174e</span>
+              <span className="font-mono-brand text-xs text-[hsl(0,0%,55%)]">DOOM @ sb-8ab91735</span>
               <span className="font-mono-brand text-[10px] uppercase tracking-[0.15em] text-[hsl(0,0%,55%)]">live</span>
             </div>
             <div className="aspect-[4/3] sm:aspect-[16/10] w-full bg-black relative">
               {doomLoaded ? (
                 <iframe
-                  src="https://sb-465f174e-p6080.workers.opencomputer.dev/vnc.html?autoconnect=1&resize=scale"
+                  src="https://sb-8ab91735-p6080.workers.opencomputer.dev/vnc.html?autoconnect=1&resize=scale"
                   title="DOOM running on OpenComputer"
                   className="w-full h-full block border-0"
                   allow="fullscreen; gamepad; clipboard-read; clipboard-write"
