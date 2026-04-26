@@ -24,7 +24,9 @@ const r = await sb.exec.run(
   `bash -lc '
     set -x
     # 1) nuke the entire websockify tree (parents + forked children)
-    sudo pkill -9 -f websockify 2>/dev/null || true
+    # Match only the daemon (must contain "--web=" in argv) so we don't kill
+    # our own driver script whose filename happens to contain "websockify".
+    sudo pkill -9 -f "websockify.*--web=" 2>/dev/null || true
     sleep 2
     ps -A -o pid,stat,cmd | grep -i websockify | grep -v grep || echo "no websockify processes left"
     # 2) start fresh websockify with raised FD limits.

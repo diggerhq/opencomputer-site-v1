@@ -19,7 +19,7 @@ which sudo bash setsid websockify 2>&1 || true
 type ulimit
 
 echo "=== STEP 2: nuke existing websockify ==="
-sudo pkill -9 -f websockify 2>/dev/null || true
+sudo pkill -9 -f "websockify.*--web=" 2>/dev/null || true
 sleep 2
 sudo ps -A -o pid,stat,user,comm | awk '$4 ~ /websockify/' || echo "(none alive)"
 
