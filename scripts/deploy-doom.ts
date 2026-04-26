@@ -97,8 +97,12 @@ async function deploy() {
 <title>OpenComputer · DOOM</title>
 HTML
 
-    # 5) websockify — bridges WS → VNC and serves the noVNC client at /
-    setsid websockify --web=/usr/share/novnc ${WEB_PORT} 127.0.0.1:${VNC_PORT} \\
+    # 5) websockify — bridges WS → VNC and serves the noVNC client at /.
+    #    "ulimit -SHn N" sets BOTH soft and hard limits atomically (root only).
+    #    Plain "ulimit -n N" only sets soft and fails silently when N exceeds
+    #    the inherited hard limit. No external tool dependency.
+    sudo bash -c "ulimit -SHn 65536; exec setsid \\
+      websockify --web=/usr/share/novnc ${WEB_PORT} 127.0.0.1:${VNC_PORT}" \\
       >/tmp/doom/websockify.log 2>&1 </dev/null &
 
     sleep 2
