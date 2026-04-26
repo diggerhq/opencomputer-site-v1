@@ -37,11 +37,15 @@ async function deploy() {
   console.log(`  sandbox: ${sb.sandboxId}`);
 
   console.log("Installing Xvfb + chocolate-doom + freedoom + x11vnc + novnc/websockify (~1–2 min)…");
+  // Ubuntu's apt websockify is 0.10.0 — uses select() and dies once any fd
+  // >= 1024 (FD_SETSIZE) under churn, even with a raised ulimit. Replace it
+  // with pip's 0.12+, which uses `selectors`/epoll and has no FD_SETSIZE limit.
   const installScript = [
     "export DEBIAN_FRONTEND=noninteractive",
     "sudo -E apt-get update -y",
     "sudo -E apt-get install -y --no-install-recommends " +
-      "xvfb x11vnc chocolate-doom freedoom novnc websockify procps ca-certificates",
+      "xvfb x11vnc chocolate-doom freedoom novnc websockify python3-pip procps ca-certificates",
+    "sudo pip install --break-system-packages --upgrade websockify",
   ].join(" && ");
   const installCode = await runStreaming(sb, installScript, 600);
   if (installCode !== 0) {
