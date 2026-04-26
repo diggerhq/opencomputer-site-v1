@@ -2,3 +2,4 @@ node_modules
 dist
 .herenow
 exports/*.mp4
+.claude/
