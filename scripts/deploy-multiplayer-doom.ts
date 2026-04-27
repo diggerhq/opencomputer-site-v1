@@ -178,10 +178,17 @@ function pm2Ecosystem(): string {
         ...common,
         name: `zandronum-${n}`,
         script: "/usr/bin/zandronum",
+        // -width/-height force the Zandronum render surface to fill the Xvfb;
+        // without these it defaults to 640x480 with black borders around it.
         args: [
           "-iwad", "/usr/share/games/doom/freedoom2.wad",
           "-connect", `127.0.0.1:${SERVER_PORT}`,
+          "-width", "1024",
+          "-height", "768",
           "+name", `Player${n}`,
+          "+vid_defwidth", "1024",
+          "+vid_defheight", "768",
+          "+vid_fullscreen", "0",
         ],
         env: { DISPLAY: `:10${n}`, HOME: "/tmp/doom-mp" },
         restart_delay: 2000,
