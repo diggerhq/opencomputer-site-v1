@@ -127,12 +127,14 @@ HTML
 }
 
 function serverCfg(): string {
-  // Map is set on the cmdline (+map MAP01). Cvars Zandronum 3.2.1 doesn't
-  // recognize were removed (sv_friendlyfire, sv_respawndelay, +map).
+  // sv_maxclientsperip defaults to 2; all 4 slot clients connect from
+  // 127.0.0.1, so slots 3 and 4 get rejected as "too many connections from
+  // this IP". Bump it to 8 to let the local-loopback fleet through.
   return `// Zandronum dedicated server config
 sv_hostname "OpenComputer DOOM Demo"
 sv_maxclients 8
 sv_maxplayers 4
+sv_maxclientsperip 8
 sv_motd "deathmatch on a real OpenComputer VM"
 deathmatch 1
 fraglimit 20
