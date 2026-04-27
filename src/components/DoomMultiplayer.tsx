@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const LOBBY_URL =
   (import.meta.env.VITE_DOOM_LOBBY_URL as string | undefined) ??
@@ -203,23 +203,7 @@ function JoinPane({
 }) {
   if (state.kind === "playing") {
     return (
-      <div className="w-full h-full relative">
-        <iframe
-          key={state.sessionId}
-          src={state.wsUrl}
-          title={`DOOM slot ${state.slot}`}
-          className="w-full h-full block border-0"
-          allow="fullscreen; gamepad; clipboard-read; clipboard-write"
-        />
-        <div className="absolute top-3 right-3 flex items-center gap-2 bg-black/70 backdrop-blur px-3 py-1.5 rounded text-white text-xs font-mono-brand">
-          <span>Player {state.slot}</span>
-          <span className="opacity-60">·</span>
-          <span>{state.expiresIn}s left</span>
-          <button onClick={onLeave} className="ml-2 px-2 py-0.5 rounded bg-white/15 hover:bg-white/25">
-            Leave
-          </button>
-        </div>
-      </div>
+      <PlayingFrame state={state} onLeave={onLeave} />
     );
   }
   if (state.kind === "queued") {
@@ -289,17 +273,20 @@ function WatchPane({
   watchSlot: number;
   setWatchSlot: (n: number) => void;
 }) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const slot = lobby?.slots.find((s) => s.slot === watchSlot);
   const url = slot?.wsUrl ? `${slot.wsUrl}&view_only=1` : null;
   return (
-    <div className="w-full h-full relative">
+    <div ref={wrapperRef} className="w-full h-full relative">
       {url ? (
         <iframe
+          ref={iframeRef}
           key={`watch-${watchSlot}`}
           src={url}
           title={`Watching Player ${watchSlot}`}
           className="w-full h-full block border-0"
-          // sandbox limits inputs while still allowing the noVNC client to render
+          allow="fullscreen"
         />
       ) : (
         <CenteredMessage>
@@ -321,7 +308,57 @@ function WatchPane({
           </button>
         ))}
       </div>
+      <FullscreenButton targetRef={wrapperRef} />
     </div>
+  );
+}
+
+function PlayingFrame({
+  state,
+  onLeave,
+}: {
+  state: Extract<PlayerState, { kind: "playing" }>;
+  onLeave: () => void;
+}) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  return (
+    <div ref={wrapperRef} className="w-full h-full relative">
+      <iframe
+        key={state.sessionId}
+        src={state.wsUrl}
+        title={`DOOM slot ${state.slot}`}
+        className="w-full h-full block border-0"
+        allow="fullscreen; gamepad; clipboard-read; clipboard-write"
+      />
+      <div className="absolute top-3 right-3 flex items-center gap-2 bg-black/70 backdrop-blur px-3 py-1.5 rounded text-white text-xs font-mono-brand">
+        <span>Player {state.slot}</span>
+        <span className="opacity-60">·</span>
+        <span>{state.expiresIn}s left</span>
+        <button onClick={onLeave} className="ml-2 px-2 py-0.5 rounded bg-white/15 hover:bg-white/25">
+          Leave
+        </button>
+      </div>
+      <FullscreenButton targetRef={wrapperRef} />
+    </div>
+  );
+}
+
+function FullscreenButton({ targetRef }: { targetRef: React.RefObject<HTMLDivElement> }) {
+  const enter = () => {
+    const el = targetRef.current;
+    if (!el) return;
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void el.requestFullscreen?.();
+  };
+  return (
+    <button
+      type="button"
+      onClick={enter}
+      title="Toggle fullscreen"
+      className="absolute bottom-3 right-3 px-2.5 py-1.5 rounded bg-black/70 backdrop-blur text-white/90 hover:text-white hover:bg-black/85 text-xs font-mono-brand"
+    >
+      ⛶ Fullscreen
+    </button>
   );
 }
 
