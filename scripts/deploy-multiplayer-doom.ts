@@ -48,8 +48,9 @@ async function deploy() {
   const installScript = [
     "export DEBIAN_FRONTEND=noninteractive",
     "sudo -E apt-get update -y",
+    // NodeSource's nodejs package on this image bundles npm and conflicts with apt's npm — don't install npm separately.
     "sudo -E apt-get install -y --no-install-recommends " +
-      "xvfb x11vnc novnc python3-pip nginx procps ca-certificates curl gnupg freedoom nodejs npm",
+      "xvfb x11vnc novnc python3-pip nginx procps ca-certificates curl gnupg freedoom nodejs",
     "sudo install -d -m 0755 /etc/apt/keyrings",
     "curl -fsSL http://debian.drdteam.org/drdteam.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/drdteam.gpg",
     `echo "deb [signed-by=/etc/apt/keyrings/drdteam.gpg] http://debian.drdteam.org/ stable multiverse" | sudo tee /etc/apt/sources.list.d/drdteam.list`,
