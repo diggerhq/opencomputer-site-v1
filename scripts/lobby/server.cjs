@@ -51,6 +51,7 @@ function publicState() {
         slot: n,
         occupied: !!s.sessionId,
         expiresIn: s.expiresAt ? Math.max(0, Math.round((s.expiresAt - Date.now()) / 1000)) : null,
+        wsUrl: slotUrl(n),
       };
     }),
     queueLength: queue.length,
