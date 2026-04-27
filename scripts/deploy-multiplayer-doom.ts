@@ -127,68 +127,66 @@ HTML
 }
 
 function serverCfg(): string {
+  // Map is set on the cmdline (+map MAP01). Cvars Zandronum 3.2.1 doesn't
+  // recognize were removed (sv_friendlyfire, sv_respawndelay, +map).
   return `// Zandronum dedicated server config
 sv_hostname "OpenComputer DOOM Demo"
 sv_maxclients 8
 sv_maxplayers 4
 sv_motd "deathmatch on a real OpenComputer VM"
 deathmatch 1
-sv_friendlyfire 1
 fraglimit 20
 timelimit 10
-sv_respawndelay 1
 sv_itemrespawn 1
 sv_smartaim 0
-+map MAP01
 `;
 }
 
 function pm2Ecosystem(): string {
-  // pm2 restarts on crash by default. We use a startup delay/restart_delay
-  // so zandronum clients keep retrying until the server is ready.
+  // interpreter: "none" — without this, pm2 reads the script file (zandronum
+  // and zandronum-server are shell wrappers, websockify is a Python script)
+  // and tries to compile it as JS, which obviously fails.
+  const common = { autorestart: true, interpreter: "none" as const, merge_logs: true };
   const apps: object[] = [
     {
+      ...common,
       name: "zandronum-server",
       script: "/usr/bin/zandronum-server",
       args: [
         "-iwad", "/usr/share/games/doom/freedoom2.wad",
         "+exec", "/tmp/doom-mp/server.cfg",
+        "+map", "MAP01",
         "-port", String(SERVER_PORT),
       ],
       cwd: "/tmp/doom-mp",
-      autorestart: true,
       restart_delay: 1000,
       out_file: "/tmp/doom-mp/zandronum-server.log",
-      merge_logs: true,
     },
   ];
   for (const n of SLOTS) {
     apps.push(
       {
+        ...common,
         name: `xvfb-${n}`,
         script: "/usr/bin/Xvfb",
         args: [`:10${n}`, "-screen", "0", "1024x768x24", "-ac"],
-        autorestart: true,
         out_file: `/tmp/doom-mp/xvfb-${n}.log`,
-        merge_logs: true,
       },
       {
+        ...common,
         name: `zandronum-${n}`,
         script: "/usr/bin/zandronum",
         args: [
           "-iwad", "/usr/share/games/doom/freedoom2.wad",
           "-connect", `127.0.0.1:${SERVER_PORT}`,
           "+name", `Player${n}`,
-          "+cl_run", "1",
-          "+cl_capfps", "1",
         ],
         env: { DISPLAY: `:10${n}`, HOME: "/tmp/doom-mp" },
-        autorestart: true,
         restart_delay: 2000,
         out_file: `/tmp/doom-mp/zandronum-${n}.log`,
-        merge_logs: true,
       },
       {
+        ...common,
         name: `x11vnc-${n}`,
         script: "/usr/bin/x11vnc",
         args: [
@@ -197,12 +195,11 @@ function pm2Ecosystem(): string {
           "-rfbport", String(VNC_BASE + n),
           "-quiet",
         ],
-        autorestart: true,
         restart_delay: 2000,
         out_file: `/tmp/doom-mp/x11vnc-${n}.log`,
-        merge_logs: true,
       },
       {
+        ...common,
         name: `websockify-${n}`,
         script: "/usr/local/bin/websockify",
         args: [
@@ -210,9 +207,7 @@ function pm2Ecosystem(): string {
           String(WEB_BASE + n),
           `127.0.0.1:${VNC_BASE + n}`,
         ],
-        autorestart: true,
         out_file: `/tmp/doom-mp/websockify-${n}.log`,
-        merge_logs: true,
       },
     );
   }
