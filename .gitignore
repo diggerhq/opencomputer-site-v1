@@ -3,3 +3,5 @@ dist
 .herenow
 exports/*.mp4
 .claude/
+.env.local
+.env.*.local
