@@ -180,7 +180,7 @@ const Index = () => {
           </p>
           <DoomMultiplayer />
           <p className="mt-3 text-[13px] text-muted-foreground">
-            Arrow keys to move, comma/period to strafe, Ctrl to fire, E to use. {" "}
+            Arrow keys to move, comma/period to strafe, mouse click to fire, E to use. {" "}
             <a
               href="https://gist.github.com/motatoes/442740b83b78c5e5ef3edda953d4208b"
               target="_blank"
