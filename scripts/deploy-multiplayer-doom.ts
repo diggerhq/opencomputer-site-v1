@@ -42,19 +42,21 @@ async function deploy() {
   });
   console.log(`  sandbox: ${sb.sandboxId}`);
 
-  console.log("Installing apt packages + Zandronum (from drdteam.org repo)…");
-  // freedoom2.wad gives us the Doom-II-style maps Zandronum DM expects.
+  console.log("Installing apt packages + Zandronum (from drdteam.org repo) + pm2…");
+  // freedoom2.wad for Doom-II-style maps. pm2 supervises the worker stack
+  // (ditched supervisord — broken module resolution on this image).
   const installScript = [
     "export DEBIAN_FRONTEND=noninteractive",
     "sudo -E apt-get update -y",
     "sudo -E apt-get install -y --no-install-recommends " +
-      "xvfb x11vnc novnc python3-pip nginx supervisor procps ca-certificates curl gnupg freedoom",
+      "xvfb x11vnc novnc python3-pip nginx procps ca-certificates curl gnupg freedoom nodejs npm",
     "sudo install -d -m 0755 /etc/apt/keyrings",
     "curl -fsSL http://debian.drdteam.org/drdteam.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/drdteam.gpg",
     `echo "deb [signed-by=/etc/apt/keyrings/drdteam.gpg] http://debian.drdteam.org/ stable multiverse" | sudo tee /etc/apt/sources.list.d/drdteam.list`,
     "sudo -E apt-get update -y",
     "sudo -E apt-get install -y --no-install-recommends zandronum zandronum-server",
     "sudo pip install --break-system-packages --upgrade websockify",
+    "sudo npm install -g pm2",
   ].join(" && ");
   const installCode = await runStreaming(sb, installScript, 600);
   if (installCode !== 0) {
@@ -62,9 +64,9 @@ async function deploy() {
     die(`apt install failed (exit ${installCode})`);
   }
 
-  console.log("Writing config files (server.cfg, supervisord.conf, start.sh, nginx index)…");
+  console.log("Writing config files (server.cfg, ecosystem.config.cjs, start.sh)…");
   await sb.files.write("/tmp/doom-mp/server.cfg", serverCfg());
-  await sb.files.write("/tmp/doom-mp/supervisord.conf", supervisorConf());
+  await sb.files.write("/tmp/doom-mp/ecosystem.config.cjs", pm2Ecosystem());
   await sb.files.write("/tmp/doom-mp/start.sh", startSh());
 
   console.log("Booting the multiplayer stack…");
@@ -88,8 +90,8 @@ HTML
 
     chmod +x /tmp/doom-mp/start.sh
     sudo /tmp/doom-mp/start.sh
-    sleep 4
-    sudo /usr/bin/supervisorctl -c /tmp/doom-mp/supervisord.conf status
+    sleep 5
+    sudo pm2 list
   `;
   const bootCode = await runStreaming(sb, bootScript, 60);
   if (bootCode !== 0) {
@@ -140,83 +142,89 @@ sv_smartaim 0
 `;
 }
 
-function supervisorConf(): string {
-  // Priority controls boot order: server (10) before Xvfb (20) before
-  // zandronum client (30) before x11vnc (40) before websockify (50).
-  // autorestart=true on every program; if a zandronum client starts before
-  // the server is ready, it'll fail fast and supervisord will retry.
-  const slotPrograms = SLOTS.map((n) => `
-[program:xvfb-${n}]
-command=/usr/bin/Xvfb :10${n} -screen 0 1024x768x24 -ac
-autorestart=true
-startsecs=1
-priority=20
-stdout_logfile=/tmp/doom-mp/xvfb-${n}.log
-redirect_stderr=true
-
-[program:zandronum-${n}]
-command=/usr/bin/zandronum -iwad /usr/share/games/doom/freedoom2.wad -connect 127.0.0.1:${SERVER_PORT} +name "Player${n}" +cl_run 1 +cl_capfps 1
-environment=DISPLAY=":10${n}",HOME="/tmp/doom-mp"
-autorestart=true
-startsecs=2
-startretries=20
-priority=30
-stdout_logfile=/tmp/doom-mp/zandronum-${n}.log
-redirect_stderr=true
-
-[program:x11vnc-${n}]
-command=/usr/bin/x11vnc -display :10${n} -forever -shared -nopw -rfbport ${VNC_BASE + n} -quiet
-autorestart=true
-startsecs=2
-priority=40
-stdout_logfile=/tmp/doom-mp/x11vnc-${n}.log
-redirect_stderr=true
-
-[program:websockify-${n}]
-command=/usr/local/bin/websockify --web=/usr/share/novnc ${WEB_BASE + n} 127.0.0.1:${VNC_BASE + n}
-autorestart=true
-startsecs=2
-priority=50
-stdout_logfile=/tmp/doom-mp/websockify-${n}.log
-redirect_stderr=true
-`).join("\n");
-
-  return `[supervisord]
-nodaemon=false
-logfile=/tmp/doom-mp/supervisord.log
-pidfile=/tmp/doom-mp/supervisord.pid
-childlogdir=/tmp/doom-mp/
-
-[unix_http_server]
-file=/tmp/doom-mp/supervisor.sock
-chmod=0700
-
-[supervisorctl]
-serverurl=unix:///tmp/doom-mp/supervisor.sock
-
-[rpcinterface:supervisor]
-supervisor.rpcinterface_factory = supervisor.rpcinterface.make_main_rpcinterface
-
-[program:zandronum-server]
-command=/usr/bin/zandronum-server -iwad /usr/share/games/doom/freedoom2.wad +exec /tmp/doom-mp/server.cfg -port ${SERVER_PORT}
-autorestart=true
-startsecs=2
-priority=10
-stdout_logfile=/tmp/doom-mp/zandronum-server.log
-redirect_stderr=true
-${slotPrograms}
-`;
+function pm2Ecosystem(): string {
+  // pm2 restarts on crash by default. We use a startup delay/restart_delay
+  // so zandronum clients keep retrying until the server is ready.
+  const apps: object[] = [
+    {
+      name: "zandronum-server",
+      script: "/usr/bin/zandronum-server",
+      args: [
+        "-iwad", "/usr/share/games/doom/freedoom2.wad",
+        "+exec", "/tmp/doom-mp/server.cfg",
+        "-port", String(SERVER_PORT),
+      ],
+      cwd: "/tmp/doom-mp",
+      autorestart: true,
+      restart_delay: 1000,
+      out_file: "/tmp/doom-mp/zandronum-server.log",
+      merge_logs: true,
+    },
+  ];
+  for (const n of SLOTS) {
+    apps.push(
+      {
+        name: `xvfb-${n}`,
+        script: "/usr/bin/Xvfb",
+        args: [`:10${n}`, "-screen", "0", "1024x768x24", "-ac"],
+        autorestart: true,
+        out_file: `/tmp/doom-mp/xvfb-${n}.log`,
+        merge_logs: true,
+      },
+      {
+        name: `zandronum-${n}`,
+        script: "/usr/bin/zandronum",
+        args: [
+          "-iwad", "/usr/share/games/doom/freedoom2.wad",
+          "-connect", `127.0.0.1:${SERVER_PORT}`,
+          "+name", `Player${n}`,
+          "+cl_run", "1",
+          "+cl_capfps", "1",
+        ],
+        env: { DISPLAY: `:10${n}`, HOME: "/tmp/doom-mp" },
+        autorestart: true,
+        restart_delay: 2000,
+        out_file: `/tmp/doom-mp/zandronum-${n}.log`,
+        merge_logs: true,
+      },
+      {
+        name: `x11vnc-${n}`,
+        script: "/usr/bin/x11vnc",
+        args: [
+          "-display", `:10${n}`,
+          "-forever", "-shared", "-nopw",
+          "-rfbport", String(VNC_BASE + n),
+          "-quiet",
+        ],
+        autorestart: true,
+        restart_delay: 2000,
+        out_file: `/tmp/doom-mp/x11vnc-${n}.log`,
+        merge_logs: true,
+      },
+      {
+        name: `websockify-${n}`,
+        script: "/usr/local/bin/websockify",
+        args: [
+          "--web=/usr/share/novnc",
+          String(WEB_BASE + n),
+          `127.0.0.1:${VNC_BASE + n}`,
+        ],
+        autorestart: true,
+        out_file: `/tmp/doom-mp/websockify-${n}.log`,
+        merge_logs: true,
+      },
+    );
+  }
+  return `module.exports = { apps: ${JSON.stringify(apps, null, 2)} };\n`;
 }
 
 function startSh(): string {
-  // Run supervisord with a raised FD limit so all child websockify processes
-  // inherit it. supervisord daemonizes by default; this script returns
-  // immediately and the daemon stays alive.
+  // Set high FD limit for pm2's children (the websockify processes inherit it).
   return `#!/bin/bash
 set -e
 ulimit -SHn 65536
 echo "ulimit -n: soft=$(ulimit -Sn) hard=$(ulimit -Hn)"
-exec /usr/bin/supervisord -c /tmp/doom-mp/supervisord.conf
+exec pm2 start /tmp/doom-mp/ecosystem.config.cjs
 `;
 }
 
