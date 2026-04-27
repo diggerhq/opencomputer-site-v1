@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 const LOBBY_URL =
   (import.meta.env.VITE_DOOM_LOBBY_URL as string | undefined) ??
-  "https://sb-a2a1e740-p7000.workers.opencomputer.dev";
+  "https://sb-d8716609-p7000.workers.opencomputer.dev";
 
 const STATE_POLL_MS = 2_000;
 const HEARTBEAT_INTERVAL_MS = 5_000;
