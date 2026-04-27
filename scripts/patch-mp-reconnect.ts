@@ -70,7 +70,7 @@ for (const n of SLOTS) {
         "-rfbport", String(VNC_BASE + n), "-quiet"],
       restart_delay: 2000, out_file: `/tmp/doom-mp/x11vnc-${n}.log` },
     { ...common, name: `websockify-${n}`, script: "/usr/local/bin/websockify",
-      args: ["--web=/usr/share/novnc", "--idle-timeout=30",
+      args: ["--web=/usr/share/novnc",
         String(WEB_BASE + n), `127.0.0.1:${VNC_BASE + n}`],
       out_file: `/tmp/doom-mp/websockify-${n}.log` },
   );
