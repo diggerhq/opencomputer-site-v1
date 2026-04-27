@@ -216,6 +216,9 @@ function pm2Ecosystem(): string {
         ...common,
         name: `zandronum-${n}`,
         script: "/usr/bin/zandronum",
+        // +bind rebinds keys at startup. Mac Ctrl doesn't always make it
+        // through noVNC's keyboard relay, so we bind F to fire as a
+        // platform-neutral alternative.
         args: [
           "-iwad", "/usr/share/games/doom/freedoom2.wad",
           "-connect", `127.0.0.1:${SERVER_PORT}`,
@@ -225,6 +228,7 @@ function pm2Ecosystem(): string {
           "+vid_defwidth", "1024",
           "+vid_defheight", "768",
           "+vid_fullscreen", "0",
+          "+bind", "f", "+attack",
         ],
         env: { DISPLAY: `:10${n}`, HOME: "/tmp/doom-mp" },
         restart_delay: 3000,
