@@ -16,11 +16,18 @@
  */
 
 import { Sandbox } from "@opencomputer/sdk";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
 
 const SLOTS = [1, 2, 3, 4];
 const SERVER_PORT = 10666;
 const VNC_BASE = 5900;
 const WEB_BASE = 6080;
+const LOBBY_PORT = 7000;
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const LOBBY_SRC = resolve(__dirname, "lobby/server.cjs");
 
 function die(msg: string): never {
   console.error(`error: ${msg}`);
@@ -65,16 +72,36 @@ async function deploy() {
     die(`apt install failed (exit ${installCode})`);
   }
 
-  console.log("Writing config files (server.cfg, ecosystem.config.cjs, start.sh)…");
+  console.log("Writing config files (server.cfg, ecosystem.config.cjs, lobby/server.cjs, start.sh)…");
   await sb.files.write("/tmp/doom-mp/server.cfg", serverCfg());
   await sb.files.write("/tmp/doom-mp/ecosystem.config.cjs", pm2Ecosystem());
+  await sb.files.write("/tmp/doom-mp/lobby.cjs", readFileSync(LOBBY_SRC, "utf8"));
   await sb.files.write("/tmp/doom-mp/start.sh", startSh());
 
+  console.log("Reserving preview URLs for the 4 slots + lobby…");
+  // Reserve preview URLs first so we can bake the hostnames into the lobby's
+  // slot-hosts.json — the lobby returns these URLs to clients on /api/claim.
+  const slotUrls: { slot: number; host: string }[] = [];
+  for (const n of SLOTS) {
+    const preview = await sb.createPreviewURL({
+      port: WEB_BASE + n,
+      authConfig: { public: true },
+    });
+    slotUrls.push({ slot: n, host: preview.hostname });
+    console.log(`  slot ${n}: https://${preview.hostname}/`);
+  }
+  const lobbyPreview = await sb.createPreviewURL({
+    port: LOBBY_PORT,
+    authConfig: { public: true },
+  });
+  console.log(`  lobby:  https://${lobbyPreview.hostname}/api/state`);
+
+  await sb.files.write(
+    "/tmp/doom-mp/slot-hosts.json",
+    JSON.stringify(Object.fromEntries(slotUrls.map(({ slot, host }) => [slot, host])), null, 2),
+  );
+
   console.log("Booting the multiplayer stack…");
-  // - sudo mkdir state dirs
-  // - tee novnc index.html redirect (same trick as single-player demo)
-  // - chmod +x start.sh
-  // - run start.sh (ulimit + supervisord daemonized)
   const bootScript = `
     set -e
     sudo mkdir -p /tmp/doom-mp /tmp/.X11-unix
@@ -101,26 +128,19 @@ HTML
     die(`boot failed (exit ${bootCode})`);
   }
 
-  console.log("Exposing per-slot websockify ports…");
-  const slotUrls: { slot: number; host: string }[] = [];
-  for (const n of SLOTS) {
-    const preview = await sb.createPreviewURL({
-      port: WEB_BASE + n,
-      authConfig: { public: true },
-    });
-    slotUrls.push({ slot: n, host: preview.hostname });
-    console.log(`  slot ${n}: https://${preview.hostname}/`);
-  }
-
   console.log("\n──────────────────────────────────────────────");
-  console.log(" 🎮 multiplayer DOOM (phase 1a) is live");
+  console.log(" 🎮 multiplayer DOOM (phase 1b) is live");
   console.log("──────────────────────────────────────────────");
   console.log(` sandbox: ${sb.sandboxId}`);
   for (const { slot, host } of slotUrls) {
     console.log(` Player ${slot}:  https://${host}/`);
   }
+  console.log(` Lobby:    https://${lobbyPreview.hostname}`);
   console.log("──────────────────────────────────────────────");
-  console.log(" Open all 4 in separate browser windows to test deathmatch.");
+  console.log(" Test the lobby:");
+  console.log(`   curl -s https://${lobbyPreview.hostname}/api/state | jq`);
+  console.log(`   curl -s -X POST https://${lobbyPreview.hostname}/api/claim | jq`);
+  console.log("──────────────────────────────────────────────");
   console.log(` logs:  npx tsx scripts/deploy-multiplayer-doom.ts --logs ${sb.sandboxId}`);
   console.log(` kill:  npx tsx scripts/deploy-multiplayer-doom.ts --kill ${sb.sandboxId}`);
   console.log("──────────────────────────────────────────────\n");
@@ -163,6 +183,16 @@ function pm2Ecosystem(): string {
       cwd: "/tmp/doom-mp",
       restart_delay: 1000,
       out_file: "/tmp/doom-mp/zandronum-server.log",
+    },
+    // Lobby — node script, so DON'T pass interpreter:"none". Default node.
+    {
+      autorestart: true,
+      merge_logs: true,
+      name: "lobby",
+      script: "/tmp/doom-mp/lobby.cjs",
+      env: { LOBBY_PORT: String(LOBBY_PORT) },
+      restart_delay: 2000,
+      out_file: "/tmp/doom-mp/lobby.log",
     },
   ];
   for (const n of SLOTS) {
