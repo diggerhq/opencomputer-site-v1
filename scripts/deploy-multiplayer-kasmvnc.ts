@@ -148,7 +148,17 @@ sv_smartaim 0
 }
 
 function pm2Ecosystem(): string {
-  const common = { autorestart: true, interpreter: "none" as const, merge_logs: true };
+  // max_restarts caps the restart loop — without it, a misconfigured worker
+  // forks zombies forever until nproc/fork-EAGAIN cascades and breaks
+  // unrelated processes (we hit this earlier debugging Xvnc).
+  // min_uptime: don't count an immediate-exit as "stable" until 10s.
+  const common = {
+    autorestart: true,
+    interpreter: "none" as const,
+    merge_logs: true,
+    max_restarts: 10,
+    min_uptime: "10s" as const,
+  };
   const apps: object[] = [
     {
       ...common,
@@ -180,25 +190,24 @@ function pm2Ecosystem(): string {
         ...common,
         name: `kasmvnc-${n}`,
         script: "/usr/bin/Xvnc",
-        // KasmVNC's Xvnc creates an X display, encodes VNC, AND serves
-        // noVNC + WebSocket on a single port — all in one process.
-        //   - :10N is the X display number
-        //   - -SecurityTypes None: no VNC password (preview URL is the gate)
-        //   - -interface 0.0.0.0: bind on all interfaces
-        //   - -websocketPort/-httpPort: combined http+ws on the same port
-        //   - -sslOnly off: serve plain http; CF terminates TLS in front
-        //   - -RFBPort 0: don't open the raw VNC port (saves a port + FDs)
+        // KasmVNC's Xvnc serves HTTP (noVNC client) + WebSocket on a single
+        // port (websocketPort). httpd serves /usr/local/share/kasmvnc/www
+        // by default. Don't open a raw VNC port (rfbport 0). sslOnly off
+        // because the preview URL terminates TLS in front of us.
         args: [
           `:10${n}`,
           "-geometry", "1024x768",
           "-depth", "24",
           "-SecurityTypes", "None",
+          "-DisableBasicAuth=1",
           "-interface", "0.0.0.0",
           "-rfbport", "0",
           "-websocketPort", String(WEB_BASE + n),
-          "-httpPort", String(WEB_BASE + n),
-          "-sslOnly", "off",
-          "-AlwaysShared",
+          // KasmVNC's default httpd path is /usr/local/share/kasmvnc/www, but
+          // the apt package installs the noVNC client to /usr/share/kasmvnc/www.
+          // Without this, every HTTP request gets an empty reply.
+          "-httpd", "/usr/share/kasmvnc/www",
+          // sslOnly defaults to 0 (no SSL required) — that's what we want, so omit.
         ],
         out_file: `/tmp/doom-mp/kasmvnc-${n}.log`,
         restart_delay: 2000,
