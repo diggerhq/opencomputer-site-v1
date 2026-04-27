@@ -3,6 +3,7 @@ import { Copy, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 import SitePageLayout from "@/components/SitePageLayout";
+import DoomMultiplayer from "@/components/DoomMultiplayer";
 
 const features = [
   {
@@ -39,7 +40,6 @@ const SKILL_INSTALL_CMD = "npx skills add diggerhq/opencomputer";
 const Index = () => {
   const [skillCopied, setSkillCopied] = useState(false);
   const [tierIndex, setTierIndex] = useState(1);
-  const [doomLoaded, setDoomLoaded] = useState(false);
 
   const handleSkillCopy = () => {
     navigator.clipboard.writeText(SKILL_INSTALL_CMD);
@@ -176,40 +176,11 @@ const Index = () => {
             This is a REAL computer.
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-6 text-muted-foreground">
-            Don't believe us? See for yourself — play DOOM on a live OpenComputer VM, right now, in your browser. Everyone watching shares the same screen and inputs. Anarchy encouraged.
+            Don't believe us? Play 4-player deathmatch on a live OpenComputer VM, right now, in your browser. 90 seconds per slot, then it's the next person's turn. Watch live while you wait.
           </p>
-          <div className="rounded-lg overflow-hidden border border-border/50 shadow-lg bg-black">
-            <div className="bg-[hsl(0,0%,95%)] border-b border-[hsl(0,0%,88%)] px-4 py-2.5 flex justify-between items-center">
-              <div className="flex gap-2">
-                <span className="w-3 h-3 rounded-full bg-[hsl(0,0%,75%)]" />
-                <span className="w-3 h-3 rounded-full bg-[hsl(0,0%,75%)]" />
-                <span className="w-3 h-3 rounded-full bg-[hsl(0,0%,75%)]" />
-              </div>
-              <span className="font-mono-brand text-xs text-[hsl(0,0%,55%)]">DOOM @ sb-8ab91735</span>
-              <span className="font-mono-brand text-[10px] uppercase tracking-[0.15em] text-[hsl(0,0%,55%)]">live</span>
-            </div>
-            <div className="aspect-[4/3] sm:aspect-[16/10] w-full bg-black relative">
-              {doomLoaded ? (
-                <iframe
-                  src="https://sb-8ab91735-p6080.workers.opencomputer.dev/vnc.html?autoconnect=1&resize=scale"
-                  title="DOOM running on OpenComputer"
-                  className="w-full h-full block border-0"
-                  allow="fullscreen; gamepad; clipboard-read; clipboard-write"
-                />
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setDoomLoaded(true)}
-                  className="w-full h-full flex flex-col items-center justify-center gap-3 text-white/90 hover:text-white transition-colors"
-                >
-                  <span className="font-heading text-[clamp(28px,4vw,42px)] tracking-[-0.5px]">▶ Play DOOM</span>
-                  <span className="font-mono-brand text-[12px] uppercase tracking-[0.2em] text-white/50">click to connect</span>
-                </button>
-              )}
-            </div>
-          </div>
+          <DoomMultiplayer />
           <p className="mt-3 text-[13px] text-muted-foreground">
-            Click the frame to capture keyboard input. Arrow keys to move, Ctrl to fire, Space to open doors. {" "}
+            Arrow keys to move, comma/period to strafe, Ctrl to fire, E to use. {" "}
             <a
               href="https://gist.github.com/motatoes/442740b83b78c5e5ef3edda953d4208b"
               target="_blank"
