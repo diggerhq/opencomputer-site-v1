@@ -241,8 +241,12 @@ function pm2Ecosystem(): string {
         ...common,
         name: `websockify-${n}`,
         script: "/usr/local/bin/websockify",
+        // --idle-timeout=30: kick clients that have been idle for 30s.
+        //   Cleans up stuck child processes faster, avoids the orphan-storm
+        //   wedge that recurs under noVNC reconnect attempts.
         args: [
           "--web=/usr/share/novnc",
+          "--idle-timeout=30",
           String(WEB_BASE + n),
           `127.0.0.1:${VNC_BASE + n}`,
         ],

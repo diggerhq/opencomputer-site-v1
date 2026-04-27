@@ -60,7 +60,9 @@ function publicState() {
 
 function slotUrl(n) {
   const host = slotHosts[n];
-  return host ? `https://${host}/vnc.html?autoconnect=1&resize=scale` : null;
+  // reconnect=false: don't let noVNC reconnect-storm websockify on disconnect.
+  // websockify's fork-per-connection model wedges under fast reconnects.
+  return host ? `https://${host}/vnc.html?autoconnect=1&resize=scale&reconnect=false` : null;
 }
 
 function assign(sessionId, slot) {
