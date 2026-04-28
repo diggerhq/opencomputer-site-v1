@@ -105,10 +105,10 @@ const Index = () => {
             <button
               type="button"
               onClick={handleSkillCopy}
-              className="w-full flex items-center justify-between gap-4 text-left text-[15px] font-medium px-5 py-4 rounded-md bg-foreground text-background hover:opacity-90 transition-opacity duration-150"
+              className="inline-flex max-w-[260px] items-center justify-between gap-3 text-left text-[15px] font-medium px-4 py-3 rounded-md bg-foreground text-background hover:opacity-90 transition-opacity duration-150"
               aria-label="Copy setup instructions for my agent"
             >
-              <span>{skillCopied ? "Copied!" : "Copy setup instructions for my agent"}</span>
+              <span className="leading-snug">{skillCopied ? "Copied!" : "Copy setup instructions for my agent"}</span>
               {skillCopied ? (
                 <Check className="w-4 h-4 flex-shrink-0 opacity-90" />
               ) : (
