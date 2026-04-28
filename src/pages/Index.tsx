@@ -29,10 +29,36 @@ const features = [
 ];
 
 const pricingTiers = [
-  { mem: "1 GB", cpu: "1 vCPU", sec: "$0.000001080246914" },
-  { mem: "4 GB", cpu: "1 vCPU", sec: "$0.000005787037037" },
-  { mem: "8 GB", cpu: "2 vCPU", sec: "$0.00001350308642" },
-  { mem: "16 GB", cpu: "4 vCPU", sec: "$0.00002700617284" },
+  {
+    mem: "1 GB",
+    cpu: "1 vCPU",
+    reserved: { min: "$0.0002", hr: "$0.012", mo: "$8.76" },
+    instant: { min: "$0.001", hr: "$0.06", mo: "$42.18" },
+  },
+  {
+    mem: "2 GB",
+    cpu: "1 vCPU",
+    reserved: { min: "$0.0004", hr: "$0.024", mo: "$17.52" },
+    instant: { min: "$0.002", hr: "$0.12", mo: "$84.36" },
+  },
+  {
+    mem: "4 GB",
+    cpu: "1 vCPU",
+    reserved: { min: "$0.0008", hr: "$0.048", mo: "$35.04" },
+    instant: { min: "$0.004", hr: "$0.24", mo: "$168.72" },
+  },
+  {
+    mem: "8 GB",
+    cpu: "2 vCPU",
+    reserved: { min: "$0.0016", hr: "$0.096", mo: "$70.08" },
+    instant: { min: "$0.008", hr: "$0.48", mo: "$337.44" },
+  },
+  {
+    mem: "16 GB",
+    cpu: "4 vCPU",
+    reserved: { min: "$0.0032", hr: "$0.192", mo: "$140.16" },
+    instant: { min: "$0.016", hr: "$0.96", mo: "$674.88" },
+  },
 ];
 
 const SKILL_INSTALL_CMD = "npx skills add diggerhq/opencomputer";
@@ -207,7 +233,10 @@ const Index = () => {
             <div className="mb-8">
               <div className="flex items-center justify-between mb-3">
                 <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">Memory</p>
-                <p className="font-heading text-[28px] tracking-[-0.5px]">{pricingTiers[tierIndex].mem}</p>
+                <p className="font-heading text-[28px] tracking-[-0.5px]">
+                  {pricingTiers[tierIndex].mem}
+                  <span className="text-muted-foreground text-[18px] ml-3">{pricingTiers[tierIndex].cpu}</span>
+                </p>
               </div>
               <input
                 type="range"
@@ -218,20 +247,63 @@ const Index = () => {
                 className="w-full h-2 rounded-full appearance-none cursor-pointer bg-border accent-foreground"
               />
               <div className="flex justify-between mt-2">
-                <span className="font-mono-brand text-[11px] text-muted-foreground">4 GB</span>
+                <span className="font-mono-brand text-[11px] text-muted-foreground">1 GB</span>
                 <span className="font-mono-brand text-[11px] text-muted-foreground">16 GB</span>
               </div>
             </div>
 
-            {/* Stats */}
+            {/* Pricing cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              <div className="text-center p-4 rounded-lg bg-white border border-border/50">
-                <p className="font-heading text-[28px] tracking-[-0.5px]">{pricingTiers[tierIndex].cpu}</p>
-                <p className="font-mono-brand text-[11px] text-muted-foreground mt-1">compute</p>
+              <div className="p-5 rounded-lg bg-foreground text-background">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-70">Pre-booked</p>
+                  <span className="font-mono-brand text-[10px] uppercase tracking-[0.12em] px-2 py-0.5 rounded-full bg-background/15 text-background">
+                    5× cheaper than Instant
+                  </span>
+                </div>
+                <p className="text-[13px] leading-[1.5] opacity-80 mb-4">
+                  30 min notice. No commitment.{" "}
+                  <a
+                    href="https://docs.opencomputer.dev/reserved-capacity/overview"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline hover:opacity-100 opacity-90"
+                  >
+                    See docs →
+                  </a>
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-baseline justify-between">
+                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-60">per month</span>
+                    <span className="font-heading text-[24px] tracking-[-0.5px]">{pricingTiers[tierIndex].reserved.mo}</span>
+                  </div>
+                  <div className="flex items-baseline justify-between">
+                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-60">per hour</span>
+                    <span className="font-heading text-[18px] tracking-[-0.3px] opacity-90">{pricingTiers[tierIndex].reserved.hr}</span>
+                  </div>
+                  <div className="flex items-baseline justify-between">
+                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-60">per minute</span>
+                    <span className="font-heading text-[18px] tracking-[-0.3px] opacity-90">{pricingTiers[tierIndex].reserved.min}</span>
+                  </div>
+                </div>
               </div>
-              <div className="text-center p-4 rounded-lg bg-white border border-border/50 overflow-hidden">
-                <p className="font-heading text-[clamp(16px,4vw,28px)] tracking-[-0.5px] break-all">{pricingTiers[tierIndex].sec}<span className="text-[clamp(12px,2.5vw,16px)] text-muted-foreground"> / sec</span></p>
-                <p className="font-mono-brand text-[11px] text-muted-foreground mt-1">per second</p>
+
+              <div className="p-5 rounded-lg bg-white border border-border/50">
+                <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-4">Instant</p>
+                <div className="space-y-3">
+                  <div className="flex items-baseline justify-between">
+                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">per month</span>
+                    <span className="font-heading text-[24px] tracking-[-0.5px]">{pricingTiers[tierIndex].instant.mo}</span>
+                  </div>
+                  <div className="flex items-baseline justify-between">
+                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">per hour</span>
+                    <span className="font-heading text-[18px] tracking-[-0.3px]">{pricingTiers[tierIndex].instant.hr}</span>
+                  </div>
+                  <div className="flex items-baseline justify-between">
+                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">per minute</span>
+                    <span className="font-heading text-[18px] tracking-[-0.3px]">{pricingTiers[tierIndex].instant.min}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
