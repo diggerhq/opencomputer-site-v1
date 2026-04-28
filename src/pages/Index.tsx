@@ -274,16 +274,16 @@ const Index = () => {
                 </p>
                 <div className="space-y-3">
                   <div className="flex items-baseline justify-between">
-                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-60">per month</span>
-                    <span className="font-heading text-[24px] tracking-[-0.5px]">{pricingTiers[tierIndex].reserved.mo}</span>
+                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-60">per minute</span>
+                    <span className="font-heading text-[18px] tracking-[-0.3px] opacity-90">{pricingTiers[tierIndex].reserved.min}</span>
                   </div>
                   <div className="flex items-baseline justify-between">
                     <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-60">per hour</span>
                     <span className="font-heading text-[18px] tracking-[-0.3px] opacity-90">{pricingTiers[tierIndex].reserved.hr}</span>
                   </div>
                   <div className="flex items-baseline justify-between">
-                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-60">per minute</span>
-                    <span className="font-heading text-[18px] tracking-[-0.3px] opacity-90">{pricingTiers[tierIndex].reserved.min}</span>
+                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-60">per month</span>
+                    <span className="font-heading text-[24px] tracking-[-0.5px]">{pricingTiers[tierIndex].reserved.mo}</span>
                   </div>
                 </div>
               </div>
@@ -292,16 +292,16 @@ const Index = () => {
                 <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-4">Instant</p>
                 <div className="space-y-3">
                   <div className="flex items-baseline justify-between">
-                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">per month</span>
-                    <span className="font-heading text-[24px] tracking-[-0.5px]">{pricingTiers[tierIndex].instant.mo}</span>
+                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">per minute</span>
+                    <span className="font-heading text-[18px] tracking-[-0.3px]">{pricingTiers[tierIndex].instant.min}</span>
                   </div>
                   <div className="flex items-baseline justify-between">
                     <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">per hour</span>
                     <span className="font-heading text-[18px] tracking-[-0.3px]">{pricingTiers[tierIndex].instant.hr}</span>
                   </div>
                   <div className="flex items-baseline justify-between">
-                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">per minute</span>
-                    <span className="font-heading text-[18px] tracking-[-0.3px]">{pricingTiers[tierIndex].instant.min}</span>
+                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">per month</span>
+                    <span className="font-heading text-[24px] tracking-[-0.5px]">{pricingTiers[tierIndex].instant.mo}</span>
                   </div>
                 </div>
               </div>
