@@ -3,7 +3,6 @@ import { Copy, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 import SitePageLayout from "@/components/SitePageLayout";
-import DoomMultiplayer from "@/components/DoomMultiplayer";
 
 const features = [
   {
@@ -193,29 +192,6 @@ const Index = () => {
               </p>
             </div>
           ))}
-        </div>
-      </FadeIn>
-
-      <FadeIn>
-        <div className="my-14">
-          <p className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-3">
-            This is a REAL computer.
-          </p>
-          <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-6 text-muted-foreground">
-            Don't believe us? Play 4-player deathmatch on a live OpenComputer VM, right now, in your browser. 90 seconds per slot, then it's the next person's turn. Watch live while you wait.
-          </p>
-          <DoomMultiplayer />
-          <p className="mt-3 text-[13px] text-muted-foreground">
-            Arrow keys to move, comma/period to strafe, mouse click to fire, E to use. {" "}
-            <a
-              href="https://gist.github.com/motatoes/442740b83b78c5e5ef3edda953d4208b"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-foreground transition-colors"
-            >
-              Deploy your own.
-            </a>
-          </p>
         </div>
       </FadeIn>
 
