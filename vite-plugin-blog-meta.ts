@@ -16,6 +16,13 @@ const DEFAULT_IMAGE = `${BASE_URL}/social-preview.png`;
 
 const blogPosts: BlogMeta[] = [
   {
+    slug: "stop-treating-sandboxes-as-cattle",
+    title: "Stop Treating Agent Sandboxes as Cattle",
+    description:
+      "A direct response to 'The agent harness belongs outside the sandbox.' Why credentials, hibernation, elasticity, and checkpoints make a persistent in-sandbox harness the better default.",
+    author: "Utpal Nadiger",
+  },
+  {
     slug: "the-race-to-build-the-next-wordpress",
     title: "The Race to Build the Next WordPress",
     description:

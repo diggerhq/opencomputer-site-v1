@@ -14,6 +14,7 @@ import SandboxFingerprinting from "./pages/blog/SandboxFingerprinting";
 import AgentExecutionNewHttpRequest from "./pages/blog/AgentExecutionNewHttpRequest";
 import WhatElasticComputeMeans from "./pages/blog/WhatElasticComputeMeans";
 import TheRaceToBuildTheNextWordpress from "./pages/blog/TheRaceToBuildTheNextWordpress";
+import StopTreatingSandboxesAsCattle from "./pages/blog/StopTreatingSandboxesAsCattle";
 import DesignPartners from "./pages/DesignPartners";
 import Clawputer from "./pages/Clawputer";
 import NotFound from "./pages/NotFound";
@@ -47,6 +48,8 @@ const App = () => (
           <Route path="/guides/what-elastic-compute-means" element={<WhatElasticComputeMeans />} />
           <Route path="/blog/the-race-to-build-the-next-wordpress" element={<TheRaceToBuildTheNextWordpress />} />
           <Route path="/guides/the-race-to-build-the-next-wordpress" element={<TheRaceToBuildTheNextWordpress />} />
+          <Route path="/blog/stop-treating-sandboxes-as-cattle" element={<StopTreatingSandboxesAsCattle />} />
+          <Route path="/guides/stop-treating-sandboxes-as-cattle" element={<StopTreatingSandboxesAsCattle />} />
           <Route path="/partners" element={<DesignPartners />} />
           <Route path="/clawputer" element={<Clawputer />} />
           {devRoutes}
