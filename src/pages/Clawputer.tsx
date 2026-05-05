@@ -1,5 +1,4 @@
 import FadeIn from "@/components/FadeIn";
-import ShikiCodeBlock from "@/components/ShikiCodeBlock";
 import SitePageLayout from "@/components/SitePageLayout";
 import SEO from "@/components/SEO";
 
@@ -71,11 +70,6 @@ const features = [
   },
 ];
 
-const STEP_CREATE = `oc agent create my-claw --core openclaw`;
-const STEP_GBRAIN = `oc agent install my-claw gbrain`;
-const STEP_TELEGRAM = `oc agent connect my-claw telegram \\
-  --bot-token YOUR_BOT_TOKEN`;
-
 const Clawputer = () => {
   return (
     <SitePageLayout>
@@ -99,8 +93,8 @@ const Clawputer = () => {
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px] text-muted-foreground">
             A managed OpenClaw agent inside an always-on OpenComputer sandbox, wired to a
-            Postgres-backed knowledge base and reachable from your phone. Three commands to
-            stand up, no servers to babysit.
+            Postgres-backed knowledge base and reachable from your phone. Four steps in the
+            dashboard, no servers to babysit.
           </p>
         </div>
       </FadeIn>
@@ -168,10 +162,10 @@ const Clawputer = () => {
       {/* ── Build it ── */}
       <FadeIn>
         <p className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mt-16 mb-3">
-          Three commands.
+          Four steps. All in the dashboard.
         </p>
         <p className="text-[17px] leading-[1.75] tracking-[-0.1px] text-muted-foreground mb-10 max-w-[680px]">
-          Grab an API key from{" "}
+          Sign in at{" "}
           <a
             href="https://app.opencomputer.dev"
             target="_blank"
@@ -179,7 +173,7 @@ const Clawputer = () => {
           >
             app.opencomputer.dev
           </a>
-          , install the <InlineCode>oc</InlineCode> CLI, and run these.
+          . No CLI, no servers to babysit.
         </p>
 
         <div className="space-y-8">
@@ -189,13 +183,18 @@ const Clawputer = () => {
               <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
                 Step 01
               </p>
-              <p className="font-heading text-[22px] tracking-[-0.3px] mt-1">Create</p>
+              <p className="font-heading text-[22px] tracking-[-0.3px] mt-1">Click deploy</p>
             </div>
-            <div className="space-y-2">
-              <ShikiCodeBlock code={STEP_CREATE} language="bash" copyable />
+            <div className="space-y-3">
+              <img
+                src="/clawputer/deploy.png"
+                alt="Deploy an OpenClaw managed agent button in the OpenComputer dashboard"
+                loading="lazy"
+                className="w-full rounded-lg border border-border/60 bg-[hsl(0,0%,8%)]"
+              />
               <p className="text-[14px] text-muted-foreground leading-[1.6]">
-                Provisions a sandbox with Node 22, OpenRouter pre-configured, and the OpenClaw
-                gateway running. Ready in 20&ndash;30 seconds.
+                One click from the dashboard provisions a fresh, always-on OpenComputer sandbox
+                with Node 22 and OpenRouter pre-configured. Ready in 20&ndash;30 seconds.
               </p>
             </div>
           </div>
@@ -206,13 +205,18 @@ const Clawputer = () => {
               <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
                 Step 02
               </p>
-              <p className="font-heading text-[22px] tracking-[-0.3px] mt-1">Add memory</p>
+              <p className="font-heading text-[22px] tracking-[-0.3px] mt-1">Create the agent</p>
             </div>
-            <div className="space-y-2">
-              <ShikiCodeBlock code={STEP_GBRAIN} language="bash" copyable />
+            <div className="space-y-3">
+              <img
+                src="/clawputer/create-agent.png"
+                alt="Create agent dialog with Agent ID, Display name, and openclaw core selected"
+                loading="lazy"
+                className="w-full rounded-lg border border-border/60 bg-[hsl(0,0%,8%)]"
+              />
               <p className="text-[14px] text-muted-foreground leading-[1.6]">
-                Allocates a managed Postgres database, clones gbrain, and wires it as an MCP
-                server. Idempotent &mdash; the database survives uninstall and reinstall.
+                Spin up your first managed OpenClaw agent inside the OpenComputer. Claude via
+                OpenRouter and gbrain memory are wired in for you &mdash; no plumbing to write.
               </p>
             </div>
           </div>
@@ -223,12 +227,39 @@ const Clawputer = () => {
               <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
                 Step 03
               </p>
-              <p className="font-heading text-[22px] tracking-[-0.3px] mt-1">Connect Telegram</p>
+              <p className="font-heading text-[22px] tracking-[-0.3px] mt-1">Chat in the dashboard</p>
             </div>
-            <div className="space-y-2">
-              <ShikiCodeBlock code={STEP_TELEGRAM} language="bash" copyable />
+            <div className="space-y-3">
+              <img
+                src="/clawputer/chat.png"
+                alt="Agent overview tab with in-dashboard chat panel and live health indicators"
+                loading="lazy"
+                className="w-full rounded-lg border border-border/60 bg-[hsl(0,0%,8%)]"
+              />
               <p className="text-[14px] text-muted-foreground leading-[1.6]">
-                Get the bot token from{" "}
+                When the agent comes up, the dashboard chat opens against it. Talk to it right
+                there &mdash; no extra setup, no waiting on channels.
+              </p>
+            </div>
+          </div>
+
+          {/* Step 4 */}
+          <div className="grid grid-cols-1 md:grid-cols-[120px_1fr] gap-4 md:gap-8 items-start">
+            <div>
+              <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+                Step 04
+              </p>
+              <p className="font-heading text-[22px] tracking-[-0.3px] mt-1">Subscribe &amp; connect Telegram</p>
+            </div>
+            <div className="space-y-3">
+              <img
+                src="/clawputer/connect-telegram.png"
+                alt="Telegram channel card with Subscribe and connect button"
+                loading="lazy"
+                className="w-full max-w-[420px] rounded-lg border border-border/60 bg-[hsl(0,0%,8%)]"
+              />
+              <p className="text-[14px] text-muted-foreground leading-[1.6]">
+                Subscribe to enable channels, paste a bot token from{" "}
                 <a
                   href="https://t.me/BotFather"
                   target="_blank"
@@ -236,7 +267,8 @@ const Clawputer = () => {
                 >
                   BotFather
                 </a>
-                . The webhook is registered for you and OpenClaw hot-reloads &mdash; no restart.
+                , and your agent is on your phone. The webhook is registered for you and OpenClaw
+                hot-reloads &mdash; no restart.
               </p>
             </div>
           </div>
@@ -345,7 +377,7 @@ const Clawputer = () => {
 
       <SEO
         title="Clawputer"
-        description="Your personal AI agent on Telegram, with persistent memory. OpenClaw + gbrain on OpenComputer in three commands."
+        description="Your personal AI agent on Telegram, with persistent memory. OpenClaw + gbrain on OpenComputer in four steps from the dashboard."
         path="/clawputer"
         type="website"
       />
