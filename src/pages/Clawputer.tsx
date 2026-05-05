@@ -102,11 +102,11 @@ const Clawputer = () => {
       <FadeIn delay={0.16}>
         <div className="mb-6 flex flex-wrap items-center gap-3">
           <a
-            href="https://docs.opencomputer.dev/guides/create-openclaw-agent"
+            href="https://app.opencomputer.dev"
             target="_blank"
             className="inline-block text-[15px] font-medium px-10 py-4 rounded-md bg-primary text-primary-foreground border border-primary hover:bg-foreground/90 transition-all duration-150"
           >
-            Read the guide &rarr;
+            Set up now &rarr;
           </a>
         </div>
       </FadeIn>
