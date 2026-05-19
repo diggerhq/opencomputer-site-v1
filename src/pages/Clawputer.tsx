@@ -1,383 +1,287 @@
+import { useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import FadeIn from "@/components/FadeIn";
 import SitePageLayout from "@/components/SitePageLayout";
 import SEO from "@/components/SEO";
 
-const InlineCode = ({ children }: { children: React.ReactNode }) => (
-  <code className="font-mono-brand text-[15px] bg-[hsl(0,0%,93%)] px-1.5 py-0.5 rounded">
-    {children}
-  </code>
-);
+// Clawputer landing — Poke-style dead-simple setup, ported into the
+// opencomputer.dev site. One job above the fold: get a visitor into a
+// working iMessage or Telegram conversation in two taps. Use cases
+// render as a single iMessage thread instead of a card grid.
 
-const DiagramBox = ({
-  label,
-  sub,
-  accent = false,
-}: {
-  label: string;
-  sub?: string;
-  accent?: boolean;
-}) => (
-  <div
-    className={`px-5 py-4 rounded-lg border text-center min-w-[140px] ${
-      accent
-        ? "bg-foreground text-background border-foreground"
-        : "bg-[hsl(0,0%,98%)] text-foreground border-border"
-    }`}
-  >
-    <p className={`font-mono-brand text-[13px] font-medium ${accent ? "text-background" : ""}`}>
-      {label}
-    </p>
-    {sub && (
-      <p
-        className={`font-mono-brand text-[11px] mt-1 ${
-          accent ? "text-background/60" : "text-muted-foreground"
-        }`}
-      >
-        {sub}
-      </p>
-    )}
-  </div>
-);
+const POOL_PHONE_E164 = "+16462427398";
+const POOL_PHONE_DISPLAY = "+1 (646) 242-7398";
+const TELEGRAM_BOT_USERNAME = "clawputer_the_bot";
+const TELEGRAM_LINK = `https://t.me/${TELEGRAM_BOT_USERNAME}`;
+// iOS uses & as the body separator on sms: links; Android also accepts it.
+const SMS_DEEP_LINK = `sms:${POOL_PHONE_E164}&body=${encodeURIComponent("hi")}`;
 
-const Arrow = ({ direction = "right" }: { direction?: "right" | "down" }) => (
-  <div className="flex items-center justify-center">
-    <span className="font-mono-brand text-[18px] text-muted-foreground select-none">
-      {direction === "right" ? "\u2192" : "\u2193"}
-    </span>
-  </div>
-);
+type Channel = "imessage" | "telegram";
 
-const features = [
-  {
-    title: "OpenClaw",
-    description:
-      "An AI gateway with a rich plugin SDK, native MCP support, and hot-reload config. Runs Claude via OpenRouter out of the box.",
+const CHANNELS: Record<Channel, {
+  title: string;
+  hint: string;
+  qrValue: string;
+  copyValue: string;
+  copyDisplay: string;
+  buttonHref: string;
+  buttonLabel: string;
+  switchLabel: string;
+  switchTo: Channel;
+}> = {
+  imessage: {
+    title: "iMessage",
+    hint: "Scan with your iPhone camera, or tap below.",
+    qrValue: SMS_DEEP_LINK,
+    copyValue: POOL_PHONE_E164,
+    copyDisplay: POOL_PHONE_DISPLAY,
+    buttonHref: SMS_DEEP_LINK,
+    buttonLabel: "Open iMessage",
+    switchLabel: "Try Telegram instead",
+    switchTo: "telegram",
   },
-  {
-    title: "gbrain",
-    description:
-      "Persistent memory backed by Postgres with vector search. 34 tools for storing, searching, and organizing knowledge.",
-  },
-  {
+  telegram: {
     title: "Telegram",
-    description:
-      "Reach your agent from your phone or desktop. One bot token connects the channel — OpenClaw hot-reloads, no restart.",
+    hint: "Scan with any phone, or tap below.",
+    qrValue: TELEGRAM_LINK,
+    copyValue: `@${TELEGRAM_BOT_USERNAME}`,
+    copyDisplay: `@${TELEGRAM_BOT_USERNAME}`,
+    buttonHref: TELEGRAM_LINK,
+    buttonLabel: "Open Telegram",
+    switchLabel: "Try iMessage instead",
+    switchTo: "imessage",
+  },
+};
+
+// Single chat thread — same exchanges as clawputer.dev, last reply is a
+// "typing" indicator so the section reads like a live conversation.
+type Exchange =
+  | { prompt: string; reply: string }
+  | { prompt: string; typing: string };
+
+const THREAD: Exchange[] = [
+  {
+    prompt: "Every weekday at 8am, text me my calendar + anything urgent in email.",
+    reply: "Got it. First brief lands tomorrow at 8:00 AM PT.",
   },
   {
-    title: "OpenComputer",
-    description:
-      "An always-on sandbox with persistent state. The agent stays where you left it, ready when you are.",
+    prompt: "Find 30 min with Jane next week and send the invite.",
+    reply: "Wed 2:30–3pm works for both of you. Invite sent.",
+  },
+  {
+    prompt: "Ping me whenever anyone with >10k followers tweets about clawputer.",
+    reply: "Watching. I'll text you the first match.",
+  },
+  {
+    prompt: "Bump the Stripe SDK, run the tests, open a PR.",
+    reply: "PR #482 open — all green. Squash & merge?",
+  },
+  {
+    prompt: "Compare the top 3 Postgres-on-K8s operators. Two paragraphs, cite sources.",
+    typing: "Spinning up a browser in the sandbox…",
   },
 ];
 
+const PRICE_INCLUDES = [
+  "Your own iMessage- or Telegram-native AI agent",
+  "Always-on Linux sandbox per agent — files, browser, terminal",
+  "Persistent memory via gbrain (Postgres + vector)",
+  "Tokens included during early access",
+  "No app to install, no signup form, no rate limits",
+];
+
+function CopyPill({ value, display }: { value: string; display: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(value);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1400);
+        } catch {
+          /* clipboard blocked — user can still read the value */
+        }
+      }}
+      aria-label={`Copy ${display}`}
+      className="w-full bg-[hsl(40,15%,18%)] text-background rounded-xl px-4 py-3 flex items-center justify-between gap-3 font-mono-brand text-[14px] tracking-[0.01em] hover:bg-[hsl(40,15%,22%)] transition-colors"
+    >
+      <span className="flex-1 text-center truncate">{display}</span>
+      <span className="inline-flex items-center text-background/60" aria-hidden>
+        {copied ? (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+        ) : (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        )}
+      </span>
+    </button>
+  );
+}
+
+function ClawputerMark() {
+  return (
+    <span className="inline-flex w-14 h-14 rounded-[13px] items-center justify-center" aria-hidden>
+      <svg width="56" height="56" viewBox="0 0 40 40">
+        <rect width="40" height="40" rx="9" className="fill-foreground" />
+        <path
+          d="M27 14.5a8.5 8.5 0 1 0 0 11"
+          fill="none"
+          className="stroke-background"
+          strokeWidth="3.2"
+          strokeLinecap="round"
+        />
+      </svg>
+    </span>
+  );
+}
+
 const Clawputer = () => {
+  const [channel, setChannel] = useState<Channel>("imessage");
+  const c = CHANNELS[channel];
+
   return (
     <SitePageLayout>
       {/* ── Hero ── */}
       <FadeIn>
-        <p className="font-mono-brand text-[12px] uppercase tracking-[0.2em] text-muted-foreground mb-5">
-          openclaw &middot; gbrain &middot; telegram
-        </p>
-      </FadeIn>
-
-      <FadeIn delay={0.04}>
-        <h1 className="font-heading text-[clamp(48px,7vw,80px)] leading-[1.05] tracking-[-1.8px] mb-8">
-          Clawputer.
-        </h1>
-      </FadeIn>
-
-      <FadeIn delay={0.1}>
-        <div className="mb-10 space-y-6 max-w-[680px]">
-          <p className="text-[19px] leading-[1.65] tracking-[-0.15px]">
-            Your personal AI agent. On Telegram. With memory that sticks around.
+        <div className="flex flex-col items-center text-center gap-4 mb-12">
+          <ClawputerMark />
+          <h1 className="font-heading text-[clamp(44px,7vw,72px)] leading-[1.02] tracking-[-1.6px] font-medium mt-2">
+            Welcome to clawputer.
+          </h1>
+          <p className="text-[clamp(18px,2vw,22px)] leading-[1.4] font-medium max-w-[560px] text-foreground">
+            A personal AI assistant with a real computer and memory that sticks.
           </p>
-          <p className="text-[17px] leading-[1.75] tracking-[-0.1px] text-muted-foreground">
-            A managed OpenClaw agent inside an always-on OpenComputer sandbox, wired to a
-            Postgres-backed knowledge base and reachable from your phone. Four steps in the
-            dashboard, no servers to babysit.
+          <p className="text-[15px] text-muted-foreground max-w-[440px]">
+            Send a text to get started.
           </p>
         </div>
       </FadeIn>
 
-      <FadeIn delay={0.16}>
-        <div className="mb-6 flex flex-wrap items-center gap-3">
-          <a
-            href="https://app.opencomputer.dev"
-            target="_blank"
-            className="inline-block text-[15px] font-medium px-10 py-4 rounded-md bg-primary text-primary-foreground border border-primary hover:bg-foreground/90 transition-all duration-150"
-          >
-            Set up now &rarr;
-          </a>
-        </div>
-      </FadeIn>
-
-      <FadeIn delay={0.22}>
-        <div className="w-12 h-px bg-border my-12" />
-      </FadeIn>
-
-      {/* ── Pitch ── */}
-      <FadeIn>
-        <p className="font-heading text-[clamp(28px,4vw,42px)] leading-[1.3] tracking-[-0.8px] mb-2 max-w-[820px]">
-          An agent that remembers what you told it last week. Lives in your pocket. Doesn't time out.
-        </p>
-      </FadeIn>
-
-      {/* ── What's inside ── */}
-      <FadeIn>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 my-14">
-          {features.map((f) => (
-            <div
-              key={f.title}
-              className="p-6 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150"
-            >
-              <h3 className="font-heading text-[20px] tracking-[-0.3px] mb-2">{f.title}</h3>
-              <p className="text-[15px] leading-[1.7] text-muted-foreground">{f.description}</p>
+      {/* ── Channel card ── */}
+      <FadeIn delay={0.08}>
+        <div className="flex justify-center mb-20">
+          <div className="bg-foreground text-background rounded-[26px] p-7 pb-6 w-full max-w-[360px] flex flex-col items-center gap-[18px] shadow-[0_1px_0_rgba(0,0,0,0.04),0_28px_70px_-30px_hsla(45,10%,8%,0.5)] transition-colors">
+            <div className="text-center flex flex-col gap-1.5 w-full">
+              <h2 className="font-heading text-[30px] tracking-[-0.3px] font-medium m-0">{c.title}</h2>
+              <p className="text-[13px] text-background/60 m-0">{c.hint}</p>
             </div>
-          ))}
-        </div>
-      </FadeIn>
-
-      {/* ── Architecture diagram ── */}
-      <FadeIn>
-        <div className="my-14 p-8 rounded-xl border border-border/50 bg-[hsl(0,0%,98.5%)]">
-          <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-6">
-            How it fits together
-          </p>
-          <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4 justify-center">
-            <DiagramBox label="You" sub="Telegram" />
-            <Arrow direction="right" />
-            <DiagramBox label="OpenClaw" sub="gateway + MCP" accent />
-            <Arrow direction="right" />
-            <div className="flex flex-col gap-3">
-              <DiagramBox label="Claude" sub="via OpenRouter" />
-              <DiagramBox label="gbrain" sub="Postgres + vector" />
-            </div>
-          </div>
-          <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mt-6 text-center">
-            all running inside one always-on OpenComputer sandbox
-          </p>
-        </div>
-      </FadeIn>
-
-      {/* ── Build it ── */}
-      <FadeIn>
-        <p className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mt-16 mb-3">
-          Four steps. All in the dashboard.
-        </p>
-        <p className="text-[17px] leading-[1.75] tracking-[-0.1px] text-muted-foreground mb-10 max-w-[680px]">
-          Sign in at{" "}
-          <a
-            href="https://app.opencomputer.dev"
-            target="_blank"
-            className="underline hover:text-foreground transition-colors"
-          >
-            app.opencomputer.dev
-          </a>
-          . No CLI, no servers to babysit.
-        </p>
-
-        <div className="space-y-8">
-          {/* Step 1 */}
-          <div className="grid grid-cols-1 md:grid-cols-[120px_1fr] gap-4 md:gap-8 items-start">
-            <div>
-              <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
-                Step 01
-              </p>
-              <p className="font-heading text-[22px] tracking-[-0.3px] mt-1">Click deploy</p>
-            </div>
-            <div className="space-y-3">
-              <img
-                src="/clawputer/deploy.png"
-                alt="Deploy an OpenClaw managed agent button in the OpenComputer dashboard"
-                loading="lazy"
-                className="w-full rounded-lg border border-border/60 bg-[hsl(0,0%,8%)]"
+            <div className="bg-[hsl(40,15%,18%)] rounded-[18px] p-5 w-full flex items-center justify-center">
+              <QRCodeSVG
+                key={channel}
+                value={c.qrValue}
+                size={220}
+                bgColor="transparent"
+                fgColor="hsl(40, 33%, 97%)"
+                level="M"
+                marginSize={0}
+                className="w-full h-auto max-w-[240px] block"
               />
-              <p className="text-[14px] text-muted-foreground leading-[1.6]">
-                One click from the dashboard provisions a fresh, always-on OpenComputer sandbox
-                with Node 22 and OpenRouter pre-configured. Ready in 20&ndash;30 seconds.
-              </p>
             </div>
-          </div>
-
-          {/* Step 2 */}
-          <div className="grid grid-cols-1 md:grid-cols-[120px_1fr] gap-4 md:gap-8 items-start">
-            <div>
-              <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
-                Step 02
-              </p>
-              <p className="font-heading text-[22px] tracking-[-0.3px] mt-1">Create the agent</p>
-            </div>
-            <div className="space-y-3">
-              <img
-                src="/clawputer/create-agent.png"
-                alt="Create agent dialog with Agent ID, Display name, and openclaw core selected"
-                loading="lazy"
-                className="w-full rounded-lg border border-border/60 bg-[hsl(0,0%,8%)]"
-              />
-              <p className="text-[14px] text-muted-foreground leading-[1.6]">
-                Spin up your first managed OpenClaw agent inside the OpenComputer. Claude via
-                OpenRouter and gbrain memory are wired in for you &mdash; no plumbing to write.
-              </p>
-            </div>
-          </div>
-
-          {/* Step 3 */}
-          <div className="grid grid-cols-1 md:grid-cols-[120px_1fr] gap-4 md:gap-8 items-start">
-            <div>
-              <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
-                Step 03
-              </p>
-              <p className="font-heading text-[22px] tracking-[-0.3px] mt-1">Chat in the dashboard</p>
-            </div>
-            <div className="space-y-3">
-              <img
-                src="/clawputer/chat.png"
-                alt="Agent overview tab with in-dashboard chat panel and live health indicators"
-                loading="lazy"
-                className="w-full rounded-lg border border-border/60 bg-[hsl(0,0%,8%)]"
-              />
-              <p className="text-[14px] text-muted-foreground leading-[1.6]">
-                When the agent comes up, the dashboard chat opens against it. Talk to it right
-                there &mdash; no extra setup, no waiting on channels.
-              </p>
-            </div>
-          </div>
-
-          {/* Step 4 */}
-          <div className="grid grid-cols-1 md:grid-cols-[120px_1fr] gap-4 md:gap-8 items-start">
-            <div>
-              <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
-                Step 04
-              </p>
-              <p className="font-heading text-[22px] tracking-[-0.3px] mt-1">Subscribe &amp; connect Telegram</p>
-            </div>
-            <div className="space-y-3">
-              <img
-                src="/clawputer/connect-telegram.png"
-                alt="Telegram channel card with Subscribe and connect button"
-                loading="lazy"
-                className="w-full max-w-[420px] rounded-lg border border-border/60 bg-[hsl(0,0%,8%)]"
-              />
-              <p className="text-[14px] text-muted-foreground leading-[1.6]">
-                Subscribe to enable channels, paste a bot token from{" "}
-                <a
-                  href="https://t.me/BotFather"
-                  target="_blank"
-                  className="underline hover:text-foreground transition-colors"
-                >
-                  BotFather
-                </a>
-                , and your agent is on your phone. The webhook is registered for you and OpenClaw
-                hot-reloads &mdash; no restart.
-              </p>
-            </div>
-          </div>
-        </div>
-      </FadeIn>
-
-      {/* ── Sample chat ── */}
-      <FadeIn>
-        <div className="my-20">
-          <p className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-8">
-            Then talk to it.
-          </p>
-          <div className="rounded-xl overflow-hidden border border-border/70 shadow-sm">
-            <div className="bg-[hsl(0,0%,95%)] border-b border-[hsl(0,0%,88%)] px-4 py-2.5 flex items-center gap-3">
-              <div className="flex gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[hsl(0,0%,75%)]" />
-                <span className="w-2.5 h-2.5 rounded-full bg-[hsl(0,0%,75%)]" />
-                <span className="w-2.5 h-2.5 rounded-full bg-[hsl(0,0%,75%)]" />
-              </div>
-              <span className="font-mono-brand text-[11px] text-[hsl(0,0%,55%)]">
-                @my_clawputer_bot
-              </span>
-            </div>
-            <div className="bg-white px-6 py-6 space-y-4 font-mono-brand text-[14px] leading-[1.6]">
-              <div className="flex gap-3">
-                <span className="text-muted-foreground w-12 shrink-0">you</span>
-                <span>What new tools do you have?</span>
-              </div>
-              <div className="flex gap-3">
-                <span className="text-muted-foreground w-12 shrink-0">claw</span>
-                <span>I now have gbrain tools &mdash; search, put_page, timeline...</span>
-              </div>
-              <div className="border-t border-border/40 pt-4 flex gap-3">
-                <span className="text-muted-foreground w-12 shrink-0">you</span>
-                <span>
-                  Use gbrain to remember that our deployment target is Kubernetes on GCP
-                </span>
-              </div>
-              <div className="flex gap-3">
-                <span className="text-muted-foreground w-12 shrink-0">claw</span>
-                <span>Saved to knowledge base.</span>
-              </div>
-              <div className="border-t border-border/40 pt-4 flex gap-3">
-                <span className="text-muted-foreground w-12 shrink-0">you</span>
-                <span>Use gbrain to search for deployment</span>
-              </div>
-              <div className="flex gap-3">
-                <span className="text-muted-foreground w-12 shrink-0">claw</span>
-                <span>You deploy to Kubernetes on GCP.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </FadeIn>
-
-      {/* ── Why it sticks ── */}
-      <FadeIn>
-        <div className="my-16 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <p className="font-heading text-[28px] tracking-[-0.4px] mb-2">Always on.</p>
-            <p className="text-[15px] leading-[1.7] text-muted-foreground">
-              The sandbox doesn't time out between messages. Your agent's environment, packages,
-              and state are exactly where you left them.
-            </p>
-          </div>
-          <div>
-            <p className="font-heading text-[28px] tracking-[-0.4px] mb-2">Memory that lasts.</p>
-            <p className="text-[15px] leading-[1.7] text-muted-foreground">
-              gbrain's Postgres lives outside the sandbox. Survives instance restarts and even
-              full sandbox recreation.
-            </p>
-          </div>
-          <div>
-            <p className="font-heading text-[28px] tracking-[-0.4px] mb-2">Yours to shell into.</p>
-            <p className="text-[15px] leading-[1.7] text-muted-foreground">
-              <InlineCode>oc shell my-claw</InlineCode> drops you into the box. Inspect the gateway,
-              tweak the config, watch the logs.
-            </p>
-          </div>
-        </div>
-      </FadeIn>
-
-      {/* ── Final CTA ── */}
-      <FadeIn>
-        <div className="mt-20 pt-14 border-t border-border">
-          <p className="font-heading text-[clamp(28px,4vw,42px)] leading-[1.25] tracking-[-0.8px] mb-8 max-w-[640px]">
-            Give yourself a Clawputer.
-          </p>
-          <div className="flex gap-3 items-center flex-wrap">
+            <CopyPill value={c.copyValue} display={c.copyDisplay} />
             <a
-              href="https://app.opencomputer.dev"
-              className="inline-block text-[15px] font-medium px-10 py-4 rounded-md bg-primary text-primary-foreground border border-primary hover:bg-foreground/90 transition-all duration-150"
+              className="w-full inline-flex items-center justify-center bg-background text-foreground rounded-xl px-4 py-3.5 text-[15px] font-semibold tracking-[0.005em] no-underline hover:bg-white active:translate-y-px transition-all"
+              href={c.buttonHref}
             >
-              Get an API key &rarr;
+              {c.buttonLabel}
             </a>
-            <a
-              href="https://docs.opencomputer.dev/guides/create-openclaw-agent"
-              target="_blank"
-              className="inline-block text-sm font-medium px-7 py-3 rounded-md bg-background text-foreground border border-border hover:border-foreground transition-all duration-150"
+            <button
+              type="button"
+              onClick={() => setChannel(c.switchTo)}
+              className="mt-1 text-[13px] text-background/60 hover:text-background tracking-[0.01em] px-2 py-1.5 rounded-md transition-colors"
             >
-              Full guide
-            </a>
+              {c.switchLabel} →
+            </button>
+          </div>
+        </div>
+      </FadeIn>
+
+      {/* ── Just text it ── single iMessage thread ── */}
+      <FadeIn>
+        <div className="flex flex-col items-center gap-8 mb-24">
+          <div className="flex flex-col gap-2 max-w-[520px] text-center items-center">
+            <h2 className="font-heading text-[clamp(30px,4vw,44px)] leading-[1.05] tracking-[-0.7px] font-medium m-0">
+              Just text it.
+            </h2>
+            <p className="text-[16px] leading-[1.55] text-muted-foreground m-0">
+              Linux sandbox, persistent memory, 3,000+ app integrations. Treat it
+              like a chief of staff with a laptop.
+            </p>
+          </div>
+
+          <div className="w-full max-w-[520px] flex flex-col gap-[22px]">
+            {THREAD.map((ex, i) => (
+              <div className="flex flex-col gap-1.5" key={i}>
+                <div className="self-end max-w-[82%] bg-[#007aff] text-white rounded-[20px] rounded-br-[6px] px-4 py-2.5 text-[15px] leading-[1.4] break-words">
+                  {ex.prompt}
+                </div>
+                {"typing" in ex ? (
+                  <div className="self-start max-w-[82%] bg-foreground text-background rounded-[20px] rounded-bl-[6px] inline-flex items-center gap-1.5 px-4 py-3">
+                    <span className="w-1.5 h-1.5 rounded-full bg-background/55 animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-background/55 animate-pulse [animation-delay:150ms]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-background/55 animate-pulse [animation-delay:300ms]" />
+                    <span className="ml-2 text-[13px] text-background/55 italic">{ex.typing}</span>
+                  </div>
+                ) : (
+                  <div className="self-start max-w-[82%] bg-foreground text-background rounded-[20px] rounded-bl-[6px] px-4 py-2.5 text-[15px] leading-[1.4] break-words">
+                    {ex.reply}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </FadeIn>
+
+      {/* ── Pricing ── */}
+      <FadeIn>
+        <div className="mb-24">
+          <div className="flex flex-col items-center text-center gap-2 mb-10">
+            <h2 className="font-heading text-[clamp(30px,4vw,44px)] leading-[1.05] tracking-[-0.7px] font-medium m-0">
+              Simple pricing. Try it, then decide.
+            </h2>
+            <p className="text-[16px] leading-[1.55] text-muted-foreground max-w-[520px] m-0">
+              One day free, then $20/month. Cancel anytime from inside iMessage.
+            </p>
+          </div>
+
+          <div className="max-w-[560px] mx-auto rounded-[22px] border border-border/70 bg-[hsl(40,33%,99%)] p-10 sm:p-12 text-center shadow-[0_1px_0_rgba(0,0,0,0.02)]">
+            <p className="font-mono-brand text-[11px] uppercase tracking-[0.2em] text-muted-foreground mb-3">
+              early access
+            </p>
+            <p className="m-0 font-heading text-foreground leading-none">
+              <span className="text-[80px] font-medium tracking-[-1.6px]">$20</span>
+              <span className="text-[22px] italic text-muted-foreground ml-2">/ month</span>
+            </p>
+            <p className="mt-4 text-[15px] text-muted-foreground italic">
+              Tokens included during early access.
+            </p>
+            <ul className="mt-7 mb-8 inline-block text-left text-[15px] leading-[1.9] text-foreground list-none p-0 space-y-0">
+              {PRICE_INCLUDES.map((line) => (
+                <li className="relative pl-6" key={line}>
+                  <span className="absolute left-0 top-0 text-muted-foreground text-[14px]">✓</span>
+                  {line}
+                </li>
+              ))}
+            </ul>
+            <div>
+              <a
+                href={SMS_DEEP_LINK}
+                className="inline-flex items-center justify-center bg-foreground text-background rounded-xl px-7 py-3.5 text-[15px] font-semibold no-underline hover:bg-foreground/90 transition-colors"
+              >
+                Start your free day →
+              </a>
+            </div>
+            <p className="mt-5 font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">
+              powered by openclaw · gbrain · opencomputer
+            </p>
           </div>
         </div>
       </FadeIn>
 
       <SEO
         title="Clawputer"
-        description="Your personal AI agent on Telegram, with persistent memory. OpenClaw + gbrain on OpenComputer in four steps from the dashboard."
+        description="Welcome to clawputer. A personal AI assistant with a real computer and memory that sticks. On iMessage or Telegram. Send a text to get started."
         path="/clawputer"
         type="website"
       />
