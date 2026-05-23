@@ -16,6 +16,13 @@ const DEFAULT_IMAGE = `${BASE_URL}/social-preview.png`;
 
 const blogPosts: BlogMeta[] = [
   {
+    slug: "what-it-takes-to-run-an-ai-coworker-on-imessage",
+    title: "What it takes to run an AI coworker on iMessage",
+    description:
+      "Lessons from shipping Clawputer, a managed openclaw that lives in your iMessage. Patterns for VM lifecycle, versioning, OAuth integrations, and browser offloading when building AI coworkers on long-lived compute.",
+    author: "Mohamed Habib",
+  },
+  {
     slug: "stop-treating-sandboxes-as-cattle",
     title: "Stop Treating Agent Sandboxes as Cattle",
     description:
