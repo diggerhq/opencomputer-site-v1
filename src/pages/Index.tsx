@@ -31,32 +31,22 @@ const pricingTiers = [
   {
     mem: "1 GB",
     cpu: "1 vCPU",
-    reserved: { min: "$0.0002", hr: "$0.012", mo: "$8.76" },
-    instant: { min: "$0.001", hr: "$0.06", mo: "$42.18" },
-  },
-  {
-    mem: "2 GB",
-    cpu: "1 vCPU",
-    reserved: { min: "$0.0004", hr: "$0.024", mo: "$17.52" },
-    instant: { min: "$0.002", hr: "$0.12", mo: "$84.36" },
+    instant: { min: "$0.0002", hr: "$0.012", mo: "$8.44" },
   },
   {
     mem: "4 GB",
     cpu: "1 vCPU",
-    reserved: { min: "$0.0008", hr: "$0.048", mo: "$35.04" },
-    instant: { min: "$0.004", hr: "$0.24", mo: "$168.72" },
+    instant: { min: "$0.0008", hr: "$0.048", mo: "$33.74" },
   },
   {
     mem: "8 GB",
     cpu: "2 vCPU",
-    reserved: { min: "$0.0016", hr: "$0.096", mo: "$70.08" },
-    instant: { min: "$0.008", hr: "$0.48", mo: "$337.44" },
+    instant: { min: "$0.0016", hr: "$0.096", mo: "$67.49" },
   },
   {
     mem: "16 GB",
     cpu: "4 vCPU",
-    reserved: { min: "$0.0032", hr: "$0.192", mo: "$140.16" },
-    instant: { min: "$0.016", hr: "$0.96", mo: "$674.88" },
+    instant: { min: "$0.0032", hr: "$0.192", mo: "$134.98" },
   },
 ];
 
@@ -201,7 +191,7 @@ const Index = () => {
             Pricing
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-8">
-            Elastic memory and CPU — resize at runtime. 20 GB disk per VM. Pay only while running.
+            Elastic memory and CPU — resize at runtime. 20 GB disk per VM.
           </p>
 
           <div className="p-4 sm:p-8 rounded-xl border border-border/50 bg-[hsl(0,0%,98.5%)]">
@@ -229,43 +219,9 @@ const Index = () => {
             </div>
 
             {/* Pricing cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              <div className="p-5 rounded-lg bg-foreground text-background">
-                <div className="flex items-center justify-between gap-2 mb-1">
-                  <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-70">Pre-booked</p>
-                  <span className="font-mono-brand text-[10px] uppercase tracking-[0.12em] px-2 py-0.5 rounded-full bg-background/15 text-background">
-                    5× cheaper than Instant
-                  </span>
-                </div>
-                <p className="text-[13px] leading-[1.5] opacity-80 mb-4">
-                  30 min notice. No commitment.{" "}
-                  <a
-                    href="https://docs.opencomputer.dev/reserved-capacity/overview"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="underline hover:opacity-100 opacity-90"
-                  >
-                    See docs →
-                  </a>
-                </p>
-                <div className="space-y-3">
-                  <div className="flex items-baseline justify-between">
-                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-60">per minute</span>
-                    <span className="font-heading text-[18px] tracking-[-0.3px] opacity-90">{pricingTiers[tierIndex].reserved.min}</span>
-                  </div>
-                  <div className="flex items-baseline justify-between">
-                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-60">per hour</span>
-                    <span className="font-heading text-[18px] tracking-[-0.3px] opacity-90">{pricingTiers[tierIndex].reserved.hr}</span>
-                  </div>
-                  <div className="flex items-baseline justify-between">
-                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-60">per month</span>
-                    <span className="font-heading text-[24px] tracking-[-0.5px]">{pricingTiers[tierIndex].reserved.mo}</span>
-                  </div>
-                </div>
-              </div>
-
+            <div>
               <div className="p-5 rounded-lg bg-white border border-border/50">
-                <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-4">Instant</p>
+                <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-4">On-demand</p>
                 <div className="space-y-3">
                   <div className="flex items-baseline justify-between">
                     <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground">per minute</span>
