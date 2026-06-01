@@ -1,8 +1,79 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 import ShikiCodeBlock from "@/components/ShikiCodeBlock";
 import SitePageLayout from "@/components/SitePageLayout";
 import SEO from "@/components/SEO";
+
+/* ---------- Table of contents ---------- *
+ * Fixed to the right margin on xl: viewports (1280+). Below that, hidden —
+ * the 994px article column doesn't leave room for a sidebar at smaller widths.
+ * IntersectionObserver tracks which section is in view and highlights the
+ * matching link. Click → native anchor scroll; scroll-mt on the H2s clears
+ * any sticky header.
+ */
+const TOC_ITEMS = [
+  { id: "what-youll-build", label: "What you'll build" },
+  { id: "how-the-pieces-fit", label: "How the pieces fit" },
+  { id: "prerequisites", label: "Prerequisites" },
+  { id: "environment-setup", label: "Environment setup" },
+  { id: "agent-setup", label: "Set up with an agent" },
+  { id: "implementation", label: "Implementation" },
+  { id: "where-it-can-fail", label: "Where it can fail" },
+  { id: "the-tradeoff", label: "The tradeoff" },
+];
+
+const TableOfContents = () => {
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          // pick the topmost visible heading
+          visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          setActiveId(visible[0].target.id);
+        }
+      },
+      { rootMargin: "-80px 0px -70% 0px", threshold: 0 },
+    );
+    TOC_ITEMS.forEach((item) => {
+      const el = document.getElementById(item.id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <aside
+      aria-label="Table of contents"
+      className="hidden xl:block fixed top-[140px] right-4 w-[120px] z-10"
+    >
+      <div className="font-mono-brand text-[10px] uppercase tracking-[0.14em] text-muted-foreground mb-3 pb-2 border-b border-border/40">
+        Contents
+      </div>
+      <ul className="space-y-2">
+        {TOC_ITEMS.map((item) => (
+          <li key={item.id}>
+            <a
+              href={`#${item.id}`}
+              aria-current={activeId === item.id ? "location" : undefined}
+              className={`block font-mono-brand text-[11px] leading-[1.45] no-underline transition-colors ${
+                activeId === item.id
+                  ? "text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  );
+};
 
 /* ---------- Callout ---------- */
 const Callout = ({ children }: { children: React.ReactNode }) => (
@@ -423,6 +494,8 @@ const BackgroundCodingAgent = () => {
         type="article"
       />
 
+      <TableOfContents />
+
       <FadeIn>
         <Link
           to="/blog"
@@ -493,7 +566,7 @@ const BackgroundCodingAgent = () => {
 
       {/* ====== Section: What you'll build ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
+        <h2 id="what-youll-build" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
           What you'll build
         </h2>
       </FadeIn>
@@ -589,7 +662,7 @@ const BackgroundCodingAgent = () => {
 
       {/* ====== Section: How the pieces fit ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
+        <h2 id="how-the-pieces-fit" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
           How the pieces fit
         </h2>
       </FadeIn>
@@ -686,7 +759,7 @@ const BackgroundCodingAgent = () => {
 
       {/* ====== Section: Prerequisites ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
+        <h2 id="prerequisites" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
           Prerequisites
         </h2>
       </FadeIn>
@@ -717,7 +790,7 @@ const BackgroundCodingAgent = () => {
 
       {/* ====== Section: Environment Setup ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mt-12 mb-6">
+        <h2 id="environment-setup" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mt-12 mb-6">
           Environment setup
         </h2>
       </FadeIn>
@@ -757,7 +830,7 @@ server.py           — FastAPI webhook server
 
       {/* ====== Section: agent-built variant ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mt-12 mb-6">
+        <h2 id="agent-setup" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mt-12 mb-6">
           Want your coding agent to set this up for you?
         </h2>
       </FadeIn>
@@ -783,7 +856,7 @@ server.py           — FastAPI webhook server
 
       {/* ====== Section: Implementation ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
+        <h2 id="implementation" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
           Implementation
         </h2>
       </FadeIn>
@@ -1046,7 +1119,7 @@ server.py           — FastAPI webhook server
 
       {/* ====== Section: Where it can fail ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
+        <h2 id="where-it-can-fail" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
           Where your background coding agent can fail
         </h2>
       </FadeIn>
@@ -1119,7 +1192,7 @@ server.py           — FastAPI webhook server
 
       {/* ====== Section: Tradeoff ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
+        <h2 id="the-tradeoff" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
           Now for the tradeoff
         </h2>
       </FadeIn>
