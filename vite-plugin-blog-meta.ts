@@ -8,6 +8,15 @@ interface BlogMeta {
   description: string;
   author: string;
   image?: string;
+  // ISO 8601 date — when set, an Article JSON-LD block is injected into the
+  // prerendered HTML head so non-JS LLM crawlers see structured metadata.
+  // Optional so existing posts opt in by adding this field; no change to others.
+  datePublished?: string;
+  authorUrl?: string;
+  // URL of a markdown twin of the post (served by Cloudflare as a static file).
+  // When set, a <link rel="alternate" type="text/markdown"> is injected into
+  // the head so agents can discover and fetch the full-text version.
+  markdownUrl?: string;
 }
 
 const SITE_NAME = "OpenComputer";
@@ -15,6 +24,16 @@ const BASE_URL = "https://opencomputer.dev";
 const DEFAULT_IMAGE = `${BASE_URL}/social-preview.png`;
 
 const blogPosts: BlogMeta[] = [
+  {
+    slug: "background-coding-agent",
+    title: "Build a background coding agent that works while you sleep",
+    description:
+      "A 250-line self-hosted background coding agent. Label a GitHub issue with `agent`, wake up to a draft PR. ~$0.30/task. The snapshot, the agent loop, the webhook server, and the dead ends I'd save you from.",
+    author: "Naman @ Manicule",
+    datePublished: "2026-06-01",
+    authorUrl: "https://manicule.dev",
+    markdownUrl: "/blog/background-coding-agent.md",
+  },
   {
     slug: "what-it-takes-to-run-an-ai-coworker-on-imessage",
     title: "What it takes to run an AI coworker on iMessage",
@@ -84,6 +103,39 @@ function escapeAttr(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+// Builds an Article JSON-LD block. Only invoked when a post sets `datePublished`,
+// so existing posts (which don't set it) get no Article schema and their head is
+// rewritten exactly as before.
+function buildArticleSchema(post: BlogMeta): string {
+  const url = `${BASE_URL}/blog/${post.slug}`;
+  const image = post.image ? `${BASE_URL}${post.image}` : DEFAULT_IMAGE;
+  const author = post.authorUrl
+    ? { "@type": "Person", name: post.author, url: post.authorUrl }
+    : { "@type": "Person", name: post.author };
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.description,
+    image,
+    author,
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: BASE_URL,
+      logo: { "@type": "ImageObject", url: image },
+    },
+    datePublished: post.datePublished,
+    dateModified: post.datePublished,
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    url,
+  };
+  // JSON.stringify produces valid JSON; the only character that can break out of
+  // a <script> context is `</`, which we escape.
+  const json = JSON.stringify(schema).replace(/</g, "\\u003c");
+  return `\n    <script type="application/ld+json">${json}</script>`;
+}
+
 function replaceMeta(html: string, post: BlogMeta): string {
   const fullTitle = escapeAttr(`${post.title} – ${SITE_NAME}`);
   const description = escapeAttr(post.description);
@@ -91,7 +143,19 @@ function replaceMeta(html: string, post: BlogMeta): string {
   const url = `${BASE_URL}/blog/${post.slug}`;
   const image = post.image ? `${BASE_URL}${post.image}` : DEFAULT_IMAGE;
 
-  return html
+  // Inject Article JSON-LD + markdown alternate link before </head>.
+  // Both are opt-in: only emit them when the post declares the relevant field.
+  const articleSchema = post.datePublished ? buildArticleSchema(post) : "";
+  const markdownLink = post.markdownUrl
+    ? `\n    <link rel="alternate" type="text/markdown" href="${BASE_URL}${post.markdownUrl}" title="${fullTitle} (markdown)">`
+    : "";
+
+  const headExtras = articleSchema + markdownLink;
+  const withSchema = headExtras
+    ? html.replace(/<\/head>/, `${headExtras}\n  </head>`)
+    : html;
+
+  return withSchema
     // Title tag
     .replace(
       /<title>[^<]*<\/title>/,

@@ -16,6 +16,7 @@ import WhatElasticComputeMeans from "./pages/blog/WhatElasticComputeMeans";
 import TheRaceToBuildTheNextWordpress from "./pages/blog/TheRaceToBuildTheNextWordpress";
 import StopTreatingSandboxesAsCattle from "./pages/blog/StopTreatingSandboxesAsCattle";
 import WhatItTakesToRunAiCoworkerImessage from "./pages/blog/WhatItTakesToRunAiCoworkerImessage";
+import BackgroundCodingAgent from "./pages/blog/BackgroundCodingAgent";
 import DesignPartners from "./pages/DesignPartners";
 import Clawputer from "./pages/Clawputer";
 import NotFound from "./pages/NotFound";
@@ -53,6 +54,8 @@ const App = () => (
           <Route path="/guides/stop-treating-sandboxes-as-cattle" element={<StopTreatingSandboxesAsCattle />} />
           <Route path="/blog/what-it-takes-to-run-an-ai-coworker-on-imessage" element={<WhatItTakesToRunAiCoworkerImessage />} />
           <Route path="/guides/what-it-takes-to-run-an-ai-coworker-on-imessage" element={<WhatItTakesToRunAiCoworkerImessage />} />
+          <Route path="/blog/background-coding-agent" element={<BackgroundCodingAgent />} />
+          <Route path="/guides/background-coding-agent" element={<BackgroundCodingAgent />} />
           <Route path="/partners" element={<DesignPartners />} />
           <Route path="/clawputer" element={<Clawputer />} />
           {devRoutes}

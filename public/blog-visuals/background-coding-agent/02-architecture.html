@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Background Coding Agent — Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500&display=swap');
+  :root{
+    --cream:#f5f3ee;--ink:#161513;--ink-soft:#403d37;--coral:#e3613a;
+    --line:#dcd8cf;--card:#fbfaf6;--mute:#8a857b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:transparent;color:var(--ink);font-family:'Inter',sans-serif;padding:0;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto}
+  .ctrl{display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+  .play{font-family:'JetBrains Mono',monospace;font-size:13px;cursor:pointer;background:var(--ink);color:#fff;border:none;padding:11px 22px;border-radius:2px;letter-spacing:.04em;transition:opacity .2s}
+  .play:hover{opacity:.85}
+  .status{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-soft);letter-spacing:.02em}
+  .status b{color:var(--coral)}
+
+  .diagram{position:relative;border:1px solid var(--line);border-radius:6px;background:var(--card);padding:30px 24px;overflow:hidden}
+
+  svg{width:100%;height:auto;display:block;overflow:visible}
+
+  .node-box{fill:var(--cream);stroke:var(--ink);stroke-width:1.5;transition:all .3s ease}
+  .node-box.persist{fill:#161513}
+  .node-box.sandbox{stroke:var(--coral);stroke-dasharray:0}
+  .node-box.active{stroke:var(--coral);stroke-width:2.5;filter:drop-shadow(0 4px 14px rgba(227,97,58,.28))}
+  .nt{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;fill:var(--ink)}
+  .nt.light{fill:var(--cream)}
+  .ns{font-family:'Inter',sans-serif;font-size:10.5px;fill:var(--ink-soft)}
+  .ns.light{fill:#b8b3a8}
+
+  .edge{stroke:var(--line);stroke-width:1.5;fill:none}
+  .edge.lit{stroke:var(--coral);stroke-width:2.5}
+  .pulse{fill:var(--coral);opacity:0}
+
+  .badge{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;fill:var(--coral);letter-spacing:.05em}
+
+  .legend{display:flex;gap:24px;margin-top:18px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft)}
+  .legend span{display:flex;align-items:center;gap:7px}
+  .sw{width:14px;height:14px;border-radius:2px;border:1.5px solid}
+  .sw.p{background:#161513;border-color:#161513}
+  .sw.s{background:var(--cream);border-color:var(--coral)}
+  .sw.e{background:var(--cream);border-color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="ctrl">
+    <button class="play" id="play">&#9655; run a task</button>
+    <span class="status" id="status">Idle. Press run to trace an issue through the system.</span>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 900 420" id="svg">
+      <path class="edge" id="e1" d="M150 92 L150 150"/>
+      <path class="edge" id="e2" d="M150 230 C150 280 300 280 300 300"/>
+      <path class="edge" id="e3" d="M420 330 L560 330"/>
+      <path class="edge" id="e4" d="M680 300 C680 250 760 250 760 200"/>
+      <path class="edge" id="e5" d="M620 360 C500 410 250 410 150 230" stroke-dasharray="5 5"/>
+
+      <circle class="pulse" id="p1" r="5"/>
+      <circle class="pulse" id="p2" r="5"/>
+      <circle class="pulse" id="p3" r="5"/>
+      <circle class="pulse" id="p4" r="5"/>
+      <circle class="pulse" id="p5" r="5"/>
+
+      <g id="n1">
+        <rect class="node-box" x="40" y="30" width="220" height="62" rx="4"/>
+        <text class="nt" x="58" y="58">GitHub issue</text>
+        <text class="ns" x="58" y="76">labeled `agent` → webhook fires</text>
+        <text class="badge" x="216" y="48">①</text>
+      </g>
+
+      <g id="n2">
+        <rect class="node-box persist" x="40" y="150" width="220" height="80" rx="4"/>
+        <text class="nt light" x="58" y="180">FastAPI server</text>
+        <text class="ns light" x="58" y="198">verifies sig · acks in ms</text>
+        <text class="ns light" x="58" y="214">fire-and-forget background task</text>
+        <text class="badge" x="216" y="168">②</text>
+      </g>
+
+      <g id="n3">
+        <rect class="node-box sandbox" x="300" y="300" width="120" height="60" rx="4"/>
+        <text class="nt" x="316" y="328">Sandbox</text>
+        <text class="ns" x="316" y="346">boots 2–3s · root</text>
+        <text class="badge" x="386" y="318">③</text>
+      </g>
+
+      <g id="n4">
+        <rect class="node-box sandbox" x="560" y="300" width="120" height="60" rx="4"/>
+        <text class="nt" x="576" y="328">Claude Code</text>
+        <text class="ns" x="576" y="346">headless · ≤50 turns</text>
+        <text class="badge" x="646" y="318">④</text>
+      </g>
+
+      <g id="n5">
+        <rect class="node-box" x="700" y="140" width="160" height="60" rx="4"/>
+        <text class="nt" x="718" y="168">gh CLI → Draft PR</text>
+        <text class="ns" x="718" y="186">pushes branch, opens PR</text>
+        <text class="badge" x="836" y="158">⑤</text>
+      </g>
+
+      <text class="ns" x="350" y="405" style="fill:var(--coral);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em">sandbox.kill() — torn down, idle cost zero</text>
+    </svg>
+  </div>
+
+  <div class="legend">
+    <span><i class="sw p"></i> persistent box (webhooks only)</span>
+    <span><i class="sw s"></i> disposable sandbox (per issue)</span>
+    <span><i class="sw e"></i> external service</span>
+  </div>
+</div>
+
+<script>
+  const steps=[
+    {edge:'e1',pulse:'p1',node:'n2',msg:'Webhook hits the <b>FastAPI server</b> — signature verified, acked instantly.'},
+    {edge:'e2',pulse:'p2',node:'n3',msg:'Server spins up a <b>fresh sandbox</b> for this issue and clones the repo.'},
+    {edge:'e3',pulse:'p3',node:'n4',msg:'<b>Claude Code</b> reads TASK.md, edits, runs the tests, commits.'},
+    {edge:'e4',pulse:'p4',node:'n5',msg:'<b>gh CLI</b> pushes the branch and opens a draft PR.'},
+    {edge:'e5',pulse:'p5',node:'n2',msg:'Sandbox is <b>killed</b>. Server keeps serving — back to idle, $0.'},
+  ];
+
+  const status=document.getElementById('status');
+  let running=false;
+
+  function pointAt(pathEl,pulseEl,t){
+    const len=pathEl.getTotalLength();
+    const pt=pathEl.getPointAtLength(len*t);
+    pulseEl.setAttribute('cx',pt.x);pulseEl.setAttribute('cy',pt.y);
+  }
+  function reset(){
+    document.querySelectorAll('.edge').forEach(e=>e.classList.remove('lit'));
+    document.querySelectorAll('.pulse').forEach(p=>p.style.opacity=0);
+    document.querySelectorAll('.node-box').forEach(n=>n.classList.remove('active'));
+  }
+  function animEdge(step){
+    return new Promise(res=>{
+      const edge=document.getElementById(step.edge);
+      const pulse=document.getElementById(step.pulse);
+      edge.classList.add('lit');pulse.style.opacity=1;
+      status.innerHTML=step.msg;
+      let start=null;const dur=900;
+      function frame(ts){
+        if(!start)start=ts;
+        let t=Math.min((ts-start)/dur,1);
+        pointAt(edge,pulse,t);
+        if(t<1)requestAnimationFrame(frame);
+        else{
+          pulse.style.opacity=0;
+          const node=document.querySelector('#'+step.node+' .node-box');
+          node.classList.add('active');
+          setTimeout(()=>res(),260);
+        }
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+  async function run(){
+    if(running)return;running=true;reset();
+    for(const s of steps){await animEdge(s);}
+    status.innerHTML='Done — <b>draft PR ready</b>. Two issues at once? Two independent runs.';
+    running=false;
+  }
+  document.getElementById('play').onclick=run;
+</script>
+</body>
+</html>
