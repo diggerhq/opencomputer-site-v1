@@ -9,7 +9,7 @@ const posts = [
     title: "Build a background coding agent that works while you sleep",
     description:
       "A 250-line self-hosted background coding agent. Label a GitHub issue with `agent`, wake up to a draft PR. ~$0.30/task. The snapshot, the agent loop, the webhook server, and the dead ends I'd save you from.",
-    author: "Naman @ Manicule",
+    author: "Utpal Nadiger",
     date: "June 1, 2026",
   },
   {

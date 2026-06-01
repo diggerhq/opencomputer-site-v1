@@ -418,7 +418,7 @@ const BackgroundCodingAgent = () => {
       <SEO
         title="Build a background coding agent that works while you sleep"
         description="A 250-line self-hosted background coding agent. Label a GitHub issue with `agent`, wake up to a draft PR. ~$0.30/task. The snapshot, the agent loop, the webhook server, and the dead ends I'd save you from."
-        author="Naman @ Manicule"
+        author="Utpal Nadiger"
         path="/blog/background-coding-agent"
         type="article"
       />
@@ -442,12 +442,12 @@ const BackgroundCodingAgent = () => {
         <p className="font-mono-brand text-[13px] text-muted-foreground mb-10">
           Written by{" "}
           <a
-            href="https://manicule.dev"
+            href="https://manicule.link/?ref=oc-background"
             target="_blank"
             rel="author noreferrer"
             className="underline hover:text-foreground transition-colors"
           >
-            Naman @ Manicule
+            Utpal Nadiger
           </a>{" "}
           &middot;{" "}
           <time dateTime="2026-06-01">June 1, 2026</time>{" "}
@@ -483,7 +483,7 @@ const BackgroundCodingAgent = () => {
           <p className="text-[15px] leading-[1.7] text-muted-foreground italic">
             Know the basics? Jump to the implementation of the recipe or just grab the{" "}
             <a
-              href="https://github.com/ninadpathak/opencomputer-demo"
+              href="https://manicule.link/background-agent-repo"
               target="_blank"
               rel="noreferrer"
               className="underline hover:text-foreground"

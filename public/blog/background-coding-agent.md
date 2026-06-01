@@ -1,7 +1,7 @@
 ---
 title: "Build a background coding agent that works while you sleep"
 description: "A 250-line self-hosted background coding agent. Label a GitHub issue with `agent`, wake up to a draft PR. ~$0.30/task. The snapshot, the agent loop, the webhook server, and the dead ends to skip."
-author: "Naman @ Manicule"
+author: "Utpal Nadiger"
 author_url: "https://manicule.dev"
 date_published: "2026-06-01"
 canonical_url: "https://opencomputer.dev/blog/background-coding-agent"
@@ -10,7 +10,7 @@ demo_video: "https://opencomputer.dev/blog-visuals/background-coding-agent/agent
 
 # Build a background coding agent that works while you sleep
 
-> Written by [Naman @ Manicule](https://manicule.dev) · June 1, 2026
+> Written by [Utpal Nadiger](https://manicule.link/?ref=oc-background) · June 1, 2026
 
 I have a backlog of issues I'd rather not touch. Stuff like missing CLI flags, typos, flaky tests, and the list goes on. Out of equal parts curiosity and laziness, I wanted to hand these issues to one of these background coding agents and see if they could handle the work without me having to do it.
 
@@ -18,7 +18,7 @@ After testing hosted options such as Devin, I decided to control the entire stac
 
 I'll walk you through building your own background coding agent using OpenComputer's VMs and sandboxes in about 250 lines of Python, at roughly $0.30 per task at Claude's current pricing.
 
-Know the basics? Jump to the implementation of the recipe or just grab the [full working code](https://github.com/ninadpathak/opencomputer-demo).
+Know the basics? Jump to the implementation of the recipe or just grab the [full working code](https://manicule.link/background-agent-repo).
 
 ## What you'll build
 
@@ -533,5 +533,5 @@ Apart from that, I don't see much of an issue. A well-built agent could be extre
 
 ---
 
-**Read this post in HTML:** <https://opencomputer.dev/blog/background-coding-agent>
-**Full working code:** <https://github.com/ninadpathak/opencomputer-demo>
+**Read this post in HTML:** <https://manicule.link/background-coding-agent>
+**Full working code:** <https://manicule.link/background-agent-repo>
