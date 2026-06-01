@@ -5,6 +5,14 @@ import SEO from "@/components/SEO";
 
 const posts = [
   {
+    slug: "background-coding-agent",
+    title: "Build a background coding agent that works while you sleep",
+    description:
+      "A 250-line self-hosted background coding agent. Label a GitHub issue with `agent`, wake up to a draft PR. ~$0.30/task. The snapshot, the agent loop, the webhook server, and the dead ends I'd save you from.",
+    author: "Utpal Nadiger",
+    date: "June 1, 2026",
+  },
+  {
     slug: "what-it-takes-to-run-an-ai-coworker-on-imessage",
     title: "What it takes to run an AI coworker on iMessage",
     description:

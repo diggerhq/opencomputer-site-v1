@@ -48,6 +48,21 @@ Usage:
 
 Users can add one or more machines to their pool at any time.
 
+## Blog
+
+Long-form writing on agent infrastructure, sandbox isolation, and patterns for building on long-lived compute.
+
+- [Build a background coding agent that works while you sleep](https://opencomputer.dev/blog/background-coding-agent.md): Utpal Nadiger, 2026-06-01. A 250-line self-hosted background coding agent. Label a GitHub issue with `agent`, wake up to a draft PR. ~$0.30/task. The snapshot, the agent loop, the webhook server, and the dead ends to skip. (Full-text markdown; HTML at /blog/background-coding-agent)
+- [What it takes to run an AI coworker on iMessage](https://opencomputer.dev/blog/what-it-takes-to-run-an-ai-coworker-on-imessage): Mohamed Habib, 2026-05-22. Lessons from shipping Clawputer, a managed openclaw that lives in your iMessage. Patterns for VM lifecycle, versioning, OAuth integrations, and browser offloading when building AI coworkers on long-lived compute.
+- [Stop Treating Agent Sandboxes as Cattle](https://opencomputer.dev/blog/stop-treating-sandboxes-as-cattle): Utpal Nadiger, 2026-05-04. A direct response to "The agent harness belongs outside the sandbox." Why credentials, hibernation, elasticity, and checkpoints make a persistent in-sandbox harness the better default.
+- [The Race to Build the Next WordPress](https://opencomputer.dev/blog/the-race-to-build-the-next-wordpress): Igor Zalutski, 2026-04-19. Agent harnesses are to this era what WordPress was to the early 2000s internet. The race to build the next one is already on.
+- [What "elastic compute" means in 2026](https://opencomputer.dev/blog/what-elastic-compute-means): Igor Zalutski, 2026-04-07. From EC2 to agent sandboxes — how agents broke the compute paradigms we've relied on for 20 years, and what elasticity looks like now.
+- [Where Should the Agent(s) Live?](https://opencomputer.dev/blog/where-should-the-agent-live): Utpal Nadiger, Mohamed Habib, Igor Zalutski, 2026-03-20. Isolation models, agent placement tradeoffs, credential design, and sandbox lifecycle patterns for agentic systems.
+- [Agent Execution Is the New HTTP Request](https://opencomputer.dev/blog/agent-execution-new-http-request): Igor Zalutski, 2026-03-17. From CGI scripts to serverless, web infrastructure evolved over 30 years. Now agents are taking us full circle — back to files and scripts.
+- [I Asked Opus 4.6 to Fingerprint Sandbox Vendors](https://opencomputer.dev/blog/sandbox-fingerprinting): Mohamed Habib, 2026-03-17. Fingerprinted 6 sandbox providers to understand their isolation models — from containers to microVMs to full hypervisors. Here's what we found.
+- [The Agentic Workload](https://opencomputer.dev/blog/the-agentic-workload): Igor Zalutski, 2026-03-15. Agent code doesn't fit neatly into existing categories. It's not a traditional app, and it's not a CI job. It's something new.
+- [Building an Open Lovable — part 1](https://opencomputer.dev/blog/building-open-lovable-part-1): Mohamed Habib, 2026-03-11. A series to build a Lovable clone to learn how Lovable works under the hood using Claude Agent SDK and OpenComputer.
+
 ## Links
 
 - Website: https://opencomputer.dev

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The edit-test-fail loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; padding:24px; font-family:'Inter',system-ui,sans-serif; background:transparent; }
+  .visual-card {
+    max-width:880px; margin:24px auto;
+    background:#fff; border:1px solid #e0dcd5; border-radius:8px;
+    overflow:hidden; color:#0a0a0a;
+  }
+  .visual-header { padding:20px 24px 12px; }
+  .visual-header h2 {
+    font-family:'Fraunces',serif; font-size:24px; font-weight:500;
+    letter-spacing:-0.015em; line-height:1.15; margin:0 0 6px;
+  }
+  .visual-header p { margin:0; font-size:13px; color:#5a5550; line-height:1.5; }
+  .visual-stage {
+    padding:20px 24px;
+    border-top:1px solid #e0dcd5;
+    display:flex;
+    gap:32px;
+    align-items:center;
+  }
+  .visual-stage svg { width:380px; height:280px; flex-shrink:0; display:block; }
+  .meters {
+    flex:1; display:flex; flex-direction:column; gap:16px;
+    min-width:240px;
+  }
+  .meter {
+    background:#fafafa;
+    border:1px solid #e0dcd5;
+    border-radius:6px;
+    padding:14px 16px;
+  }
+  .meter-label {
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px; font-weight:600;
+    letter-spacing:0.12em; text-transform:uppercase;
+    color:#9a9590;
+    margin-bottom:6px;
+  }
+  .meter-value {
+    font-family:'JetBrains Mono',monospace;
+    font-size:22px; font-weight:600;
+    color:#0a0a0a;
+    line-height:1;
+  }
+  .meter-sub {
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; font-weight:500;
+    color:#5a5550;
+    margin-top:5px;
+  }
+  .bar {
+    margin-top:8px; height:4px;
+    background:#e0dcd5; border-radius:2px; overflow:hidden;
+  }
+  .bar-fill { height:100%; background:#3a4a5c; border-radius:2px; transition:width 0.3s ease; }
+  .visual-footer {
+    padding:14px 24px 18px;
+    border-top:1px solid #e0dcd5;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; font-weight:500;
+    color:#5a5550;
+    line-height:1.5;
+  }
+  .visual-footer strong { color:#0a0a0a; font-weight:600; }
+  .svg-node-label {
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; font-weight:600;
+    fill:#0a0a0a;
+  }
+  .svg-node-sub {
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px; font-weight:500;
+    fill:#9a9590;
+  }
+  @media(max-width:640px){
+    .visual-stage{flex-direction:column;align-items:stretch}
+    .visual-stage svg{width:100%;max-width:380px;margin:0 auto}
+  }
+</style>
+</head>
+<body>
+<div class="visual-card">
+  <div class="visual-header">
+    <h2>The edit-test-fail loop.</h2>
+    <p>Claude makes a change, a test fails, Claude tries something else, that fails too. The <code style="font-family:inherit;background:#fafafa;padding:1px 5px;border:1px solid #e0dcd5;border-radius:3px;font-size:12px;">--max-turns</code> cap stops it, but the loop can burn real money before tripping.</p>
+  </div>
+  <div class="visual-stage">
+    <svg id="svg" viewBox="0 0 380 280" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+    <div class="meters">
+      <div class="meter">
+        <div class="meter-label">Current turn</div>
+        <div class="meter-value" id="turn-value">0 / 50</div>
+        <div class="bar"><div class="bar-fill" id="turn-fill" style="width:0%"></div></div>
+        <div class="meter-sub" id="turn-sub">Loop active</div>
+      </div>
+      <div class="meter">
+        <div class="meter-label">Spend so far</div>
+        <div class="meter-value" id="cost-value">$0.000</div>
+        <div class="meter-sub">~$0.01 per turn at Sonnet pricing</div>
+      </div>
+    </div>
+  </div>
+  <div class="visual-footer">
+    <strong>Mitigation:</strong> drop a <code style="font-family:inherit;background:#fafafa;padding:1px 5px;border:1px solid #e0dcd5;border-radius:3px;font-size:11px;">CLAUDE.md</code> at the repo root with the exact test command. Most loops happen because Claude can't figure out how to run the suite. The headless CLI reads CLAUDE.md on startup.
+  </div>
+</div>
+
+<script>
+const svg = document.getElementById('svg');
+const NS = 'http://www.w3.org/2000/svg';
+const el = (n, a, c) => {
+  const e = document.createElementNS(NS, n);
+  if (a) for (const [k,v] of Object.entries(a)) e.setAttribute(k, v);
+  if (c) c.forEach(x => e.appendChild(x));
+  return e;
+};
+const text = s => document.createTextNode(s);
+
+const cx = 190, cy = 140;
+const radius = 90;
+const INK = '#0a0a0a';
+const ACCENT = '#3a4a5c';
+const LINE = '#9a9590';
+const LIGHT_LINE = '#d4cfc7';
+
+const nodes = [
+  { key:'edit', label:'EDIT',   sub:'Claude writes',  angle: -Math.PI/2 },
+  { key:'test', label:'TEST',   sub:'pytest, npm test', angle: -Math.PI/2 + (2*Math.PI/3) },
+  { key:'fail', label:'FAIL',   sub:'assertion error', angle: -Math.PI/2 + (4*Math.PI/3) },
+];
+
+nodes.forEach(n => {
+  n.x = cx + radius * Math.cos(n.angle);
+  n.y = cy + radius * Math.sin(n.angle);
+});
+
+function arrow(from, to, isActive = false) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  const nx = -dy / dist;
+  const ny = dx / dist;
+  const mx = (from.x + to.x) / 2 + nx * 30;
+  const my = (from.y + to.y) / 2 + ny * 30;
+  const padFrom = 32, padTo = 36;
+  const fAngle = Math.atan2(my - from.y, mx - from.x);
+  const tAngle = Math.atan2(my - to.y, mx - to.x);
+  const fx = from.x + Math.cos(fAngle) * padFrom;
+  const fy = from.y + Math.sin(fAngle) * padFrom;
+  const tx = to.x + Math.cos(tAngle) * padTo;
+  const ty = to.y + Math.sin(tAngle) * padTo;
+  const id = `arrow-${from.key}-${to.key}`;
+  const path = el('path', {
+    id, d:`M ${fx} ${fy} Q ${mx} ${my} ${tx} ${ty}`,
+    stroke:isActive ? ACCENT : LINE, 'stroke-width':isActive ? 2 : 1.2,
+    fill:'none', 'marker-end':`url(#arrowhead-${isActive ? 'a' : 'm'})`,
+    opacity:isActive ? 1 : 0.45,
+  });
+  svg.appendChild(path);
+  return path;
+}
+
+const defs = el('defs', null);
+['m', 'a'].forEach(suffix => {
+  const marker = el('marker', {
+    id:`arrowhead-${suffix}`, viewBox:'0 0 10 10', refX:'8', refY:'5',
+    markerWidth:'7', markerHeight:'7', orient:'auto-start-reverse',
+  });
+  marker.appendChild(el('path', { d:'M 0 0 L 10 5 L 0 10 z', fill:suffix === 'a' ? ACCENT : LINE }));
+  defs.appendChild(marker);
+});
+svg.appendChild(defs);
+
+const arrowPaths = {
+  'edit-test': arrow(nodes[0], nodes[1]),
+  'test-fail': arrow(nodes[1], nodes[2]),
+  'fail-edit': arrow(nodes[2], nodes[0]),
+};
+
+nodes.forEach(n => {
+  n.circle = el('circle', { cx:n.x, cy:n.y, r:28, fill:'#fff', stroke:INK, 'stroke-width':1.5 });
+  svg.appendChild(n.circle);
+  svg.appendChild(el('text', { x:n.x, y:n.y + 4, 'text-anchor':'middle', class:'svg-node-label' }, [text(n.label)]));
+  svg.appendChild(el('text', { x:n.x, y:n.y + 46, 'text-anchor':'middle', class:'svg-node-sub' }, [text(n.sub)]));
+});
+
+const traveler = el('circle', { cx:nodes[0].x, cy:nodes[0].y, r:5, fill:ACCENT });
+svg.appendChild(traveler);
+
+const turnValue = document.getElementById('turn-value');
+const turnFill = document.getElementById('turn-fill');
+const turnSub = document.getElementById('turn-sub');
+const costValue = document.getElementById('cost-value');
+
+const MAX_TURNS = 50;
+const COST_PER_TURN = 0.01;
+const TURN_DURATION = 800;
+
+const t0 = performance.now();
+const loopFullDuration = MAX_TURNS * TURN_DURATION + 2000;
+
+function tick() {
+  const t = performance.now() - t0;
+  const p = (t % loopFullDuration) / loopFullDuration;
+  const currentTurn = Math.floor(p * MAX_TURNS);
+  const turnFraction = (p * MAX_TURNS) % 1;
+
+  const within = turnFraction;
+  let fromIdx, toIdx, segFraction;
+  if (within < 1/3) { fromIdx = 0; toIdx = 1; segFraction = within * 3; }
+  else if (within < 2/3) { fromIdx = 1; toIdx = 2; segFraction = (within - 1/3) * 3; }
+  else { fromIdx = 2; toIdx = 0; segFraction = (within - 2/3) * 3; }
+
+  const from = nodes[fromIdx], to = nodes[toIdx];
+  const dx = to.x - from.x, dy = to.y - from.y;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  const nx = -dy / dist, ny = dx / dist;
+  const mx = (from.x + to.x) / 2 + nx * 30;
+  const my = (from.y + to.y) / 2 + ny * 30;
+  const s = segFraction;
+  const tx = (1-s)*(1-s)*from.x + 2*(1-s)*s*mx + s*s*to.x;
+  const ty = (1-s)*(1-s)*from.y + 2*(1-s)*s*my + s*s*to.y;
+  traveler.setAttribute('cx', tx);
+  traveler.setAttribute('cy', ty);
+
+  turnValue.textContent = `${currentTurn} / ${MAX_TURNS}`;
+  const pct = (currentTurn / MAX_TURNS) * 100;
+  turnFill.style.width = pct + '%';
+  const spend = currentTurn * COST_PER_TURN;
+  costValue.textContent = '$' + spend.toFixed(3);
+
+  if (currentTurn >= MAX_TURNS) {
+    turnSub.textContent = 'KILLED by --max-turns';
+    turnSub.style.color = '#3a4a5c';
+  } else if (currentTurn > 30) {
+    turnSub.textContent = 'Burning tokens, no progress';
+    turnSub.style.color = '#5a5550';
+  } else {
+    turnSub.textContent = 'Loop active';
+    turnSub.style.color = '#5a5550';
+  }
+
+  requestAnimationFrame(tick);
+}
+tick();
+</script>
+</body>
+</html>

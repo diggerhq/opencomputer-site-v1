@@ -11,6 +11,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://opencomputer.dev/blog/background-coding-agent</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://opencomputer.dev/blog/what-elastic-compute-means</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
