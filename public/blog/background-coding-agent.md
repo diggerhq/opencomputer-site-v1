@@ -2,7 +2,6 @@
 title: "Build a background coding agent that works while you sleep"
 description: "A 250-line self-hosted background coding agent. Label a GitHub issue with `agent`, wake up to a draft PR. ~$0.30/task. The snapshot, the agent loop, the webhook server, and the dead ends to skip."
 author: "Utpal Nadiger"
-author_url: "https://manicule.dev"
 date_published: "2026-06-01"
 canonical_url: "https://opencomputer.dev/blog/background-coding-agent"
 demo_video: "https://opencomputer.dev/blog-visuals/background-coding-agent/agent-demo.mp4"
@@ -10,7 +9,7 @@ demo_video: "https://opencomputer.dev/blog-visuals/background-coding-agent/agent
 
 # Build a background coding agent that works while you sleep
 
-> Written by [Utpal Nadiger](https://manicule.link/?ref=oc-background) · June 1, 2026
+> Written by Utpal Nadiger · June 1, 2026
 
 I have a backlog of issues I'd rather not touch. Stuff like missing CLI flags, typos, flaky tests, and the list goes on. Out of equal parts curiosity and laziness, I wanted to hand these issues to one of these background coding agents and see if they could handle the work without me having to do it.
 

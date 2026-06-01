@@ -31,7 +31,6 @@ const blogPosts: BlogMeta[] = [
       "A 250-line self-hosted background coding agent. Label a GitHub issue with `agent`, wake up to a draft PR. ~$0.30/task. The snapshot, the agent loop, the webhook server, and the dead ends I'd save you from.",
     author: "Utpal Nadiger",
     datePublished: "2026-06-01",
-    authorUrl: "https://manicule.dev",
     markdownUrl: "/blog/background-coding-agent.md",
   },
   {
