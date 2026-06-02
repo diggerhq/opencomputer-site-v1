@@ -17,7 +17,7 @@ After testing hosted options such as Devin, I decided to control the entire stac
 
 I'll walk you through building your own background coding agent using OpenComputer's VMs and sandboxes in about 250 lines of Python, at roughly $0.30 per task at Claude's current pricing.
 
-Know the basics? Jump to the implementation of the recipe or just grab the [full working code](https://manicule.link/background-agent-repo).
+Know the basics? Jump to the implementation of the recipe or just grab the [full working code](https://github.com/diggerhq/opencomputer-cookbooks/tree/main/background-coding-agent).
 
 ## What you'll build
 
@@ -533,4 +533,4 @@ Apart from that, I don't see much of an issue. A well-built agent could be extre
 ---
 
 **Read this post in HTML:** <https://manicule.link/background-coding-agent>
-**Full working code:** <https://manicule.link/background-agent-repo>
+**Full working code:** <https://github.com/diggerhq/opencomputer-cookbooks/tree/main/background-coding-agent>

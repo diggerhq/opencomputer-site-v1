@@ -1,8 +1,96 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 import ShikiCodeBlock from "@/components/ShikiCodeBlock";
 import SitePageLayout from "@/components/SitePageLayout";
 import SEO from "@/components/SEO";
+
+/* ---------- Table of contents ---------- *
+ * Fixed to the right margin on viewports ≥1360px. Below that, hidden —
+ * the 994px article column doesn't leave room for a sidebar at smaller
+ * widths without overlap. IntersectionObserver tracks the topmost visible
+ * heading; H3s render indented under their H2 parent. scroll-mt on the
+ * headings clears any sticky header on click-to-anchor.
+ */
+type TocItem = { id: string; label: string; sub?: boolean };
+const TOC_ITEMS: TocItem[] = [
+  { id: "what-youll-build", label: "What you'll build" },
+  { id: "how-the-pieces-fit", label: "How the pieces fit" },
+  { id: "the-persistent-box", label: "The persistent box", sub: true },
+  { id: "a-sandbox-per-issue", label: "A sandbox per issue", sub: true },
+  { id: "prerequisites", label: "Prerequisites" },
+  { id: "environment-setup", label: "Environment setup" },
+  { id: "agent-setup", label: "Set up with an agent" },
+  { id: "implementation", label: "Implementation" },
+  { id: "step-1-snapshot", label: "Step 1: Snapshot", sub: true },
+  { id: "step-2a-boot", label: "Step 2a: Boot sandbox", sub: true },
+  { id: "step-2b-claude", label: "Step 2b: Run + ship", sub: true },
+  { id: "step-3-webhooks", label: "Step 3: Webhooks", sub: true },
+  { id: "step-4-github", label: "Step 4: Hook up GitHub", sub: true },
+  { id: "step-5-run", label: "Step 5: Run an issue", sub: true },
+  { id: "what-it-costs", label: "What it costs", sub: true },
+  { id: "where-it-can-fail", label: "Where it can fail" },
+  { id: "stray-refactors", label: "Stray refactors", sub: true },
+  { id: "edit-test-fail-loop", label: "Edit-test-fail loop", sub: true },
+  { id: "pat-rate-limits", label: "PAT rate limits", sub: true },
+  { id: "the-tradeoff", label: "The tradeoff" },
+];
+
+const TableOfContents = () => {
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          // pick the topmost visible heading
+          visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+          setActiveId(visible[0].target.id);
+        }
+      },
+      { rootMargin: "-80px 0px -70% 0px", threshold: 0 },
+    );
+    TOC_ITEMS.forEach((item) => {
+      const el = document.getElementById(item.id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <aside
+      aria-label="Table of contents"
+      className="hidden [@media(min-width:1360px)]:block fixed top-[140px] right-6 w-[150px] max-h-[calc(100vh-180px)] overflow-y-auto z-10"
+    >
+      <div className="font-mono-brand text-[11px] uppercase tracking-[0.14em] text-muted-foreground mb-3 pb-2 border-b border-border/40">
+        Contents
+      </div>
+      <ul className="space-y-1.5">
+        {TOC_ITEMS.map((item) => (
+          <li key={item.id}>
+            <a
+              href={`#${item.id}`}
+              aria-current={activeId === item.id ? "location" : undefined}
+              className={`block font-mono-brand text-[12px] leading-[1.45] no-underline transition-colors ${
+                item.sub ? "pl-3" : ""
+              } ${
+                activeId === item.id
+                  ? "text-foreground"
+                  : item.sub
+                    ? "text-muted-foreground/80 hover:text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </aside>
+  );
+};
 
 /* ---------- Callout ---------- */
 const Callout = ({ children }: { children: React.ReactNode }) => (
@@ -423,6 +511,8 @@ const BackgroundCodingAgent = () => {
         type="article"
       />
 
+      <TableOfContents />
+
       <FadeIn>
         <Link
           to="/blog"
@@ -475,7 +565,7 @@ const BackgroundCodingAgent = () => {
           <p className="text-[15px] leading-[1.7] text-muted-foreground italic">
             Know the basics? Jump to the implementation of the recipe or just grab the{" "}
             <a
-              href="https://manicule.link/background-agent-repo"
+              href="https://github.com/diggerhq/opencomputer-cookbooks/tree/main/background-coding-agent"
               target="_blank"
               rel="noreferrer"
               className="underline hover:text-foreground"
@@ -493,7 +583,7 @@ const BackgroundCodingAgent = () => {
 
       {/* ====== Section: What you'll build ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
+        <h2 id="what-youll-build" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
           What you'll build
         </h2>
       </FadeIn>
@@ -589,7 +679,7 @@ const BackgroundCodingAgent = () => {
 
       {/* ====== Section: How the pieces fit ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
+        <h2 id="how-the-pieces-fit" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
           How the pieces fit
         </h2>
       </FadeIn>
@@ -603,7 +693,7 @@ const BackgroundCodingAgent = () => {
       </FadeIn>
 
       <FadeIn>
-        <h3 className="font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
+        <h3 id="the-persistent-box" className="scroll-mt-24 font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
           The persistent box
         </h3>
       </FadeIn>
@@ -640,7 +730,7 @@ const BackgroundCodingAgent = () => {
       </FadeIn>
 
       <FadeIn>
-        <h3 className="font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
+        <h3 id="a-sandbox-per-issue" className="scroll-mt-24 font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
           A sandbox per issue
         </h3>
       </FadeIn>
@@ -686,7 +776,7 @@ const BackgroundCodingAgent = () => {
 
       {/* ====== Section: Prerequisites ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
+        <h2 id="prerequisites" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
           Prerequisites
         </h2>
       </FadeIn>
@@ -717,7 +807,7 @@ const BackgroundCodingAgent = () => {
 
       {/* ====== Section: Environment Setup ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mt-12 mb-6">
+        <h2 id="environment-setup" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mt-12 mb-6">
           Environment setup
         </h2>
       </FadeIn>
@@ -757,7 +847,7 @@ server.py           — FastAPI webhook server
 
       {/* ====== Section: agent-built variant ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mt-12 mb-6">
+        <h2 id="agent-setup" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mt-12 mb-6">
           Want your coding agent to set this up for you?
         </h2>
       </FadeIn>
@@ -783,7 +873,7 @@ server.py           — FastAPI webhook server
 
       {/* ====== Section: Implementation ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
+        <h2 id="implementation" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
           Implementation
         </h2>
       </FadeIn>
@@ -798,7 +888,7 @@ server.py           — FastAPI webhook server
 
       {/* Step 1 */}
       <FadeIn>
-        <h3 className="font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
+        <h3 id="step-1-snapshot" className="scroll-mt-24 font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
           Step 1: Pre-install the agent's tools into a snapshot
         </h3>
         <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-4">
@@ -838,7 +928,7 @@ server.py           — FastAPI webhook server
 
       {/* Step 2a */}
       <FadeIn>
-        <h3 className="font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
+        <h3 id="step-2a-boot" className="scroll-mt-24 font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
           Step 2a: Booting and prepping the sandbox
         </h3>
         <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-4">
@@ -868,7 +958,7 @@ server.py           — FastAPI webhook server
 
       {/* Step 2b */}
       <FadeIn>
-        <h3 className="font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
+        <h3 id="step-2b-claude" className="scroll-mt-24 font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
           Step 2b: Running Claude and shipping the PR
         </h3>
         <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-4">
@@ -904,7 +994,7 @@ server.py           — FastAPI webhook server
 
       {/* Step 3 */}
       <FadeIn>
-        <h3 className="font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
+        <h3 id="step-3-webhooks" className="scroll-mt-24 font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
           Step 3: Receive GitHub webhooks and trigger the agent
         </h3>
         <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-4">
@@ -951,7 +1041,7 @@ server.py           — FastAPI webhook server
 
       {/* Step 4 */}
       <FadeIn>
-        <h3 className="font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
+        <h3 id="step-4-github" className="scroll-mt-24 font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
           Step 4: Point GitHub at your server
         </h3>
         <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-4">
@@ -982,7 +1072,7 @@ server.py           — FastAPI webhook server
 
       {/* Step 5 */}
       <FadeIn>
-        <h3 className="font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
+        <h3 id="step-5-run" className="scroll-mt-24 font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
           Step 5: Run it and ship your first sleeping PR
         </h3>
         <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-4">
@@ -1027,7 +1117,7 @@ server.py           — FastAPI webhook server
 
       {/* What it actually costs */}
       <FadeIn>
-        <h3 className="font-heading text-[22px] tracking-[-0.3px] mt-12 mb-4">
+        <h3 id="what-it-costs" className="scroll-mt-24 font-heading text-[22px] tracking-[-0.3px] mt-12 mb-4">
           What it actually costs
         </h3>
         <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
@@ -1046,7 +1136,7 @@ server.py           — FastAPI webhook server
 
       {/* ====== Section: Where it can fail ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
+        <h2 id="where-it-can-fail" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
           Where your background coding agent can fail
         </h2>
       </FadeIn>
@@ -1058,7 +1148,7 @@ server.py           — FastAPI webhook server
       </FadeIn>
 
       <FadeIn>
-        <h3 className="font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
+        <h3 id="stray-refactors" className="scroll-mt-24 font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
           Claude refactoring files you didn't ask it to
         </h3>
         <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
@@ -1070,7 +1160,7 @@ server.py           — FastAPI webhook server
       </FadeIn>
 
       <FadeIn>
-        <h3 className="font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
+        <h3 id="edit-test-fail-loop" className="scroll-mt-24 font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
           The edit-test-fail loop
         </h3>
         <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
@@ -1101,7 +1191,7 @@ server.py           — FastAPI webhook server
       </FadeIn>
 
       <FadeIn>
-        <h3 className="font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
+        <h3 id="pat-rate-limits" className="scroll-mt-24 font-heading text-[22px] tracking-[-0.3px] mt-10 mb-4">
           GitHub PATs rate-limit at 5,000 req/hour
         </h3>
         <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
@@ -1119,7 +1209,7 @@ server.py           — FastAPI webhook server
 
       {/* ====== Section: Tradeoff ====== */}
       <FadeIn>
-        <h2 className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
+        <h2 id="the-tradeoff" className="scroll-mt-24 font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
           Now for the tradeoff
         </h2>
       </FadeIn>
