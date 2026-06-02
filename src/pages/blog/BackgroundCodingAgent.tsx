@@ -565,7 +565,7 @@ const BackgroundCodingAgent = () => {
           <p className="text-[15px] leading-[1.7] text-muted-foreground italic">
             Know the basics? Jump to the implementation of the recipe or just grab the{" "}
             <a
-              href="https://manicule.link/background-agent-repo"
+              href="https://github.com/diggerhq/opencomputer-cookbooks/tree/main/background-coding-agent"
               target="_blank"
               rel="noreferrer"
               className="underline hover:text-foreground"
