@@ -13,6 +13,7 @@
 import { createServer, type Server } from "http";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, statSync } from "fs";
 import { join, extname, normalize } from "path";
+import { execSync } from "child_process";
 import { chromium } from "playwright";
 import { blogPosts } from "../vite-plugin-blog-meta";
 
@@ -142,6 +143,13 @@ function applyHeadOverrides(
 async function main() {
   if (!existsSync(join(DIST, "index.html"))) {
     throw new Error("dist/index.html not found — run `vite build` first");
+  }
+
+  // Fresh build machines (Cloudflare, CI) have the playwright npm package but
+  // not the browser binary. Install it on demand instead of failing the build.
+  if (!existsSync(chromium.executablePath())) {
+    console.log("[prerender] chromium binary missing — running `npx playwright install chromium`");
+    execSync("npx playwright install chromium", { stdio: "inherit" });
   }
 
   const server = await serveDist();
