@@ -109,6 +109,35 @@ function escapeAttr(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+function hasSystemLib(lib: string): boolean {
+  try {
+    return execSync("ldconfig -p", { encoding: "utf8" }).includes(lib);
+  } catch {
+    return false;
+  }
+}
+
+// Playwright's chromium needs system libraries (libatk & co) that locked-down
+// build images (Cloudflare Workers Builds) don't have and can't install
+// without root. Detect that case and use @sparticuz/chromium instead — a
+// self-contained chromium built for exactly these environments. Everywhere
+// else, use the regular Playwright browser (installing it if missing).
+async function launchBrowser() {
+  if (process.platform === "linux" && !hasSystemLib("libatk-1.0.so.0")) {
+    console.log("[prerender] system chromium libs missing — using @sparticuz/chromium");
+    const { default: sparticuz } = await import("@sparticuz/chromium");
+    return chromium.launch({
+      executablePath: await sparticuz.executablePath(),
+      args: sparticuz.args,
+    });
+  }
+  if (!existsSync(chromium.executablePath())) {
+    console.log("[prerender] chromium binary missing — running `npx playwright install chromium`");
+    execSync("npx playwright install chromium", { stdio: "inherit" });
+  }
+  return chromium.launch();
+}
+
 function applyHeadOverrides(
   html: string,
   route: { title?: string; description?: string; canonical: string },
@@ -145,15 +174,8 @@ async function main() {
     throw new Error("dist/index.html not found — run `vite build` first");
   }
 
-  // Fresh build machines (Cloudflare, CI) have the playwright npm package but
-  // not the browser binary. Install it on demand instead of failing the build.
-  if (!existsSync(chromium.executablePath())) {
-    console.log("[prerender] chromium binary missing — running `npx playwright install chromium`");
-    execSync("npx playwright install chromium", { stdio: "inherit" });
-  }
-
   const server = await serveDist();
-  const browser = await chromium.launch();
+  const browser = await launchBrowser();
   const page = await browser.newPage();
 
   const routes: Array<{ path: string; overrides?: (typeof staticRoutes)[number] }> = [
