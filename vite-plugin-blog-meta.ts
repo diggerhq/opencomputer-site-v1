@@ -2,7 +2,7 @@ import type { Plugin } from "vite";
 import { writeFileSync, mkdirSync, readFileSync } from "fs";
 import { join } from "path";
 
-interface BlogMeta {
+export interface BlogMeta {
   slug: string;
   title: string;
   description: string;
@@ -23,7 +23,7 @@ const SITE_NAME = "OpenComputer";
 const BASE_URL = "https://opencomputer.dev";
 const DEFAULT_IMAGE = `${BASE_URL}/social-preview.png`;
 
-const blogPosts: BlogMeta[] = [
+export const blogPosts: BlogMeta[] = [
   {
     slug: "background-coding-agent",
     title: "Build a background coding agent that works while you sleep",
@@ -106,7 +106,7 @@ function escapeAttr(s: string): string {
 // so existing posts (which don't set it) get no Article schema and their head is
 // rewritten exactly as before.
 function buildArticleSchema(post: BlogMeta): string {
-  const url = `${BASE_URL}/blog/${post.slug}`;
+  const url = `${BASE_URL}/blog/${post.slug}/`;
   const image = post.image ? `${BASE_URL}${post.image}` : DEFAULT_IMAGE;
   const author = post.authorUrl
     ? { "@type": "Person", name: post.author, url: post.authorUrl }
@@ -139,7 +139,9 @@ function replaceMeta(html: string, post: BlogMeta): string {
   const fullTitle = escapeAttr(`${post.title} – ${SITE_NAME}`);
   const description = escapeAttr(post.description);
   const author = escapeAttr(post.author);
-  const url = `${BASE_URL}/blog/${post.slug}`;
+  // Trailing slash matches Cloudflare's auto-trailing-slash normalization, so
+  // canonical/og:url point at the URL the server actually serves (no redirect hop).
+  const url = `${BASE_URL}/blog/${post.slug}/`;
   const image = post.image ? `${BASE_URL}${post.image}` : DEFAULT_IMAGE;
 
   // Inject Article JSON-LD + markdown alternate link before </head>.
@@ -159,6 +161,13 @@ function replaceMeta(html: string, post: BlogMeta): string {
     .replace(
       /<title>[^<]*<\/title>/,
       `<title>${fullTitle}</title>`
+    )
+    // Canonical. Without this rewrite every post inherits the homepage canonical
+    // and tells crawlers to index "/" instead of the post. The /guides/* mirror
+    // gets the same /blog/* canonical, deduplicating the twin routes.
+    .replace(
+      /<link rel="canonical" href="[^"]*"/,
+      `<link rel="canonical" href="${url}"`
     )
     // Primary meta
     .replace(
@@ -213,6 +222,39 @@ function replaceMeta(html: string, post: BlogMeta): string {
     );
 }
 
+// Generated from `blogPosts` so the sitemap can never drift from the route
+// table again (the old static public/sitemap.xml was missing three posts).
+// /guides/* mirrors are deliberately excluded: they canonicalize to /blog/*.
+function buildSitemap(): string {
+  const entry = (loc: string, changefreq: string, priority: string, lastmod?: string) =>
+    [
+      "  <url>",
+      `    <loc>${BASE_URL}${loc}</loc>`,
+      ...(lastmod ? [`    <lastmod>${lastmod}</lastmod>`] : []),
+      `    <changefreq>${changefreq}</changefreq>`,
+      `    <priority>${priority}</priority>`,
+      "  </url>",
+    ].join("\n");
+
+  const urls = [
+    entry("/", "weekly", "1.0"),
+    entry("/blog/", "weekly", "0.8"),
+    entry("/clawputer/", "monthly", "0.7"),
+    entry("/partners/", "monthly", "0.7"),
+    ...blogPosts.map((post) =>
+      entry(`/blog/${post.slug}/`, "monthly", "0.6", post.datePublished),
+    ),
+  ];
+
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ...urls,
+    "</urlset>",
+    "",
+  ].join("\n");
+}
+
 export default function blogMetaPlugin(): Plugin {
   return {
     name: "blog-meta",
@@ -228,7 +270,9 @@ export default function blogMetaPlugin(): Plugin {
         }
       }
 
-      console.log(`[blog-meta] Generated HTML for ${blogPosts.length} blog posts`);
+      writeFileSync(join(distDir, "sitemap.xml"), buildSitemap());
+
+      console.log(`[blog-meta] Generated HTML for ${blogPosts.length} blog posts + sitemap.xml`);
     },
   };
 }
