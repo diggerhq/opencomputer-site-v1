@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Triage Agent — Label as Signal</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap');
+  :root{
+    --cream:#f5f3ee;--ink:#161513;--ink-soft:#403d37;--coral:#e3613a;
+    --line:#dcd8cf;--card:#fbfaf6;--mute:#8a857b;--green:#3a7d44;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:transparent;color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto}
+  .hint{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-soft);margin-bottom:14px}
+  .hint b{color:var(--coral)}
+  .inbox{border:1px solid var(--line);border-radius:6px;background:var(--card);overflow:hidden}
+  .inbox-head{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--cream)}
+  .inbox-head .t{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+  .inbox-head .c{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute)}
+  .mail{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:flex-start;transition:background .2s}
+  .mail:last-child{border-bottom:none}
+  .mail .from{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink-soft);width:170px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mail .subj{font-size:13.5px;flex:1;min-width:0}
+  .mail .subj .preview{display:block;font-size:11.5px;color:var(--mute);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .labelbtn{font-family:'JetBrains Mono',monospace;font-size:10.5px;cursor:pointer;background:transparent;color:var(--coral);border:1.5px dashed var(--coral);padding:5px 10px;border-radius:999px;letter-spacing:.03em;flex-shrink:0;transition:all .2s}
+  .labelbtn:hover{background:var(--coral);color:#fff;border-style:solid}
+  .labelbtn:disabled{opacity:.4;cursor:default}
+  .labelbtn.applied{background:var(--coral);color:#fff;border-style:solid;cursor:default}
+  .nolabel{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--mute);flex-shrink:0;padding:5px 0}
+  .mail.dim{opacity:.45}
+  .pipeline{display:flex;align-items:center;gap:0;margin:18px 0;flex-wrap:wrap;row-gap:10px}
+  .step{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute);padding:8px 12px;border:1px solid var(--line);border-radius:4px;background:var(--card);transition:all .3s}
+  .step .dot{width:8px;height:8px;border-radius:50%;background:var(--line);transition:all .3s}
+  .step.on{color:var(--ink);border-color:var(--coral)}
+  .step.on .dot{background:var(--coral);animation:blink .9s infinite}
+  .step.done{color:var(--ink);border-color:var(--ink)}
+  .step.done .dot{background:var(--green);animation:none}
+  .arrow{font-family:'JetBrains Mono',monospace;color:var(--mute);padding:0 8px}
+  @keyframes blink{50%{opacity:.3}}
+  .reply{margin-top:4px;margin-left:32px;border-left:3px solid var(--coral);background:var(--card);border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0 6px 6px 0;padding:14px 16px;display:none}
+  .reply.show{display:block;animation:slidein .4s ease}
+  @keyframes slidein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .reply .rfrom{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);margin-bottom:8px}
+  .verdict{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em;padding:3px 9px;border-radius:999px;margin-bottom:8px}
+  .verdict.bogus{background:var(--ink);color:var(--cream)}
+  .reply .body{font-size:13px;line-height:1.65;color:var(--ink-soft)}
+  .reply .body code{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:var(--cream);padding:1px 5px;border-radius:3px}
+  .reset{font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;background:transparent;border:none;color:var(--mute);text-decoration:underline;margin-top:12px;display:none}
+  .reset.show{display:inline-block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hint" id="hint">Four emails arrived overnight. Label the one that looks like a security report - <b>the label is the only signal the agent gets</b>.</div>
+
+  <div class="inbox">
+    <div class="inbox-head">
+      <span class="t">inbox - security@</span>
+      <span class="c" id="count">4 unread</span>
+    </div>
+    <div class="mail" id="m1">
+      <span class="from">newsletter@vendor.io</span>
+      <span class="subj">Your monthly cloud spend report<span class="preview">Spend was up 12% in May. See the breakdown&hellip;</span></span>
+      <span class="nolabel">-</span>
+    </div>
+    <div class="mail" id="m2">
+      <span class="from">alex.sec.research@gmail.com</span>
+      <span class="subj">[CRITICAL] RCE in Sandbox API (CVSS 9.8)<span class="preview">During authorized research I discovered a critical Remote Code Execution&hellip;</span></span>
+      <button class="labelbtn" id="label2">+ security-report</button>
+    </div>
+    <div class="mail" id="m3">
+      <span class="from">billing@registrar.com</span>
+      <span class="subj">Invoice #8841 for opencomputer.dev<span class="preview">Your domain renewal invoice is attached&hellip;</span></span>
+      <span class="nolabel">-</span>
+    </div>
+    <div class="mail" id="m4">
+      <span class="from">recruiting@scaleup.dev</span>
+      <span class="subj">Quick intro re: senior infra role<span class="preview">I came across your profile and&hellip;</span></span>
+      <span class="nolabel">-</span>
+    </div>
+  </div>
+
+  <div class="pipeline" id="pipe" style="visibility:hidden">
+    <div class="step" id="s1"><span class="dot"></span>cron: poll IMAP</div>
+    <span class="arrow">&rarr;</span>
+    <div class="step" id="s2"><span class="dot"></span>label found</div>
+    <span class="arrow">&rarr;</span>
+    <div class="step" id="s3"><span class="dot"></span>boot sandbox</div>
+    <span class="arrow">&rarr;</span>
+    <div class="step" id="s4"><span class="dot"></span>claude reads the codebase</div>
+    <span class="arrow">&rarr;</span>
+    <div class="step" id="s5"><span class="dot"></span>reply sent</div>
+  </div>
+
+  <div class="reply" id="reply">
+    <div class="rfrom">triage@alerts.opencomputer.dev &middot; re: [CRITICAL] RCE in Sandbox API</div>
+    <span class="verdict bogus">verdict: not a vulnerability</span>
+    <div class="body">
+      The report claims unsanitized input to <code>POST /v1/sandboxes/{id}/exec</code> allows arbitrary
+      command execution. Reviewed against the codebase: the exec endpoint intentionally runs caller-supplied
+      commands inside an isolated KVM sandbox - that is the documented product behavior, not an injection
+      path. No privilege boundary is crossed; <code>/etc/passwd</code> read is scoped to the disposable VM.
+      No CVSS applies. Suggested reply drafted below.
+    </div>
+  </div>
+  <button class="reset" id="reset">run it again</button>
+</div>
+
+<script>
+  var label2=document.getElementById('label2'),pipe=document.getElementById('pipe'),
+      reply=document.getElementById('reply'),hint=document.getElementById('hint'),
+      reset=document.getElementById('reset'),count=document.getElementById('count');
+  var steps=['s1','s2','s3','s4','s5'].map(function(id){return document.getElementById(id)});
+  var others=['m1','m3','m4'].map(function(id){return document.getElementById(id)});
+
+  function runPipeline(){
+    label2.classList.add('applied');label2.disabled=true;label2.textContent='security-report';
+    others.forEach(function(m){m.classList.add('dim')});
+    hint.innerHTML='Labeled. The other three emails are <b>never seen by the agent</b> - no sandbox is spun up for them.';
+    pipe.style.visibility='visible';
+    count.textContent='1 labeled';
+    var i=0;
+    function next(){
+      if(i>0){steps[i-1].classList.remove('on');steps[i-1].classList.add('done')}
+      if(i<steps.length){steps[i].classList.add('on');i++;setTimeout(next,i===4?1600:850)}
+      else{reply.classList.add('show');reset.classList.add('show');
+        hint.innerHTML='A few minutes later the review lands <b>in the same thread</b>. Inbox in, inbox out.'}
+    }
+    next();
+  }
+  label2.addEventListener('click',runPipeline);
+  reset.addEventListener('click',function(){
+    label2.classList.remove('applied');label2.disabled=false;label2.textContent='+ security-report';
+    others.forEach(function(m){m.classList.remove('dim')});
+    steps.forEach(function(s){s.classList.remove('on','done')});
+    pipe.style.visibility='hidden';reply.classList.remove('show');reset.classList.remove('show');
+    count.textContent='4 unread';
+    hint.innerHTML='Four emails arrived overnight. Label the one that looks like a security report - <b>the label is the only signal the agent gets</b>.';
+  });
+</script>
+</body>
+</html>

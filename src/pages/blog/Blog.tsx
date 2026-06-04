@@ -5,6 +5,14 @@ import SEO from "@/components/SEO";
 
 const posts = [
   {
+    slug: "email-security-triage-agent",
+    title: "I built an email agent to triage bogus security reports",
+    description:
+      "Most security reports arriving by email are AI-generated noise, but every one has to be reviewed. So I built an agent that triages them against the actual codebase: labels as signal, SecretStores against key exfiltration, and why the agent must never pick the email recipient.",
+    author: "Igor Zalutski",
+    date: "June 4, 2026",
+  },
+  {
     slug: "background-coding-agent",
     title: "Build a background coding agent that works while you sleep",
     description:
