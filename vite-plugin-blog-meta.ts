@@ -25,6 +25,14 @@ const DEFAULT_IMAGE = `${BASE_URL}/social-preview.png`;
 
 export const blogPosts: BlogMeta[] = [
   {
+    slug: "email-security-triage-agent",
+    title: "I built an email agent to triage bogus security reports",
+    description:
+      "Most security reports arriving by email are AI-generated noise, but every one has to be reviewed. So I built an agent that triages them against the actual codebase: labels as signal, SecretStores against key exfiltration, and why the agent must never pick the email recipient.",
+    author: "Igor Zalutski",
+    datePublished: "2026-06-04",
+  },
+  {
     slug: "background-coding-agent",
     title: "Build a background coding agent that works while you sleep",
     description:
