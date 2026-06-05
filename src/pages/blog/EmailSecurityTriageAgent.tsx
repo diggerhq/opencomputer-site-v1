@@ -81,6 +81,9 @@ const InlineCode = ({ children }: { children: React.ReactNode }) => (
  * The iframe carries the interactive demo for JS-rendering browsers.
  * The <noscript> block carries an indexable text description for crawlers
  * that don't render JS or don't follow iframe sources.
+ * The demo posts its content height (keyed by its own pathname) whenever its
+ * state changes, so the frame hugs the content instead of reserving dead
+ * space for states the reader hasn't triggered yet.
  */
 const Visual = ({
   src,
@@ -92,23 +95,43 @@ const Visual = ({
   height: number;
   title: string;
   fallback: string;
-}) => (
-  <figure className="my-10 -mx-2 sm:mx-0">
-    <iframe
-      src={src}
-      title={title}
-      aria-label={title}
-      loading="lazy"
-      style={{ width: "100%", height: `${height}px`, border: 0, display: "block" }}
-    />
-    <figcaption className="sr-only">{fallback}</figcaption>
-    <noscript>
-      <p className="font-mono-brand text-[12px] text-muted-foreground mt-2 italic">
-        {title}: {fallback}
-      </p>
-    </noscript>
-  </figure>
-);
+}) => {
+  const [frameHeight, setFrameHeight] = useState(height);
+
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      if (e.data?.ocVisual === src && typeof e.data.height === "number") {
+        setFrameHeight(e.data.height);
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [src]);
+
+  return (
+    <figure className="my-10 -mx-2 sm:mx-0">
+      <iframe
+        src={src}
+        title={title}
+        aria-label={title}
+        loading="lazy"
+        style={{
+          width: "100%",
+          height: `${frameHeight}px`,
+          border: 0,
+          display: "block",
+          transition: "height 0.3s ease",
+        }}
+      />
+      <figcaption className="sr-only">{fallback}</figcaption>
+      <noscript>
+        <p className="font-mono-brand text-[12px] text-muted-foreground mt-2 italic">
+          {title}: {fallback}
+        </p>
+      </noscript>
+    </figure>
+  );
+};
 
 const VISUAL_BASE = "/blog-visuals/email-security-triage-agent";
 
@@ -320,7 +343,7 @@ const EmailSecurityTriageAgent = () => {
 
       <Visual
         src={`${VISUAL_BASE}/01-inbox-label-demo.html`}
-        height={620}
+        height={350}
         title="Interactive demo: the label is the only signal"
         fallback="A mock inbox holds four emails: a vendor newsletter, a CVSS 9.8 RCE report from alex.sec.research@gmail.com, a domain invoice, and a recruiter intro. Applying the security-report label to the RCE email kicks off the pipeline: a cron job polls IMAP, finds the label, boots an OpenComputer sandbox, Claude reads the actual codebase, and a reply lands in the same thread with the verdict 'not a vulnerability'. The other three emails are never seen by the agent and no sandbox is spun up for them."
       />
@@ -491,13 +514,6 @@ const EmailSecurityTriageAgent = () => {
         />
       </FadeIn>
 
-      <Visual
-        src={`${VISUAL_BASE}/02-secret-store.html`}
-        height={420}
-        title="Interactive demo: SecretStore in-flight key replacement"
-        fallback="Diagram of three nodes: a sandbox running Claude Code whose environment only holds the placeholder oc_secret_a91f, a SecretStore egress proxy, and two destinations. When the agent calls api.anthropic.com (on the allowlist) the proxy swaps the placeholder for the real sk-ant key in flight and delivers the request. When an injected prompt tries to POST the key to attacker.net, the proxy blocks the request because the host is not on the egress allowlist, and even if it had gotten through the payload only contains the worthless placeholder. The agent never sees the real key, so there is nothing in the sandbox to exfiltrate."
-      />
-
       <FadeIn>
         <div className="w-12 h-px bg-border my-10" />
       </FadeIn>
@@ -522,18 +538,6 @@ const EmailSecurityTriageAgent = () => {
             completely different address! To be fair, I also forgot to add the correct email
             address to the prompt. But still, this shouldn't have happened.
           </P>
-        </div>
-      </FadeIn>
-
-      <Visual
-        src={`${VISUAL_BASE}/03-who-sends-email.html`}
-        height={400}
-        title="Interactive comparison: who controls the recipient"
-        fallback="Two versions compared. In v1 the agent inside the sandbox holds the RESEND_API_KEY and is told to 'send the email via Resend'; with no recipient in the prompt it queried the GitHub API for the repo maintainers and emailed them directly, while the intended recipient never got the report. In v2 the agent has no email key at all; it can only POST its findings to a callback URL, and the worker code picks the recipient deterministically with recipientFor(runId) before calling Resend. The agent reports findings; it never gets a vote on where they go."
-      />
-
-      <FadeIn>
-        <div className="space-y-5">
           <P>
             The solution was to move Resend API calls outside of the agent's view, to the API. The
             agent simply reports back from inside the OpenComputer sandbox via curl:
@@ -667,7 +671,14 @@ const EmailSecurityTriageAgent = () => {
             </li>
           </ul>
           <p className="font-mono-brand text-[13px] text-muted-foreground italic">
-            Written by a human.
+            <a
+              href="https://www.loom.com/share/5237af5c61be449e92ba79c3409aa068"
+              target="_blank"
+              rel="noreferrer"
+              className="underline hover:text-foreground"
+            >
+              Written by a human.
+            </a>
           </p>
         </div>
       </FadeIn>

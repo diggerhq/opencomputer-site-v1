@@ -82,7 +82,7 @@
     </div>
   </div>
 
-  <div class="pipeline" id="pipe" style="visibility:hidden">
+  <div class="pipeline" id="pipe" style="display:none">
     <div class="step" id="s1"><span class="dot"></span>cron: poll IMAP</div>
     <span class="arrow">&rarr;</span>
     <div class="step" id="s2"><span class="dot"></span>label found</div>
@@ -109,6 +109,18 @@
 </div>
 
 <script>
+  // Report content height to the embedding page so the iframe hugs the
+  // content as the demo expands (pipeline + reply) and contracts (reset).
+  // Measure body (content) rather than documentElement (viewport-clamped),
+  // and only post real changes, or the parent resize re-triggers us forever.
+  var lastH=0;
+  function postHeight(){
+    var h=document.body.scrollHeight;
+    if(Math.abs(h-lastH)>4){lastH=h;parent.postMessage({ocVisual:location.pathname,height:h},'*')}
+  }
+  window.addEventListener('load',postHeight);
+  new MutationObserver(postHeight).observe(document.body,{attributes:true,childList:true,subtree:true});
+
   var label2=document.getElementById('label2'),pipe=document.getElementById('pipe'),
       reply=document.getElementById('reply'),hint=document.getElementById('hint'),
       reset=document.getElementById('reset'),count=document.getElementById('count');
@@ -119,7 +131,7 @@
     label2.classList.add('applied');label2.disabled=true;label2.textContent='security-report';
     others.forEach(function(m){m.classList.add('dim')});
     hint.innerHTML='Labeled. The other three emails are <b>never seen by the agent</b> - no sandbox is spun up for them.';
-    pipe.style.visibility='visible';
+    pipe.style.display='flex';
     count.textContent='1 labeled';
     var i=0;
     function next(){
@@ -135,7 +147,7 @@
     label2.classList.remove('applied');label2.disabled=false;label2.textContent='+ security-report';
     others.forEach(function(m){m.classList.remove('dim')});
     steps.forEach(function(s){s.classList.remove('on','done')});
-    pipe.style.visibility='hidden';reply.classList.remove('show');reset.classList.remove('show');
+    pipe.style.display='none';reply.classList.remove('show');reset.classList.remove('show');
     count.textContent='4 unread';
     hint.innerHTML='Four emails arrived overnight. Label the one that looks like a security report - <b>the label is the only signal the agent gets</b>.';
   });
