@@ -35,12 +35,6 @@ const pricingTiers = [
     instant: { min: "$0.001", hr: "$0.06", mo: "$42.18" },
   },
   {
-    mem: "2 GB",
-    cpu: "1 vCPU",
-    reserved: { min: "$0.0004", hr: "$0.024", mo: "$17.52" },
-    instant: { min: "$0.002", hr: "$0.12", mo: "$84.36" },
-  },
-  {
     mem: "4 GB",
     cpu: "1 vCPU",
     reserved: { min: "$0.0008", hr: "$0.048", mo: "$35.04" },
