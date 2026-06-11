@@ -18,6 +18,7 @@ import StopTreatingSandboxesAsCattle from "./pages/blog/StopTreatingSandboxesAsC
 import WhatItTakesToRunAiCoworkerImessage from "./pages/blog/WhatItTakesToRunAiCoworkerImessage";
 import BackgroundCodingAgent from "./pages/blog/BackgroundCodingAgent";
 import EmailSecurityTriageAgent from "./pages/blog/EmailSecurityTriageAgent";
+import BackgroundAgents from "./pages/BackgroundAgents";
 import DesignPartners from "./pages/DesignPartners";
 import Clawputer from "./pages/Clawputer";
 import NotFound from "./pages/NotFound";
@@ -59,6 +60,8 @@ const App = () => (
           <Route path="/guides/background-coding-agent" element={<BackgroundCodingAgent />} />
           <Route path="/blog/email-security-triage-agent" element={<EmailSecurityTriageAgent />} />
           <Route path="/guides/email-security-triage-agent" element={<EmailSecurityTriageAgent />} />
+          <Route path="/background-agents" element={<BackgroundAgents />} />
+          <Route path="/backgroundagents" element={<BackgroundAgents />} />
           <Route path="/partners" element={<DesignPartners />} />
           <Route path="/clawputer" element={<Clawputer />} />
           {devRoutes}
