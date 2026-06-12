@@ -171,7 +171,7 @@ const BackgroundAgents = () => {
       <FadeIn>
         <div className="my-14">
           <p className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-6">
-            Compute that scales itself. No OOMs, no overpaying.
+            Compute that scales itself. Stop OOMing, stop overpaying.
           </p>
           <div className="space-y-7 mb-8">
             <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
@@ -203,8 +203,9 @@ const BackgroundAgents = () => {
               Prefer not to think about it at all? Opt in to autoscaling and
               the platform watches memory pressure for you. Above 75%
               utilization the sandbox jumps to the next tier. Once usage stays
-              below 25%, it steps back down. Your agent never crashes into a
-              memory ceiling, and you never pay for a peak that already passed.
+              below 25%, it steps back down. Instead of dying at a fixed
+              memory cap, your agent gets headroom when it needs it, and you
+              stop paying for a peak that already passed.
             </p>
           </div>
           <ShikiCodeBlock
