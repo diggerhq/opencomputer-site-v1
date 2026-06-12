@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { Copy, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 import SEO from "@/components/SEO";
@@ -67,17 +65,7 @@ await sandbox.setAutoscale({
   maxMemoryMB: 16384,
 });`;
 
-const SKILL_INSTALL_CMD = "npx skills add diggerhq/opencomputer";
-
 const BackgroundAgents = () => {
-  const [skillCopied, setSkillCopied] = useState(false);
-
-  const handleSkillCopy = () => {
-    navigator.clipboard.writeText(SKILL_INSTALL_CMD);
-    setSkillCopied(true);
-    setTimeout(() => setSkillCopied(false), 2000);
-  };
-
   return (
     <SitePageLayout>
       <SEO
@@ -276,32 +264,23 @@ const BackgroundAgents = () => {
             Start building yours.
           </p>
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px] mb-8 max-w-[640px]">
-            Sign up, grab an API key, and you have a full Linux VM in one SDK
-            call. The fastest path: copy the setup instructions below into your
-            coding agent and ask it to build the first version with you. Or
-            book 30 minutes with the founders and we'll sketch the architecture
-            for your stack together.
+            Log in, grab an API key, and you have a full Linux VM in one SDK
+            call. Follow the guide to get to a working agent, or book 30
+            minutes with the founders and we'll sketch the architecture for
+            your stack together.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-start mb-10">
             <div>
               <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-foreground font-semibold mb-3">
-                Give this to your agent
+                Build it yourself
               </p>
-              <button
-                type="button"
-                onClick={handleSkillCopy}
+              <a
+                href="https://app.opencomputer.dev"
                 className="w-full flex items-center justify-between gap-4 text-left text-[15px] font-medium px-5 py-4 rounded-md bg-foreground text-background hover:opacity-90 transition-opacity duration-150"
-                aria-label="Copy setup instructions for my agent"
               >
-                <span>
-                  {skillCopied ? "Copied!" : "Copy setup instructions for my agent"}
-                </span>
-                {skillCopied ? (
-                  <Check className="w-4 h-4 flex-shrink-0 opacity-90" />
-                ) : (
-                  <Copy className="w-4 h-4 flex-shrink-0 opacity-90" />
-                )}
-              </button>
+                <span>Log in and create your first VM</span>
+                <span aria-hidden="true">&rarr;</span>
+              </a>
             </div>
             <div>
               <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-foreground font-semibold mb-3">
@@ -318,12 +297,6 @@ const BackgroundAgents = () => {
             </div>
           </div>
           <div className="flex gap-3 items-center flex-wrap">
-            <a
-              href="https://app.opencomputer.dev"
-              className="inline-block text-[15px] font-medium px-10 py-4 rounded-md bg-primary text-primary-foreground border border-primary hover:bg-foreground/90 transition-all duration-150"
-            >
-              Sign up free &rarr;
-            </a>
             <Link
               to="/guides/background-coding-agent"
               className="inline-block text-sm font-medium px-7 py-3 rounded-md bg-background text-foreground border border-border hover:border-foreground transition-all duration-150"
