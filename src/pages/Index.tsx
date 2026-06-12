@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Copy, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 import SitePageLayout from "@/components/SitePageLayout";
@@ -54,17 +53,8 @@ const pricingTiers = [
   },
 ];
 
-const SKILL_INSTALL_CMD = "npx skills add diggerhq/opencomputer";
-
 const Index = () => {
-  const [skillCopied, setSkillCopied] = useState(false);
   const [tierIndex, setTierIndex] = useState(1);
-
-  const handleSkillCopy = () => {
-    navigator.clipboard.writeText(SKILL_INSTALL_CMD);
-    setSkillCopied(true);
-    setTimeout(() => setSkillCopied(false), 2000);
-  };
 
   return (
     <SitePageLayout>
@@ -95,19 +85,13 @@ const Index = () => {
             <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-foreground font-semibold mb-3">
               Try it now
             </p>
-            <button
-              type="button"
-              onClick={handleSkillCopy}
+            <a
+              href="https://app.opencomputer.dev"
               className="w-full flex items-center justify-between gap-4 text-left text-[15px] font-medium px-5 py-4 rounded-md bg-foreground text-background hover:opacity-90 transition-opacity duration-150"
-              aria-label="Copy setup instructions for my agent"
             >
-              <span>{skillCopied ? "Copied!" : "Copy setup instructions for my agent"}</span>
-              {skillCopied ? (
-                <Check className="w-4 h-4 flex-shrink-0 opacity-90" />
-              ) : (
-                <Copy className="w-4 h-4 flex-shrink-0 opacity-90" />
-              )}
-            </button>
+              <span>Log in and create your first VM</span>
+              <span aria-hidden="true">&rarr;</span>
+            </a>
           </div>
 
           <div>
