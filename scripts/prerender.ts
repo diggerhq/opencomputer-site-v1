@@ -32,6 +32,13 @@ const staticRoutes: Array<{
 }> = [
   { path: "/", canonical: "https://opencomputer.dev/" },
   {
+    path: "/background-agents/",
+    title: "Background Agent Maxxing – OpenComputer",
+    description:
+      "The 2026 market map of background coding agents. Devin, Cursor, Replit, Ona, Ramp's Inspect, Stripe's Minions, Coinbase's Mux, Harvey's Spectre and more. Every one of them runs on the same thing: one isolated computer per agent. That layer is OpenComputer.",
+    canonical: "https://opencomputer.dev/background-agents/",
+  },
+  {
     path: "/blog/",
     title: "Blog – OpenComputer",
     description:
