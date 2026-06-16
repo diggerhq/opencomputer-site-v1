@@ -29,7 +29,7 @@ const openSource: Player[] = [
   { name: "OpenAgents", sub: "by Vercel", url: "https://open-agents.dev", logo: "/logos/openagents.png" },
   { name: "Mistle", sub: "mistle.dev", url: "https://mistle.dev", logo: "/logos/mistle.png" },
   { name: "Deputies", sub: "deputies.dev", url: "https://deputies.dev", logo: "/logos/deputies.svg" },
-  { name: "OpenInspect", sub: "open source", url: "https://github.com/search?q=openinspect&type=repositories" },
+  { name: "OpenInspect", sub: "ColeMurray", url: "https://github.com/ColeMurray/background-agents" },
 ];
 
 const internal: Player[] = [
