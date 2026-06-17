@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How OpenComputer scales &mdash; interactive</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F4F1EB;
+    --ink: #161513;
+    --muted: #8B857A;
+    --accent: #DE633B;
+    --line: rgba(22, 21, 19, 0.16);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); }
+
+  .oc-scale {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 52px 20px 44px;
+    font-family: 'IBM Plex Mono', monospace;
+    position: relative;
+  }
+
+  .oc-scale .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .oc-scale h2 {
+    font-family: 'Newsreader', Georgia, serif;
+    font-weight: 500;
+    font-size: clamp(30px, 5vw, 44px);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin: 0 0 30px;
+  }
+  .oc-scale h2 .dot { color: var(--accent); }
+
+  .oc-scale .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .oc-scale .controls .spacer { flex: 1; }
+  .oc-scale .stages button {
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    padding: 10px 16px;
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--ink);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 160ms ease, color 160ms ease, transform 120ms ease;
+  }
+  .oc-scale .stages { display: flex; flex-wrap: wrap; gap: 10px; }
+  .oc-scale .stages button:hover { background: rgba(22,21,19,0.07); }
+  .oc-scale .stages button:active { transform: translateY(1px); }
+  .oc-scale .stages button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .oc-scale button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .oc-scale .create {
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    padding: 11px 18px;
+    background: var(--ink);
+    color: var(--paper);
+    border: 1.5px solid var(--ink);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 120ms ease, opacity 160ms ease;
+  }
+  .oc-scale .create:hover { opacity: 0.85; }
+  .oc-scale .create:active { transform: translateY(1px); }
+  .oc-scale .create .arr { color: var(--accent); }
+
+  .oc-scale .createbox { display: flex; align-items: center; gap: 10px; }
+  .oc-scale .createbox label { font-size: 13px; letter-spacing: 0.06em; }
+  .oc-scale .createbox input {
+    width: 86px;
+    font-family: inherit;
+    font-size: 15px;
+    text-align: center;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px solid var(--ink);
+    border-radius: 0;
+    padding: 6px 2px;
+  }
+  .oc-scale .createbox input:focus-visible { outline: none; border-bottom-color: var(--accent); }
+  .oc-scale .createbox input::-webkit-outer-spin-button,
+  .oc-scale .createbox input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .oc-scale .createbox input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+  .oc-scale .meta {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    user-select: none;
+  }
+  .oc-scale .meta b { color: var(--ink); font-weight: 500; display: inline-block; }
+  .oc-scale .meta b.pop { animation: oc-pop 360ms ease; }
+  @keyframes oc-pop { 50% { transform: scale(1.35); color: var(--accent); } }
+
+  .oc-scale .canvas {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    margin-top: 20px;
+    position: relative;
+  }
+  .oc-scale svg { display: block; width: 100%; height: auto; }
+
+  .oc-scale .caption {
+    font-family: 'Newsreader', Georgia, serif;
+    font-style: italic;
+    font-size: 19px;
+    margin-top: 16px;
+    min-height: 1.7em;
+    transition: opacity 200ms ease;
+  }
+  .oc-scale .hint {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  /* ---- SVG styling ---- */
+  .oc-scale .node rect {
+    fill: var(--paper);
+    stroke: var(--ink);
+    stroke-width: 1.4;
+    transition: stroke 200ms ease, stroke-width 200ms ease;
+  }
+  .oc-scale .node text {
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.14em;
+    fill: var(--ink);
+    pointer-events: none;
+  }
+  .oc-scale .node.hot rect, .oc-scale .node:hover rect { stroke-width: 2.2; }
+  .oc-scale .node.hit rect { stroke: var(--accent); stroke-width: 2.4; }
+
+  .oc-scale .cellbox {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.8;
+    transition: stroke-width 200ms ease;
+  }
+  .oc-scale .cellwrap:hover .cellbox { stroke-width: 2.6; }
+  .oc-scale .celltag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    fill: var(--muted);
+    pointer-events: none;
+  }
+
+  .oc-scale .edgebar rect.bar { fill: var(--ink); transition: opacity 200ms ease; }
+  .oc-scale .edgebar:hover rect.bar { opacity: 0.88; }
+  .oc-scale .edgebar text {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.24em;
+    fill: var(--paper);
+    pointer-events: none;
+  }
+  .oc-scale .port { fill: var(--accent); }
+
+  .oc-scale .flow { fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-linecap: round; }
+  .oc-scale .packet { fill: var(--accent); }
+  .oc-scale .burst { fill: var(--accent); stroke: var(--paper); stroke-width: 1.2; }
+
+  .oc-scale .enter { opacity: 0; transform: translateY(8px); }
+  .oc-scale .enter.in { opacity: 1; transform: translateY(0); transition: opacity 320ms ease, transform 320ms ease; }
+
+  .oc-scale .tip {
+    position: absolute;
+    max-width: 240px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 12px;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    padding: 9px 12px;
+    border-radius: 6px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 140ms ease;
+    z-index: 5;
+  }
+  .oc-scale .tip.show { opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .oc-scale .enter, .oc-scale .enter.in { opacity: 1; transform: none; transition: none; }
+    .oc-scale .meta b.pop { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<section class="oc-scale" id="oc-root">
+  <div class="controls">
+    <div class="stages" role="group" aria-label="Pick a scale">
+      <button data-stage="0" aria-pressed="true">1&ndash;100</button>
+      <button data-stage="1" aria-pressed="false">100&ndash;1K</button>
+      <button data-stage="2" aria-pressed="false">1K&ndash;10K</button>
+      <button data-stage="3" aria-pressed="false">10K&ndash;100K+</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="meta"><b id="oc-count">0</b>&nbsp;running</div>
+    <form class="createbox" id="oc-form">
+      <label for="oc-n">create</label>
+      <input id="oc-n" type="number" min="1" max="100000" value="1" inputmode="numeric" aria-label="Number of sandboxes to create">
+      <button class="create" type="submit">sandboxes <span class="arr">&rarr;</span></button>
+    </form>
+  </div>
+
+  <div class="canvas">
+    <svg id="oc-svg" viewBox="0 0 900 410" role="img" aria-label="Architecture diagram that changes with the selected scale">
+      <defs>
+        <marker id="oc-arrow" viewBox="0 0 12 12" markerUnits="userSpaceOnUse"
+                markerWidth="12" markerHeight="12" refX="9.6" refY="6" orient="auto-start-reverse">
+          <path d="M2.4,2.4 L9.6,6 L2.4,9.6" fill="none" stroke="#161513" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+      <g id="oc-scene"></g>
+      <g id="oc-packets"></g>
+      <g id="oc-bursts"></g>
+    </svg>
+    <div class="tip" id="oc-tip"></div>
+  </div>
+
+  <p class="caption" id="oc-caption"></p>
+  <p class="hint">hover the parts &middot; arrow keys switch stages &middot; create enough sandboxes and the architecture grows to match</p>
+</section>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var scene = document.getElementById('oc-scene');
+  var packetLayer = document.getElementById('oc-packets');
+  var burstLayer = document.getElementById('oc-bursts');
+  var captionEl = document.getElementById('oc-caption');
+  var tipEl = document.getElementById('oc-tip');
+  var countEl = document.getElementById('oc-count');
+  var root = document.getElementById('oc-root');
+  var svg = document.getElementById('oc-svg');
+  var stageButtons = Array.prototype.slice.call(root.querySelectorAll('.stages button'));
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var TIPS = {
+    cp: 'The control plane: schedules each sandbox onto a worker and tracks every VM’s state.',
+    worker: 'A worker: one 64-CPU machine running sandboxes as QEMU VMs.',
+    cell: 'A cell: one control plane plus its workers. The unit of deployment and failure isolation.',
+    edge: 'Edge termination: Cloudflare Workers + a D1 registry. Routes each create to the cell with the most room.'
+  };
+
+  var captions = [
+    'One control plane, one worker. The control plane runs the UI, the billing, and the orchestration in one place.',
+    'The same control plane now schedules across three workers, still inside a single cloud region.',
+    'That whole combo becomes a cell. Edge termination sends each create up to the cell with room, and heartbeats stream back down.',
+    'Cells repeat across regions and clouds, and the edge extends to cover them. Adding capacity is now a deployment step.'
+  ];
+
+  function el(tag, attrs, parent) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function hcurve(x1, y1, x2, y2) {
+    var mx = (x1 + x2) / 2;
+    return 'M' + x1 + ',' + y1 + ' C' + mx + ',' + y1 + ' ' + mx + ',' + y2 + ' ' + x2 + ',' + y2;
+  }
+  function vline(x, y1, y2) { return 'M' + x + ',' + y1 + ' L' + x + ',' + y2; }
+
+  function node(parent, x, y, w, h, label, fs, tipKey) {
+    var g = el('g', { 'class': 'node' }, parent);
+    if (tipKey) g.setAttribute('data-tip', tipKey);
+    el('rect', { x: x, y: y, width: w, height: h, rx: 8 }, g);
+    var t = el('text', { x: x + w / 2, y: y + h / 2 + fs * 0.36, 'text-anchor': 'middle' }, g);
+    t.style.fontSize = fs + 'px';
+    t.textContent = label;
+    return g;
+  }
+
+  function flow(parent, d) {
+    return el('path', { 'class': 'flow', d: d, 'marker-end': 'url(#oc-arrow)' }, parent);
+  }
+
+  var meta;
+
+  function unit(parent, x, y, w, h, opts) {
+    var cpW = opts.cpW, cpH = opts.cpH, wW = opts.wW, wH = opts.wH, fs = opts.fs, wfs = opts.wfs;
+    var cpX = x, cpY = y + (h - cpH) / 2;
+    var wX = x + w - wW;
+    var gap = (h - 3 * wH) / 2;
+    var forks = [], workers = [];
+    var cp = node(parent, cpX, cpY, cpW, cpH, opts.cpLabel || 'CP', fs, 'cp');
+    for (var i = 0; i < 3; i++) {
+      var wy = y + i * (wH + gap);
+      var p = flow(parent, hcurve(cpX + cpW, cpY + cpH / 2, wX - 4, wy + wH / 2));
+      forks.push(p);
+      workers.push(node(parent, wX, wy, wW, wH, 'WORKER', wfs, 'worker'));
+    }
+    return { forks: forks, workers: workers, cp: cp };
+  }
+
+  function cell(parent, x, y, w, h, tag) {
+    var g = el('g', { 'class': 'cellwrap', 'data-tip': 'cell' }, parent);
+    el('rect', { 'class': 'cellbox', x: x, y: y, width: w, height: h, rx: 16 }, g);
+    var t = el('text', { 'class': 'celltag', x: x + 16, y: y + 22 }, g);
+    t.textContent = tag;
+    var pad = 18, top = 30;
+    var u = unit(g, x + pad, y + top, w - pad * 2, h - top - pad, {
+      cpW: w > 260 ? 70 : 50, cpH: w > 260 ? 46 : 38,
+      wW: w > 260 ? 110 : 82, wH: w > 260 ? 36 : 28,
+      fs: w > 260 ? 13 : 11, wfs: w > 260 ? 10 : 8.5
+    });
+    return { box: g, unit: u };
+  }
+
+  function edgeBar(parent, x, y, w, portXs) {
+    var g = el('g', { 'class': 'edgebar', 'data-tip': 'edge' }, parent);
+    el('rect', { 'class': 'bar', x: x, y: y, width: w, height: 52, rx: 10 }, g);
+    portXs.forEach(function (px) {
+      el('rect', { 'class': 'port', x: px - 8, y: y - 2, width: 16, height: 4, rx: 2 }, g);
+    });
+    var t = el('text', { x: x + w / 2, y: y + 31, 'text-anchor': 'middle' }, g);
+    t.textContent = 'EDGE TERMINATION';
+    return g;
+  }
+
+  function linkPair(parent, x, cellBottom, edgeTop) {
+    var up = flow(parent, vline(x - 11, edgeTop - 1, cellBottom + 5));
+    var down = flow(parent, vline(x + 11, cellBottom + 1, edgeTop - 5));
+    return { up: up, down: down };
+  }
+
+  function stage0() {
+    var cp = node(scene, 140, 132, 190, 96, 'CONTROL PLANE', 13, 'cp');
+    var w = node(scene, 590, 132, 170, 96, 'WORKER', 13, 'worker');
+    var p = flow(scene, 'M330,180 L584,180');
+    meta = {
+      ambient: [{ path: p, dots: 3, speed: 0.5 }],
+      workers: [{ g: w, cell: -1 }],
+      cpForks: [[p]],
+      cellUp: []
+    };
+  }
+
+  function stage1() {
+    var u = unit(scene, 130, 42, 540, 326, {
+      cpW: 190, cpH: 96, wW: 170, wH: 78, fs: 13, wfs: 12, cpLabel: 'CONTROL PLANE'
+    });
+    meta = {
+      ambient: u.forks.map(function (p, i) { return { path: p, dots: 2, speed: 0.42 + i * 0.05 }; }),
+      workers: u.workers.map(function (g) { return { g: g, cell: 0 }; }),
+      cpForks: [u.forks],
+      cellUp: []
+    };
+  }
+
+  function stage2() {
+    var xs = [95, 485], W = 320, H = 226, Y = 30;
+    var edgeTop = 296;
+    var workers = [], cpForks = [], cellUp = [], ambient = [];
+    xs.forEach(function (x, ci) {
+      var c = cell(scene, x, Y, W, H, 'CELL ' + 'AB'[ci]);
+      cpForks.push(c.unit.forks);
+      c.unit.workers.forEach(function (g) { workers.push({ g: g, cell: ci }); });
+      var links = linkPair(scene, x + W / 2, Y + H, edgeTop);
+      cellUp.push(links.up);
+      ambient.push({ path: links.up, dots: 2, speed: 0.45 });
+      ambient.push({ path: links.down, dots: 2, speed: 0.4 });
+      c.unit.forks.forEach(function (p) { ambient.push({ path: p, dots: 1, speed: 0.45 }); });
+    });
+    edgeBar(scene, 95, edgeTop, 710, xs.map(function (x) { return x + W / 2; }));
+    meta = { ambient: ambient, workers: workers, cpForks: cpForks, cellUp: cellUp };
+  }
+
+  function stage3() {
+    var xs = [26, 246, 466, 686], W = 198, H = 212, Y = 36;
+    var edgeTop = 296;
+    var workers = [], cpForks = [], cellUp = [], ambient = [];
+    xs.forEach(function (x, ci) {
+      var c = cell(scene, x, Y, W, H, 'CELL ' + 'ABCD'[ci]);
+      cpForks.push(c.unit.forks);
+      c.unit.workers.forEach(function (g) { workers.push({ g: g, cell: ci }); });
+      var links = linkPair(scene, x + W / 2, Y + H, edgeTop);
+      cellUp.push(links.up);
+      ambient.push({ path: links.up, dots: 1, speed: 0.5 });
+      ambient.push({ path: links.down, dots: 1, speed: 0.45 });
+    });
+    edgeBar(scene, 26, edgeTop, 858, xs.map(function (x) { return x + W / 2; }));
+    meta = { ambient: ambient, workers: workers, cpForks: cpForks, cellUp: cellUp };
+  }
+
+  var stages = [stage0, stage1, stage2, stage3];
+  var current = 0;
+
+  var packets = [], rafId = null, lastT = null;
+
+  function startAmbient() {
+    packetLayer.innerHTML = '';
+    packets = [];
+    if (reduced) return;
+    meta.ambient.forEach(function (f) {
+      var len = f.path.getTotalLength();
+      for (var i = 0; i < f.dots; i++) {
+        var c = el('circle', { 'class': 'packet', r: 3.8 }, packetLayer);
+        packets.push({ path: f.path, len: len, phase: i / f.dots + Math.random() * 0.2, speed: f.speed, dot: c });
+      }
+    });
+    ensureLoop();
+  }
+
+  var flights = [];
+
+  function ensureLoop() {
+    if (!rafId && (packets.length || flights.length)) { lastT = null; rafId = requestAnimationFrame(tick); }
+  }
+
+  function easeInOut(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+
+  function tick(t) {
+    if (lastT === null) lastT = t;
+    var dt = (t - lastT) / 1000;
+    lastT = t;
+
+    packets.forEach(function (p) {
+      p.phase = (p.phase + dt * p.speed) % 1;
+      var pt = p.path.getPointAtLength(p.phase * p.len);
+      p.dot.setAttribute('cx', pt.x);
+      p.dot.setAttribute('cy', pt.y);
+    });
+
+    for (var i = flights.length - 1; i >= 0; i--) {
+      var f = flights[i];
+      f.t += dt / f.dur;
+      if (f.t >= 1) {
+        f.t = 0;
+        f.leg++;
+        if (f.leg >= f.legs.length) {
+          f.dot.remove();
+          flights.splice(i, 1);
+          land(f.target);
+          continue;
+        }
+        f.len = f.legs[f.leg].getTotalLength();
+      }
+      var leg = f.legs[f.leg];
+      var pt2 = leg.getPointAtLength(easeInOut(f.t) * f.len);
+      f.dot.setAttribute('cx', pt2.x);
+      f.dot.setAttribute('cy', pt2.y);
+    }
+
+    rafId = (packets.length || flights.length) ? requestAnimationFrame(tick) : null;
+  }
+
+  function land(workerMeta) {
+    workerMeta.g.classList.add('hit');
+    setTimeout(function () { workerMeta.g.classList.remove('hit'); }, 550);
+  }
+
+  var count = 0;
+  function fmt(n) { return n.toLocaleString('en-US'); }
+  function stageForCount(n) {
+    if (n >= 10000) return 3;
+    if (n >= 1000) return 2;
+    if (n >= 100) return 1;
+    return 0;
+  }
+
+  function tweenCount(from, to, dur, done) {
+    if (reduced) { countEl.textContent = fmt(to); if (done) done(); return; }
+    var s0 = performance.now();
+    function step(t) {
+      var k = Math.min(1, (t - s0) / dur);
+      var eased = 1 - Math.pow(1 - k, 3);
+      countEl.textContent = fmt(Math.floor(from + (to - from) * eased));
+      if (k < 1) { requestAnimationFrame(step); }
+      else {
+        countEl.classList.remove('pop');
+        void countEl.offsetWidth;
+        countEl.classList.add('pop');
+        if (done) done();
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  function fireFlight() {
+    if (!meta.workers.length) return;
+    var wi = Math.floor(Math.random() * meta.workers.length);
+    var target = meta.workers[wi];
+    var legs = [];
+    if (target.cell >= 0 && meta.cellUp.length) legs.push(meta.cellUp[target.cell]);
+    var forkSet = meta.cpForks[Math.max(target.cell, 0)];
+    legs.push(forkSet[wi % forkSet.length]);
+    var dot = el('circle', { 'class': 'burst', r: 5.5 }, burstLayer);
+    flights.push({ legs: legs, leg: 0, t: 0, dur: 0.55, len: legs[0].getTotalLength(), dot: dot, target: target });
+    ensureLoop();
+  }
+
+  function createBatch(n) {
+    n = Math.max(1, Math.min(100000, n || 1));
+    var from = count;
+    count += n;
+    var target = stageForCount(count);
+
+    if (reduced) {
+      countEl.textContent = fmt(count);
+      if (target !== current) show(target);
+      return;
+    }
+
+    var visible = Math.min(n, 10);
+    for (var i = 0; i < visible; i++) setTimeout(fireFlight, i * 80);
+
+    var tweenDur = Math.min(1100, 350 + n * 0.6);
+    tweenCount(from, count, tweenDur);
+
+    if (target !== current) {
+      var wait = visible * 80 + 1150;
+      setTimeout(function () {
+        if (stageForCount(count) !== current) show(stageForCount(count));
+      }, Math.max(wait, tweenDur + 150));
+    }
+  }
+
+  svg.addEventListener('pointermove', function (e) {
+    var hit = e.target.closest ? e.target.closest('[data-tip]') : null;
+    if (hit) {
+      tipEl.textContent = TIPS[hit.getAttribute('data-tip')];
+      var r = root.querySelector('.canvas').getBoundingClientRect();
+      var x = e.clientX - r.left + 14, y = e.clientY - r.top + 14;
+      x = Math.min(x, r.width - 250);
+      tipEl.style.left = x + 'px';
+      tipEl.style.top = y + 'px';
+      tipEl.classList.add('show');
+    } else {
+      tipEl.classList.remove('show');
+    }
+  });
+  svg.addEventListener('pointerleave', function () { tipEl.classList.remove('show'); });
+
+  function show(idx) {
+    current = idx;
+    stageButtons.forEach(function (b, i) { b.setAttribute('aria-pressed', String(i === idx)); });
+    scene.innerHTML = '';
+    packetLayer.innerHTML = '';
+    burstLayer.innerHTML = '';
+    packets = []; flights = [];
+
+    stages[idx]();
+
+    if (!reduced) {
+      var kids = Array.prototype.slice.call(scene.childNodes);
+      kids.forEach(function (k, i) {
+        if (!k.classList) return;
+        k.classList.add('enter');
+        setTimeout(function () { k.classList.add('in'); }, 24 + i * 26);
+      });
+      setTimeout(startAmbient, 60 + kids.length * 26);
+    } else {
+      startAmbient();
+    }
+
+    captionEl.style.opacity = 0;
+    setTimeout(function () {
+      captionEl.textContent = captions[idx];
+      captionEl.style.opacity = 1;
+    }, reduced ? 0 : 180);
+  }
+
+  stageButtons.forEach(function (b) {
+    b.addEventListener('click', function () { show(parseInt(b.dataset.stage, 10)); });
+  });
+  document.getElementById('oc-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    createBatch(parseInt(document.getElementById('oc-n').value, 10));
+  });
+  root.addEventListener('keydown', function (e) {
+    if (e.target && e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowRight') show(Math.min(current + 1, 3));
+    if (e.key === 'ArrowLeft') show(Math.max(current - 1, 0));
+  });
+
+  show(0);
+})();
+</script>
+
+</body>
+</html>

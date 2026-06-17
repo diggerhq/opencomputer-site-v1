@@ -120,6 +120,40 @@ const Diagram = ({
   </figure>
 );
 
+/* ---------- Interactive visual (iframe) ----------
+ * Hosts an interactive HTML illustration. The <figcaption class="sr-only">
+ * + <noscript> together carry an indexable description so non-JS crawlers
+ * and screen readers get the same content the iframe shows visually.
+ */
+const Visual = ({
+  src,
+  height,
+  title,
+  fallback,
+}: {
+  src: string;
+  height: number;
+  title: string;
+  fallback: string;
+}) => (
+  <figure className="my-10 -mx-2 sm:mx-0">
+    <iframe
+      src={src}
+      title={title}
+      aria-label={title}
+      loading="lazy"
+      style={{ width: "100%", height: `${height}px`, border: 0, display: "block" }}
+      className="rounded-lg border border-border/50"
+    />
+    <figcaption className="sr-only">{fallback}</figcaption>
+    <noscript>
+      <p className="font-mono-brand text-[12px] text-muted-foreground mt-2 italic">
+        {title}: {fallback}
+      </p>
+    </noscript>
+  </figure>
+);
+
 const VISUAL_BASE = "/blog-visuals/scaling-one-vm-to-million-sandboxes";
 
 const ScalingOneVmToMillionSandboxes = () => {
@@ -177,9 +211,11 @@ const ScalingOneVmToMillionSandboxes = () => {
         </div>
       </FadeIn>
 
-      <Diagram
-        src={`${VISUAL_BASE}/01-hero-architecture.png`}
-        alt="OpenComputer's architecture: an edge registry on Cloudflare routes sandbox create requests to cells deployed across multiple cloud regions and providers."
+      <Visual
+        src={`${VISUAL_BASE}/01-hero-interactive.html`}
+        height={720}
+        title="How OpenComputer scales — interactive"
+        fallback="Interactive architecture diagram with four stages. Stage 1 (1–100 sandboxes): one control plane connected to one worker. Stage 2 (100–1K): the same control plane scheduling across three workers in a single region. Stage 3 (1K–10K): the control-plane-plus-workers unit becomes a cell, with two cells sitting under an edge termination layer (Cloudflare Workers + D1 registry) that routes each create to the cell with the most room and receives heartbeats back. Stage 4 (10K–100K+): four cells under the edge layer, repeating across regions and clouds. Adding capacity is now a deployment step. Click the stage buttons or type a number of sandboxes to create and the architecture animates to match."
       />
 
       {/* ====== H2: One Azure region ====== */}
@@ -306,9 +342,11 @@ const ScalingOneVmToMillionSandboxes = () => {
         </div>
       </FadeIn>
 
-      <Diagram
-        src={`${VISUAL_BASE}/02-single-control-plane.png`}
-        alt="A single control plane coordinates multiple VMs in one region, handling dashboard, billing, and orchestration in one place."
+      <Visual
+        src={`${VISUAL_BASE}/02-single-control-plane.html`}
+        height={440}
+        title="Single control plane in one region"
+        fallback="A single control plane (running web UI, dashboard, billing, and orchestration) connected to three workers, all inside one Azure region shown as a dashed boundary box."
       />
 
       <FadeIn>
@@ -435,9 +473,11 @@ const ScalingOneVmToMillionSandboxes = () => {
         </h3>
       </FadeIn>
 
-      <Diagram
-        src={`${VISUAL_BASE}/04-cell-cross-cloud.png`}
-        alt="The same cell deploys unchanged into AWS, Azure, GCP, or OCI — capacity becomes the sum of every cell deployed, not a single provider's quota."
+      <Visual
+        src={`${VISUAL_BASE}/04-cell-cross-cloud.html`}
+        height={460}
+        title="The same cell deploys into any cloud"
+        fallback="One cell glyph (a control plane plus its workers) fans out into four cloud provider rows: AWS (~20 regions), Azure (~20 regions), GCP (~20 regions), and OCI (fewer regions). The same cell shape stamps unchanged into each."
       />
 
       <FadeIn>
@@ -652,9 +692,11 @@ const ScalingOneVmToMillionSandboxes = () => {
         </p>
       </FadeIn>
 
-      <Diagram
-        src={`${VISUAL_BASE}/05-lifecycle-latencies.png`}
-        alt="Sandbox lifecycle latencies in production: boot under 1 second at p95, hibernate in about 6 seconds, wake in 1 to 2 seconds depending on checkpoint warmth."
+      <Visual
+        src={`${VISUAL_BASE}/05-lifecycle-latencies.html`}
+        height={420}
+        title="Boot, wake, and hibernate latencies"
+        fallback="Horizontal bars on a 0–30-second axis. Boot is under 1 second at p95 (shown in coral). Wake is 1–2 seconds. Hibernate is about 6 seconds. A dashed reference bar across the full axis shows a stock QEMU cold boot of around 30 seconds, for comparison."
       />
 
       <FadeIn>
