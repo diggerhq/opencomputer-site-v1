@@ -30,7 +30,7 @@ export const blogPosts: BlogMeta[] = [
     description:
       "From one VM to a million sandboxes: the architecture redesign behind OpenComputer's scaling — cells, edge routing on Cloudflare Workers, and per-second billing from 10-second heartbeats.",
     author: "Utpal Nadiger",
-    datePublished: "2026-06-05",
+    datePublished: "2026-06-17",
     markdownUrl: "/blog/scaling-one-vm-to-million-sandboxes.md",
   },
   {

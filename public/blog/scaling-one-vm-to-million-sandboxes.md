@@ -2,13 +2,13 @@
 title: "Scaling OpenComputer from one VM to a million sandboxes"
 description: "From one VM to a million sandboxes: the architecture redesign behind OpenComputer's scaling — cells, edge routing on Cloudflare Workers, and per-second billing from 10-second heartbeats."
 author: "Utpal Nadiger"
-date_published: "2026-06-05"
+date_published: "2026-06-17"
 canonical_url: "https://opencomputer.dev/blog/scaling-one-vm-to-million-sandboxes"
 ---
 
 # Scaling OpenComputer from one VM to a million sandboxes
 
-> Written by Utpal Nadiger · June 5, 2026
+> Written by Utpal Nadiger · June 17, 2026
 
 We started OpenComputer with a single virtual machine in one Azure region. The company grew quickly, but Azure couldn't raise our compute quota in that region any further, and we found ourselves growing against a fixed pool of CPUs.
 

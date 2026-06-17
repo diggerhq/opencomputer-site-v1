@@ -187,7 +187,7 @@ const ScalingOneVmToMillionSandboxes = () => {
       <FadeIn delay={0.08}>
         <p className="font-mono-brand text-[13px] text-muted-foreground mb-10">
           Written by Utpal Nadiger &middot;{" "}
-          <time dateTime="2026-06-05">June 5, 2026</time>
+          <time dateTime="2026-06-17">June 17, 2026</time>
         </p>
       </FadeIn>
 
