@@ -25,6 +25,15 @@ const DEFAULT_IMAGE = `${BASE_URL}/social-preview.png`;
 
 export const blogPosts: BlogMeta[] = [
   {
+    slug: "scaling-one-vm-to-million-sandboxes",
+    title: "Scaling OpenComputer from one VM to a million sandboxes",
+    description:
+      "From one VM to a million sandboxes: the architecture redesign behind OpenComputer's scaling — cells, edge routing on Cloudflare Workers, and per-second billing from 10-second heartbeats.",
+    author: "Utpal Nadiger",
+    datePublished: "2026-06-05",
+    markdownUrl: "/blog/scaling-one-vm-to-million-sandboxes.md",
+  },
+  {
     slug: "email-security-triage-agent",
     title: "I built an email agent to triage bogus security reports",
     description:

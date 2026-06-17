@@ -18,6 +18,7 @@ import StopTreatingSandboxesAsCattle from "./pages/blog/StopTreatingSandboxesAsC
 import WhatItTakesToRunAiCoworkerImessage from "./pages/blog/WhatItTakesToRunAiCoworkerImessage";
 import BackgroundCodingAgent from "./pages/blog/BackgroundCodingAgent";
 import EmailSecurityTriageAgent from "./pages/blog/EmailSecurityTriageAgent";
+import ScalingOneVmToMillionSandboxes from "./pages/blog/ScalingOneVmToMillionSandboxes";
 import BackgroundAgentMaxxing from "./pages/BackgroundAgentMaxxing";
 import DesignPartners from "./pages/DesignPartners";
 import Clawputer from "./pages/Clawputer";
@@ -60,6 +61,8 @@ const App = () => (
           <Route path="/guides/background-coding-agent" element={<BackgroundCodingAgent />} />
           <Route path="/blog/email-security-triage-agent" element={<EmailSecurityTriageAgent />} />
           <Route path="/guides/email-security-triage-agent" element={<EmailSecurityTriageAgent />} />
+          <Route path="/blog/scaling-one-vm-to-million-sandboxes" element={<ScalingOneVmToMillionSandboxes />} />
+          <Route path="/guides/scaling-one-vm-to-million-sandboxes" element={<ScalingOneVmToMillionSandboxes />} />
           <Route path="/background-agents" element={<BackgroundAgentMaxxing />} />
           <Route path="/backgroundagents" element={<BackgroundAgentMaxxing />} />
           <Route path="/backgroundagentmaxxing" element={<BackgroundAgentMaxxing />} />
