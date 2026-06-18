@@ -162,7 +162,7 @@ const ScalingOneVmToMillionSandboxes = () => {
       <SEO
         title="Scaling OpenComputer from one VM to a million sandboxes"
         description="From one VM to a million sandboxes: the architecture redesign behind OpenComputer's scaling — cells, edge routing on Cloudflare Workers, and per-second billing from 10-second heartbeats."
-        author="Utpal Nadiger"
+        author="Mohamed Habib"
         path="/blog/scaling-one-vm-to-million-sandboxes"
         type="article"
       />
@@ -186,7 +186,7 @@ const ScalingOneVmToMillionSandboxes = () => {
 
       <FadeIn delay={0.08}>
         <p className="font-mono-brand text-[13px] text-muted-foreground mb-10">
-          Written by Utpal Nadiger &middot;{" "}
+          Written by Mohamed Habib &middot;{" "}
           <time dateTime="2026-06-17">June 17, 2026</time>
         </p>
       </FadeIn>
