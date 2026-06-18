@@ -16,6 +16,9 @@ So we had to find another way to scale.
 
 This post covers what we did to reach a point where we can keep adding capacity more or less indefinitely. We'll go through how we split the system into cells, how a global registry at the edge decides where every sandbox lives, and how four cloud providers add up to a million CPUs.
 
+> "How we're scaling opencomputer.dev to 1M sandboxes"
+> &mdash; [Mohamed Habib (@motatoeshq), June 7, 2026](https://twitter.com/motatoeshq/status/2063679701873492299)
+
 ![Architecture overview: an edge registry on Cloudflare routes sandbox create requests to cells deployed across multiple cloud regions and providers.](https://opencomputer.dev/blog-visuals/scaling-one-vm-to-million-sandboxes/01-hero-architecture.png)
 
 ## Our entire capacity lived inside one Azure region's quota
