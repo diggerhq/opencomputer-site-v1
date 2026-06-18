@@ -92,6 +92,59 @@ const InlineCode = ({ children }: { children: React.ReactNode }) => (
   </code>
 );
 
+/* ---------- Tweet embed ----------
+ * Renders X's standalone tweet iframe (no widgets.js — that would be stripped
+ * by the browser-based prerenderer at build time and lose the static fallback).
+ * The sr-only figcaption keeps the tweet text indexable for crawlers + screen
+ * readers; <noscript> covers users without JS.
+ */
+const TwitterEmbed = ({
+  url,
+  id,
+  author,
+  handle,
+  date,
+  text,
+  height = 580,
+}: {
+  url: string;
+  id: string;
+  author: string;
+  handle: string;
+  date: string;
+  text: string;
+  height?: number;
+}) => (
+  <figure className="my-10 flex flex-col items-center">
+    <iframe
+      src={`https://platform.twitter.com/embed/Tweet.html?id=${id}&dnt=true&theme=light`}
+      title={`Tweet by ${author} (@${handle}): ${text}`}
+      aria-label={`Tweet by ${author} (@${handle}): ${text}`}
+      loading="lazy"
+      sandbox="allow-scripts allow-popups allow-same-origin allow-popups-to-escape-sandbox"
+      style={{
+        width: "100%",
+        maxWidth: "550px",
+        height: `${height}px`,
+        border: 0,
+        colorScheme: "light",
+      }}
+    />
+    <figcaption className="sr-only">
+      Tweet by {author} (@{handle}), {date}: &ldquo;{text}&rdquo;. View at {url}.
+    </figcaption>
+    <noscript>
+      <blockquote className="my-4 pl-5 border-l-[3px] border-foreground/80 max-w-[550px]">
+        <p className="font-heading text-[18px] leading-[1.6] italic">&ldquo;{text}&rdquo;</p>
+        <cite className="font-mono-brand text-[12px] text-muted-foreground not-italic">
+          &mdash; {author} (@{handle}),{" "}
+          <a href={url} className="underline">{date}</a>
+        </cite>
+      </blockquote>
+    </noscript>
+  </figure>
+);
+
 /* ---------- Diagram (static image) ----------
  * Native <img> with figcaption. Lazy-loaded; alt text carries the caption so
  * crawlers and screen readers get the same information.
@@ -209,6 +262,17 @@ const ScalingOneVmToMillionSandboxes = () => {
             providers add up to a million CPUs.
           </p>
         </div>
+      </FadeIn>
+
+      <FadeIn>
+        <TwitterEmbed
+          url="https://twitter.com/motatoeshq/status/2063679701873492299"
+          id="2063679701873492299"
+          author="Mohamed Habib"
+          handle="motatoeshq"
+          date="June 7, 2026"
+          text="How we're scaling opencomputer.dev to 1M sandboxes"
+        />
       </FadeIn>
 
       <Visual
