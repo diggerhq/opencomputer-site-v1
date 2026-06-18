@@ -5,6 +5,14 @@ import SEO from "@/components/SEO";
 
 const posts = [
   {
+    slug: "scaling-one-vm-to-million-sandboxes",
+    title: "Scaling OpenComputer from one VM to a million sandboxes",
+    description:
+      "From one VM to a million sandboxes: the architecture redesign behind OpenComputer's scaling — cells, edge routing on Cloudflare Workers, and per-second billing from 10-second heartbeats.",
+    author: "Mohamed Habib",
+    date: "June 17, 2026",
+  },
+  {
     slug: "email-security-triage-agent",
     title: "I built an email agent to triage bogus security reports",
     description:
