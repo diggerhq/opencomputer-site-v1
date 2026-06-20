@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import Index from "./pages/Index";
+import IndexDurableAgents from "./pages/IndexDurableAgents";
 import Blog from "./pages/blog/Blog";
 import BuildingOpenLovablePart1 from "./pages/blog/BuildingOpenLovablePart1";
 import TheAgenticWorkload from "./pages/blog/TheAgenticWorkload";
@@ -37,6 +38,8 @@ const App = () => (
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/durable-agent-sessions" element={<IndexDurableAgents />} />
+          <Route path="/durable-agents" element={<IndexDurableAgents />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/guides" element={<Blog />} />
           <Route path="/blog/building-open-lovable-part-1" element={<BuildingOpenLovablePart1 />} />

@@ -53,6 +53,13 @@ const staticRoutes: Array<{
     canonical: "https://opencomputer.dev/blog/",
   },
   {
+    path: "/durable-agent-sessions/",
+    title: "Durable Agent Sessions – OpenComputer",
+    description:
+      "Build a background agent in three calls. Long-running agent sessions on OpenComputer: crashes resume from the event log, idle runs hibernate, you steer mid-run, and your model key never enters the sandbox. You write the agent, not the plumbing.",
+    canonical: "https://opencomputer.dev/durable-agent-sessions/",
+  },
+  {
     path: "/partners/",
     title: "Design Partnership – OpenComputer",
     description:
