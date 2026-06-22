@@ -14,7 +14,10 @@ const BASE_URL = "https://opencomputer.dev";
 const DEFAULT_IMAGE = `${BASE_URL}/social-preview.png`;
 
 const SEO = ({ title, description, author, path = "/", type = "website", image }: SEOProps) => {
-  const url = `${BASE_URL}${path}`;
+  // Trailing slash matches the canonical the build pipeline emits (and the URL
+  // Cloudflare actually serves) so og:url never disagrees with the canonical.
+  const normalizedPath = path === "/" || path.endsWith("/") ? path : `${path}/`;
+  const url = `${BASE_URL}${normalizedPath}`;
   const fullTitle = `${title} – ${SITE_NAME}`;
   const imageUrl = image ? `${BASE_URL}${image}` : DEFAULT_IMAGE;
 
