@@ -5,6 +5,14 @@ import SEO from "@/components/SEO";
 
 const posts = [
   {
+    slug: "open-ava-bdr-agent",
+    title: "Build an Ava-Inspired BDR Agent That Runs on Its Own Computer",
+    description:
+      "A cookbook for building Open Ava: an inspectable BDR agent on a persistent OpenComputer VM. SQLite as the CRM, AgentMail as the inbox, Anthropic for research and drafting, with an approval gate and a checkpoint before any irreversible send.",
+    author: "Utpal Nadiger",
+    date: "June 27, 2026",
+  },
+  {
     slug: "scaling-one-vm-to-million-sandboxes",
     title: "Scaling OpenComputer from one VM to a million sandboxes",
     description:

@@ -20,6 +20,7 @@ import WhatItTakesToRunAiCoworkerImessage from "./pages/blog/WhatItTakesToRunAiC
 import BackgroundCodingAgent from "./pages/blog/BackgroundCodingAgent";
 import EmailSecurityTriageAgent from "./pages/blog/EmailSecurityTriageAgent";
 import ScalingOneVmToMillionSandboxes from "./pages/blog/ScalingOneVmToMillionSandboxes";
+import OpenAvaBdrAgent from "./pages/blog/OpenAvaBdrAgent";
 import BackgroundAgentMaxxing from "./pages/BackgroundAgentMaxxing";
 import DesignPartners from "./pages/DesignPartners";
 import Clawputer from "./pages/Clawputer";
@@ -66,6 +67,8 @@ const App = () => (
           <Route path="/guides/email-security-triage-agent" element={<EmailSecurityTriageAgent />} />
           <Route path="/blog/scaling-one-vm-to-million-sandboxes" element={<ScalingOneVmToMillionSandboxes />} />
           <Route path="/guides/scaling-one-vm-to-million-sandboxes" element={<ScalingOneVmToMillionSandboxes />} />
+          <Route path="/blog/open-ava-bdr-agent" element={<OpenAvaBdrAgent />} />
+          <Route path="/guides/open-ava-bdr-agent" element={<OpenAvaBdrAgent />} />
           <Route path="/background-agents" element={<BackgroundAgentMaxxing />} />
           <Route path="/backgroundagents" element={<BackgroundAgentMaxxing />} />
           <Route path="/backgroundagentmaxxing" element={<BackgroundAgentMaxxing />} />
