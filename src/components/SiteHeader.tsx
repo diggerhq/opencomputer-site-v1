@@ -15,23 +15,10 @@ const navLinkClass = (isActive: boolean) =>
 const SiteHeader = ({ activeSection }: SiteHeaderProps) => {
   return (
     <nav className="mx-auto flex max-w-[994px] flex-col gap-4 px-6 py-6 sm:px-10 md:flex-row md:items-center md:justify-between md:gap-6">
-      <span
-        className="glitch-logo font-mono text-[15px] font-medium tracking-tight text-foreground"
-        data-text="digger"
-      >
-        <a
-          href="https://digger.dev"
-          target="_blank"
-          className="font-display text-lg font-medium tracking-tight text-foreground logo-ai-hover cursor-pointer no-underline"
-          data-text="digger"
-        >
-          digger
-        </a>{" "}
-        /{" "}
+      <span className="glitch-logo font-mono text-[15px] font-medium tracking-tight text-foreground">
         <a
           href="/"
           className="font-display text-lg font-medium tracking-tight text-foreground logo-ai-hover cursor-pointer no-underline"
-          data-text="digger"
         >
           opencomputer
         </a>
