@@ -27,6 +27,7 @@ import GuidePost from "./pages/guides/GuidePost";
 import BackgroundAgentMaxxing from "./pages/BackgroundAgentMaxxing";
 import AgentDeploy from "./pages/AgentDeploy";
 import DesignPartners from "./pages/DesignPartners";
+import Playground from "./pages/Playground";
 import Clawputer from "./pages/Clawputer";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
@@ -86,6 +87,7 @@ const App = () => (
           <Route path="/backgroundagentmaxxing" element={<BackgroundAgentMaxxing />} />
           <Route path="/background-agent-maxxing" element={<BackgroundAgentMaxxing />} />
           <Route path="/partners" element={<DesignPartners />} />
+          <Route path="/playground" element={<Playground />} />
           <Route path="/clawputer" element={<Clawputer />} />
           {devRoutes}
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

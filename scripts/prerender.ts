@@ -76,6 +76,13 @@ const staticRoutes: Array<{
     canonical: "https://opencomputer.dev/partners/",
   },
   {
+    path: "/playground/",
+    title: "Playground – OpenComputer",
+    description:
+      "Describe an agent. Get a managed agent running on its own computer.",
+    canonical: "https://opencomputer.dev/playground/",
+  },
+  {
     path: "/clawputer/",
     title: "Clawputer – A personal AI assistant with a real computer",
     description:
