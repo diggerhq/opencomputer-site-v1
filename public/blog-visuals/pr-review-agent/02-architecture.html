@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PR Review Agent — Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500&display=swap');
+  :root{
+    --cream:#f5f3ee;--ink:#161513;--ink-soft:#403d37;--coral:#e3613a;
+    --line:#dcd8cf;--card:#fbfaf6;--mute:#8a857b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:transparent;color:var(--ink);font-family:'Inter',sans-serif;padding:0;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto}
+  .ctrl{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
+  .play{flex:none;font-family:'JetBrains Mono',monospace;font-size:13px;cursor:pointer;background:var(--ink);color:#fff;border:none;padding:11px 22px;border-radius:2px;letter-spacing:.04em;transition:opacity .2s}
+  .play:hover{opacity:.85}
+  .status{flex:1;min-width:0;min-height:38px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.55;color:var(--ink-soft);letter-spacing:.02em;padding-top:2px;overflow-wrap:break-word}
+  @media (max-width:600px){.status{min-height:58px}}
+  .status b{color:var(--coral)}
+
+  .diagram{position:relative;border:1px solid var(--line);border-radius:6px;background:var(--card);padding:30px 24px;overflow:hidden}
+
+  svg{width:100%;height:auto;display:block;overflow:visible}
+
+  .node-box{fill:var(--cream);stroke:var(--ink);stroke-width:1.5;transition:all .3s ease}
+  .node-box.persist{fill:#161513}
+  .node-box.worker{stroke:var(--coral)}
+  .node-box.active{stroke:var(--coral);stroke-width:2.5;filter:drop-shadow(0 4px 14px rgba(227,97,58,.28))}
+  .nt{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;fill:var(--ink)}
+  .nt.light{fill:var(--cream)}
+  .ns{font-family:'Inter',sans-serif;font-size:10.5px;fill:var(--ink-soft)}
+  .ns.light{fill:#b8b3a8}
+
+  .edge{stroke:var(--line);stroke-width:1.5;fill:none}
+  .edge.lit{stroke:var(--coral);stroke-width:2.5}
+  .pulse{fill:var(--coral);opacity:0}
+
+  .badge{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;fill:var(--coral);letter-spacing:.05em}
+
+  .legend{display:flex;gap:24px;margin-top:18px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft)}
+  .legend span{display:flex;align-items:center;gap:7px}
+  .sw{width:14px;height:14px;border-radius:2px;border:1.5px solid}
+  .sw.p{background:#161513;border-color:#161513}
+  .sw.w{background:var(--cream);border-color:var(--coral)}
+  .sw.e{background:var(--cream);border-color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="ctrl">
+    <button class="play" id="play">&#9655; trace a pull request</button>
+    <span class="status" id="status">Idle. Press play to follow one delivery from webhook to posted review.</span>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 900 330" id="svg">
+      <path class="edge" id="e1" d="M150 92 L150 170"/>
+      <path class="edge" id="e2" d="M260 212 L340 212"/>
+      <path class="edge" id="e3" d="M540 198 L620 198"/>
+      <path class="edge" id="e4" d="M620 226 L540 226" stroke-dasharray="5 5"/>
+      <path class="edge" id="e5" d="M440 180 C440 110 550 61 618 61"/>
+
+      <circle class="pulse" id="p1" r="5"/>
+      <circle class="pulse" id="p2" r="5"/>
+      <circle class="pulse" id="p3" r="5"/>
+      <circle class="pulse" id="p4" r="5"/>
+      <circle class="pulse" id="p5" r="5"/>
+
+      <g id="n1">
+        <rect class="node-box" x="40" y="30" width="220" height="62" rx="4"/>
+        <text class="nt" x="58" y="58">GitHub</text>
+        <text class="ns" x="58" y="76">PR opened → signed webhook fires</text>
+        <text class="badge" x="228" y="48">①</text>
+      </g>
+
+      <g id="n2">
+        <rect class="node-box persist" x="40" y="170" width="220" height="84" rx="4"/>
+        <text class="nt light" x="58" y="196">Webhook server</text>
+        <text class="ns light" x="58" y="214">verify HMAC on raw body</text>
+        <text class="ns light" x="58" y="230">classify · dedupe · ack 202 in ms</text>
+        <text class="badge" x="228" y="188">②</text>
+      </g>
+
+      <g id="n3">
+        <rect class="node-box worker" x="340" y="180" width="200" height="64" rx="4"/>
+        <text class="nt" x="356" y="206">Review worker</text>
+        <text class="ns" x="356" y="224">fetch diff · anchor findings</text>
+        <text class="badge" x="518" y="198">③</text>
+      </g>
+
+      <g id="n4">
+        <rect class="node-box" x="620" y="180" width="170" height="64" rx="4"/>
+        <text class="nt" x="636" y="206">Claude</text>
+        <text class="ns" x="636" y="224">JSON-schema review</text>
+        <text class="badge" x="768" y="198">④</text>
+      </g>
+
+      <g id="n5">
+        <rect class="node-box" x="618" y="30" width="242" height="62" rx="4"/>
+        <text class="nt" x="636" y="58">Native PR review</text>
+        <text class="ns" x="636" y="76">summary + inline comments · COMMENT</text>
+        <text class="badge" x="838" y="48">⑤</text>
+      </g>
+
+      <text class="ns" x="42" y="300" style="fill:var(--coral);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.08em">one durable sandbox · secrets sealed at the egress proxy, never in the VM</text>
+    </svg>
+  </div>
+
+  <div class="legend">
+    <span><i class="sw p"></i> ack path (fast, pure, no network)</span>
+    <span><i class="sw w"></i> review worker (background, fire-and-forget)</span>
+    <span><i class="sw e"></i> external service</span>
+  </div>
+</div>
+
+<script>
+  const steps=[
+    {edge:'e1',pulse:'p1',node:'n2',msg:'Signed delivery hits the <b>webhook server</b>. HMAC checked on the raw bytes, deduped, acked 202.'},
+    {edge:'e2',pulse:'p2',node:'n3',msg:'The response is already gone. The server hands the PR number to the <b>background worker</b>.'},
+    {edge:'e3',pulse:'p3',node:'n4',msg:'Worker fetches the changed files and sends the diff to <b>Claude</b>. The egress proxy swaps in the sealed tokens.'},
+    {edge:'e4',pulse:'p4',node:'n3',msg:'Findings come back as <b>schema-guaranteed JSON</b>. The worker keeps only anchors that exist in the diff hunks.'},
+    {edge:'e5',pulse:'p5',node:'n5',msg:'One atomic createReview call posts the <b>summary and inline comments</b> on the PR.'},
+  ];
+
+  const status=document.getElementById('status');
+  let running=false;
+
+  function pointAt(pathEl,pulseEl,t){
+    const len=pathEl.getTotalLength();
+    const pt=pathEl.getPointAtLength(len*t);
+    pulseEl.setAttribute('cx',pt.x);pulseEl.setAttribute('cy',pt.y);
+  }
+  function reset(){
+    document.querySelectorAll('.edge').forEach(e=>e.classList.remove('lit'));
+    document.querySelectorAll('.pulse').forEach(p=>p.style.opacity=0);
+    document.querySelectorAll('.node-box').forEach(n=>n.classList.remove('active'));
+  }
+  function animEdge(step){
+    return new Promise(res=>{
+      const edge=document.getElementById(step.edge);
+      const pulse=document.getElementById(step.pulse);
+      edge.classList.add('lit');pulse.style.opacity=1;
+      status.innerHTML=step.msg;
+      let start=null;const dur=900;
+      function frame(ts){
+        if(!start)start=ts;
+        let t=Math.min((ts-start)/dur,1);
+        pointAt(edge,pulse,t);
+        if(t<1)requestAnimationFrame(frame);
+        else{
+          pulse.style.opacity=0;
+          const node=document.querySelector('#'+step.node+' .node-box');
+          node.classList.add('active');
+          setTimeout(()=>res(),260);
+        }
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+  async function run(){
+    if(running)return;running=true;reset();
+    for(const s of steps){await animEdge(s);}
+    status.innerHTML='Done. Verdict is always <b>COMMENT</b>; the agent advises, it never blocks a merge.';
+    running=false;
+  }
+  document.getElementById('play').onclick=run;
+</script>
+</body>
+</html>
