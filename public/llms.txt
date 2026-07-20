@@ -48,6 +48,14 @@ Usage:
 
 Users can add one or more machines to their pool at any time.
 
+## Guides
+
+Technical guides on sandbox isolation for AI agents: hypervisors, microVMs, kernel-sharing boundaries, and how to choose infrastructure for agent workloads. All available as full-text markdown.
+
+- [CodeSandbox Alternatives for AI Agents (2026)](https://opencomputer.dev/guides/codesandbox-alternatives.md): Utpal Nadiger, 2026-07-20. CodeSandbox CI and Repos shut down in 2026. Seven alternatives for AI-agent workloads, compared on session durability, failure contract, credential architecture, and control plane. (Full-text markdown; HTML at /guides/codesandbox-alternatives)
+- [QEMU vs KVM for AI Agent Sandboxes](https://opencomputer.dev/guides/qemu-vs-kvm.md): Utpal Nadiger, 2026-07-20. KVM is a Linux kernel module; QEMU is the userspace VMM that uses it. They are two parts of one stack, not competing options. The real decision is QEMU vs Firecracker vs Cloud Hypervisor, evaluated from a production QEMU-on-KVM fleet. (Full-text markdown; HTML at /guides/qemu-vs-kvm)
+- [Firecracker vs Cloud Hypervisor vs Kata Containers](https://opencomputer.dev/guides/firecracker-vs-cloud-hypervisor-vs-kata.md): Utpal Nadiger, 2026-07-20. Firecracker and Cloud Hypervisor are hypervisors; Kata Containers is a container runtime that drives one of them. The actual layers, the kernel-sharing boundary, and the feature differences that decide the pick for AI-agent isolation. (Full-text markdown; HTML at /guides/firecracker-vs-cloud-hypervisor-vs-kata)
+
 ## Blog
 
 Long-form writing on agent infrastructure, sandbox isolation, and patterns for building on long-lived compute.

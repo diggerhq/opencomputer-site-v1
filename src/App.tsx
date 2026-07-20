@@ -21,6 +21,8 @@ import BackgroundCodingAgent from "./pages/blog/BackgroundCodingAgent";
 import EmailSecurityTriageAgent from "./pages/blog/EmailSecurityTriageAgent";
 import ScalingOneVmToMillionSandboxes from "./pages/blog/ScalingOneVmToMillionSandboxes";
 import OpenAvaBdrAgent from "./pages/blog/OpenAvaBdrAgent";
+import GuidesIndex from "./pages/guides/GuidesIndex";
+import GuidePost from "./pages/guides/GuidePost";
 import BackgroundAgentMaxxing from "./pages/BackgroundAgentMaxxing";
 import DesignPartners from "./pages/DesignPartners";
 import Clawputer from "./pages/Clawputer";
@@ -42,7 +44,12 @@ const App = () => (
           <Route path="/durable-agent-sessions" element={<IndexDurableAgents />} />
           <Route path="/durable-agents" element={<IndexDurableAgents />} />
           <Route path="/blog" element={<Blog />} />
-          <Route path="/guides" element={<Blog />} />
+          {/* /guides is the markdown-guides hub. Legacy /guides/<blog-slug>
+              mirrors below still win over the dynamic :slug route (React
+              Router ranks static segments higher), and keep canonicalizing
+              to /blog/*. New guide slugs resolve through GuidePost. */}
+          <Route path="/guides" element={<GuidesIndex />} />
+          <Route path="/guides/:slug" element={<GuidePost />} />
           <Route path="/blog/building-open-lovable-part-1" element={<BuildingOpenLovablePart1 />} />
           <Route path="/guides/building-open-lovable-part-1" element={<BuildingOpenLovablePart1 />} />
           <Route path="/blog/the-agentic-workload" element={<TheAgenticWorkload />} />
