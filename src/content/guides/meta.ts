@@ -52,6 +52,52 @@ export const guidePosts: GuideMeta[] = [
     image:
       "/guides/assets/firecracker-vs-cloud-hypervisor-vs-kata/layer-stack.png",
   },
+  {
+    slug: "e2b-alternatives",
+    title: "E2B Alternatives for AI Agent Sandboxes (2026)",
+    description:
+      "E2B alternatives for AI agent sandboxes compared: Daytona, Modal, Vercel, Morph, Runloop, Cloudflare, and OpenComputer, on live CPU/RAM resize, persistence, isolation, and price.",
+    author: "Utpal Nadiger",
+    datePublished: "2026-07-20",
+    image: "/guides/assets/e2b-alternatives/pricing-opencomputer.png",
+  },
+  {
+    slug: "codespaces-gitpod-agents",
+    title: "GitHub Codespaces vs Gitpod for Autonomous AI Agents",
+    description:
+      "Cloud development environments were built for a human who closes the laptop. How Codespaces, Gitpod (now Ona), Coder, and agent VMs handle an unattended agent, on idle behavior, session limits, and live resize.",
+    author: "Utpal Nadiger",
+    datePublished: "2026-07-20",
+    image: "/guides/assets/codespaces-gitpod-agents/homepage-ona.png",
+  },
+  {
+    slug: "claude-agent-sdk-sandbox",
+    title: "Claude Agent SDK: Where Does the Agent Actually Run?",
+    description:
+      "The Claude Agent SDK gives you the agent loop and tools, not the computer. Compare local, Docker, VPS, ephemeral sandboxes, and persistent VMs for running it in production.",
+    author: "Utpal Nadiger",
+    datePublished: "2026-07-20",
+    image: "/guides/assets/claude-agent-sdk-sandbox/pricing-opencomputer.png",
+  },
+  {
+    slug: "podman-vs-docker-untrusted-code",
+    title: "Podman vs Docker for Running Untrusted Code",
+    description:
+      "Rootless and daemonless both shrink the blast radius, but Podman and Docker share the host kernel. Here is where that stops mattering, walked up the isolation ladder to a VM with its own kernel.",
+    author: "Utpal Nadiger",
+    datePublished: "2026-07-20",
+    image:
+      "/guides/assets/podman-vs-docker-untrusted-code/cve-2024-21626-nvd.png",
+  },
+  {
+    slug: "python-sandbox",
+    title: "Python Sandbox: Every Approach, Honestly Ranked",
+    description:
+      "Which Python sandbox actually contains untrusted code? A ranked walkthrough from in-process tricks that fail to microVMs that work, with a working escape you can run.",
+    author: "Utpal Nadiger",
+    datePublished: "2026-07-20",
+    image: "/guides/assets/python-sandbox/escape-terminal.png",
+  },
 ];
 
 // Intrinsic pixel sizes for every image referenced by guide markdown.
@@ -75,6 +121,17 @@ export const guideImageDimensions: Record<
   "/guides/assets/firecracker-vs-cloud-hypervisor-vs-kata/layer-stack.png": { width: 1837, height: 888 },
   "/guides/assets/qemu-vs-kvm/qemu-kvm-split.png": { width: 1536, height: 1196 },
   "/guides/assets/qemu-vs-kvm/vmm-seat.png": { width: 2156, height: 983 },
+  "/guides/assets/e2b-alternatives/pricing-e2b.png": { width: 5056, height: 1880 },
+  "/guides/assets/e2b-alternatives/pricing-modal.png": { width: 1600, height: 1400 },
+  "/guides/assets/e2b-alternatives/pricing-opencomputer.png": { width: 4160, height: 2240 },
+  "/guides/assets/codespaces-gitpod-agents/homepage-ona.png": { width: 3040, height: 1360 },
+  "/guides/assets/codespaces-gitpod-agents/pricing-opencomputer.png": { width: 4160, height: 2240 },
+  "/guides/assets/claude-agent-sdk-sandbox/pricing-e2b.png": { width: 5056, height: 1880 },
+  "/guides/assets/claude-agent-sdk-sandbox/pricing-opencomputer.png": { width: 4160, height: 2240 },
+  "/guides/assets/podman-vs-docker-untrusted-code/cve-2024-21626-nvd.png": { width: 4000, height: 2880 },
+  "/guides/assets/podman-vs-docker-untrusted-code/pricing-opencomputer.png": { width: 4160, height: 2240 },
+  "/guides/assets/python-sandbox/escape-terminal.png": { width: 2100, height: 1280 },
+  "/guides/assets/python-sandbox/pricing-e2b.png": { width: 5056, height: 1880 },
 };
 
 // ---------------------------------------------------------------------------
