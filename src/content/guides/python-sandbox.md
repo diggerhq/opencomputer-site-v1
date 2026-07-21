@@ -3,7 +3,7 @@
 
 By Utpal Nadiger
 
-You have to run Python you did not write and cannot fully read first, and the obvious fixes fail. It might come from an AI agent, or from a user pasting into a formula field or a code interpreter.
+You have to run Python you did not write and cannot fully read, and the obvious fixes fail. It might come from an AI agent, or from a user pasting into a formula field or a code interpreter.
 
 Either way it has to run without reading your secrets or taking over the machine. Emptying the builtins stops nothing, and a container still shares the host kernel with the code trying to escape it.
 
@@ -87,7 +87,7 @@ Walk it left to right:
 
 From there the code picks a class whose module kept a normal `__builtins__`, here `FileLoader`. It reaches through `__init__.__globals__` to grab `__import__`, then imports `os` and calls `system` on it.
 
-The class name is not load-bearing. The famous version uses `warnings.catch_warnings`, which isn't always in the list, so this payload uses another class that is.
+The exact class name does not matter. The famous version uses `warnings.catch_warnings`, which isn't always in the list, so this payload uses another class that is.
 
 Any class whose module kept its builtins works, and there are always several.
 
@@ -103,7 +103,7 @@ So the boundary has to move out of the interpreter.
 
 ### Do PyPy's sandbox and seccomp jails work?
 
-They move the boundary to the operating system, which is the right direction, but the maintenance story is the catch. You run the Python process normally, then use the kernel to deny it dangerous system calls.
+They move the boundary to the operating system, which is the right direction, but the catch is maintenance. You run the Python process normally, then use the kernel to deny it dangerous system calls.
 
 A seccomp-BPF filter tells the kernel to kill or reject the process the moment it tries a syscall outside an allowlist. So even a fully escaped interpreter can't `open` a file or `connect` a socket the filter forbids.
 
@@ -172,7 +172,7 @@ The tradeoff is the operational work of running a VM fleet:
 - snapshots and teardown
 - billing
 
-For an agent that runs arbitrary generated code with network access, that is the correct threat model and the price is worth paying. For a formula evaluator, it is enormous overkill.
+For an agent that runs arbitrary generated code with network access, that is the correct threat model and the operational work is worth it. For a formula evaluator, it is enormous overkill.
 
 ## Which managed sandbox service should I use?
 
@@ -181,7 +181,7 @@ If you would rather buy the strong tiers than build them, several services sell 
 Buying one means buying someone else's boundary, so what you are choosing between is a shared kernel or hardware. Four are worth knowing:
 
 - **E2B** runs code in Firecracker microVMs. The [Pro tier is $150/mo](https://e2b.dev/pricing) with a 24-hour max session, and the free tier caps sessions at 1 hour. The largest sandbox is 8 vCPU / 8,192 MiB, and because CPU and RAM are fixed at template-build time you can't resize a running one. State survives through pause and resume rather than staying live.
-- **Modal** offers GPUs in the same box, with H100-class hardware and no quota dance. Its isolation is gVisor, so it is a shared-kernel boundary, and sandboxes are ephemeral.
+- **Modal** offers GPUs in the same box, with H100-class hardware and no quota requests. Its isolation is gVisor, so it is a shared-kernel boundary, and sandboxes are ephemeral.
 - **Daytona** optimizes for cold start, advertising sub-100ms starts. Its default is a container, so the default boundary is a shared kernel, with stronger isolation available as an opt-in.
 - **OpenComputer** runs every sandbox as a [KVM VM with its own kernel](https://opencomputer.dev/blog/sandbox-fingerprinting), so the boundary is hardware rather than a shared kernel, and it is [open source](https://github.com/diggerhq/opencomputer) for self-hosting. It is priced flat at [$0.24/hr](https://opencomputer.dev) for 4GB and 1 vCPU, with RAM adjustable from 1 to 16GB and a 20GB disk. CPU and RAM resize on a running VM without a restart, and it stays always-on with no timeouts, so a sandbox can hibernate and wake to the exact state it left. It is the newest option here and runs in a single region today.
 
