@@ -84,15 +84,15 @@ The eight providers here all run agent code, but each fits a different constrain
 | Provider | Compute price | Isolation | Persistence | Live CPU/RAM resize | GPU | Max session |
 |---|---|---|---|---|---|---|
 | **E2B** | $0.0504/vCPU-hr + $0.0162/GiB-hr; Pro $150/mo | Firecracker microVM | Pause/resume snapshot | No | No | 1h Hobby / 24h Pro |
-| **Daytona** | $0.0504/vCPU-hr + $0.0162/GiB-hr; $200 credit | Container (Kata optional) | Stop/archive | No | Partial | Configurable |
+| **Daytona** | $0.0504/vCPU-hr + $0.0162/GiB-hr; $200 credit | Container (Kata optional) | Stop/archive | Increase only | Yes (H100/H200, RTX) | Configurable |
 | **Modal** | ~$0.142/core-hr + $0.024/GiB-hr (sandbox) | gVisor | Ephemeral | No | Yes (H100/A100) | Configurable |
 | **Vercel Sandbox** | $0.128 active-CPU-hr + $0.0212/GB-hr | Firecracker microVM | Persistent default + snapshots | No | No | 45m Hobby / 24h Pro |
-| **Morph** | MCU-based; $40/mo Developer | Full VM | Snapshot/branch | No | Some | Configurable |
+| **Morph** | MCU-based; $40/mo Developer | Full VM | Snapshot/branch | No | No | Configurable |
 | **Runloop** | $0.108/CPU-hr + $0.0252/GB-hr; Pro $250/mo | microVM/devbox | Suspend/resume | No | No | Configurable |
 | **Cloudflare** | $0.000020/vCPU-s + $0.0000025/GiB-s | Container | Scale-to-zero | No | No | Container lifecycle |
 | **OpenComputer** | $0.004/min flat = $0.24/hr | Real KVM VM (own kernel) | Always-on, hibernate/wake | Yes | No | No timeout |
 
-Two axes separate the providers most. **Live resize** is a no for every provider except OpenComputer.
+Two axes separate the providers most. **Live resize** exists in two places. OpenComputer resizes a running VM up and down. [Daytona can increase CPU and memory on a running sandbox](https://www.daytona.io/docs/en/sandboxes/), but shrinking them or touching disk needs a stop first. Every other provider fixes size at creation.
 
 **Isolation** separates the real-VM tier (own kernel) from the shared-kernel container and gVisor tiers. That difference decides how safely each one runs untrusted agent-generated code.
 
@@ -103,6 +103,8 @@ Daytona is a good E2B alternative when you create and tear down sandboxes consta
 If you run thousands of short-lived environments, boot time becomes a real share of both cost and latency.
 
 The pricing matches E2B's compute rates almost exactly, at $0.0504/vCPU-hr and $0.0162/GiB-hr billed per-second on active usage. You start with $200 in free credit, and the first 5 GiB of storage is free.
+
+Daytona also runs [GPU sandboxes with H100/H200 and RTX types, and a running sandbox can grow its CPU and memory live](https://www.daytona.io/docs/en/sandboxes/), though shrinking needs a stop. GPU sandboxes are ephemeral, and the GPU itself cannot be changed after creation.
 
 The tradeoff is isolation, because the default runtime is a container that shares the host kernel. Kata Containers, a real microVM runtime, is available as an opt-in.
 
@@ -168,7 +170,7 @@ MCU pricing does not map directly onto a dollar-per-hour figure, so it is harder
 
 ### Which E2B alternative can resize a VM while it runs?
 
-OpenComputer ([opencomputer.dev](https://opencomputer.dev/), open source at [github.com/diggerhq/opencomputer](https://github.com/diggerhq/opencomputer)) is the only entry here that resizes CPU and RAM on a running VM. It grows a VM from 1 GB to 16 GB without a restart, then shrinks it back when the spike passes, so you skip the template rebuild and relaunch entirely.
+OpenComputer ([opencomputer.dev](https://opencomputer.dev/), open source at [github.com/diggerhq/opencomputer](https://github.com/diggerhq/opencomputer)) is the only entry here that resizes a running VM in both directions. It grows a VM from 1 GB to 16 GB without a restart, then shrinks it back when the spike passes, so you skip the template rebuild and relaunch entirely. Daytona comes closest, growing a running sandbox live but requiring a stop to shrink it.
 
 If your agent idles low and peaks high, you provision for the idle level and pay for the peak only while it lasts.
 
@@ -210,11 +212,11 @@ If your project is already built on Workers, you get code execution next to your
 
 Each constraint maps to one provider:
 
-- If you need a GPU, pick Modal, since E2B has none and Modal has H100/A100 with no quota approval step.
+- If you need a GPU, pick Modal or Daytona, since E2B has none. Modal has H100/A100 with no quota approval step, and Daytona runs ephemeral GPU sandboxes with H100/H200 and RTX types.
 - If cold-start latency dominates, pick Daytona at sub-90ms creation.
 - If your app is already on Vercel and your agents wait on I/O, pick Vercel Sandbox for the project integration and active-CPU billing.
 - If you fork one environment into many parallel branches, pick Morph, built around sub-250ms branching.
-- If your resource needs swing mid-run, pick OpenComputer, the only one that resizes a live VM. It also gives you full-VM isolation, always-on persistence, and no session cap.
+- If your resource needs swing mid-run, pick OpenComputer, the only one that resizes a live VM in both directions. It also gives you full-VM isolation, always-on persistence, and no session cap.
 
 None of the providers here beat E2B on community size or documentation, and its Firecracker microVM isolation is strong. So if your integration works and your sandbox sizes are stable, you hit none of those constraints and a move costs you engineering time for little return.
 

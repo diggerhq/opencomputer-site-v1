@@ -73,7 +73,7 @@ Gitpod was one of the companies that defined the human cloud development environ
 
 Gitpod took a third path and rebuilt the whole company around agents. [Ona](https://ona.com/) now markets itself as "the platform for background agents," where you hand an agent a task and it "executes end-to-end in the background" and opens a pull request.
 
-In June 2026 OpenAI announced it was [acquiring Ona](https://siliconangle.com/2026/06/11/openai-acquires-ai-agent-orchestration-startup-ona/) so that Codex agents can keep working for hours unattended after the developer closes the laptop.
+In June 2026 OpenAI announced it was [acquiring Ona](https://openai.com/index/openai-to-acquire-ona/) so that Codex agents can keep working for hours unattended after the developer closes the laptop.
 
 ![Ona homepage describing the platform for background agents](/guides/assets/codespaces-gitpod-agents/homepage-ona.png)
 
@@ -147,7 +147,7 @@ The case for keeping the environment persistent instead of ephemeral is in [stop
 
 ### Can you resize an agent VM while it runs?
 
-Yes, and without a restart. When your agent hits a memory-hungry step mid-run, OpenComputer changes the CPU and RAM of the live VM, from 1GB up to 16GB.
+Yes, and without a restart. When your agent hits a memory-hungry step mid-run, OpenComputer changes the CPU and RAM of the live VM, with RAM going from 1GB up to 16GB.
 
 None of the other tools in the table ship this. Codespaces requires a stop and restart to change machine type, Ona has no live runtime resize, and Coder leaves it to whatever your own infrastructure supports.
 
@@ -173,7 +173,7 @@ For fast onboarding onto a big repo, GitHub Codespaces with prebuilds is the too
 
 - **Ona**, Gitpod's successor, fits enterprise agent orchestration with GPU inside a VPC, and it is being acquired by OpenAI. The 7-day environment cleanup is the tradeoff.
 - **Coder** fits dev environments on self-managed infrastructure. Full governance comes with it, and you build the agent-friendly behavior on top rather than getting it in the box.
-- **OpenComputer** fits an agent that runs unattended for hours and needs to resize mid-run. It is the only one of the four built for that job.
+- **OpenComputer** fits an agent that runs unattended for hours and needs to resize mid-run. Ona orchestrates agents; OpenComputer is the only one of the four whose compute itself is built for that job, with no idle timer and a live resize.
 
 A cloud development environment optimizes for a human who closes the laptop when the work is done, and an agent never does. When your agent hits an idle timeout or a restart-to-resize rule, the tool is working as designed.
 

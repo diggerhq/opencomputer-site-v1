@@ -161,7 +161,7 @@ VMs "stay on until you explicitly stop or delete them," and you can [hibernate a
 
 Hibernation changes what idling costs, because OpenComputer bills "pay only while running" and hibernation stops the compute clock. While a VM sleeps, only disk above the included 20GB is metered, at $0.0000001 per GB-second.
 
-The flat rate is $0.004/min, or $0.24/hour for the 4GB/1vCPU default, with RAM adjustable from 1 to 16GB. OpenComputer also lets you [resize memory and CPU on a running VM](https://opencomputer.dev/) without a restart, so an agent that suddenly needs more room gets it mid-session, which none of the ephemeral providers here offer.
+The flat rate is $0.004/min, or $0.24/hour for the 4GB/1vCPU default, with RAM adjustable from 1GB to 16GB. OpenComputer also lets you [resize memory and CPU on a running VM](https://opencomputer.dev/) in both directions without a restart, so an agent that suddenly needs more room gets it mid-session and gives it back after. Of the ephemeral providers here, only Daytona has live resize, and only to grow: shrinking a Daytona sandbox requires stopping it, and E2B and Modal fix resources at creation.
 
 ![OpenComputer homepage showing pay-only-while-running and live resize](/guides/assets/claude-agent-sdk-sandbox/pricing-opencomputer.png)
 
@@ -220,7 +220,7 @@ This matters most for multi-tenant deployments and agents processing untrusted c
 
 ### How much does it cost to run an agent while it sits idle?
 
-It depends on the billing model. Anthropic notes that token cost dominates and that a minimally provisioned container runs about $0.05/hour.
+It depends on the billing model. [Anthropic's hosting guide](https://code.claude.com/docs/en/agent-sdk/hosting) notes that token cost typically dominates infrastructure cost by an order of magnitude, with a minimally provisioned container at roughly $0.05/hour.
 
 An agent waiting on a human approval or a slow API is idle most of that wall-clock time, and a VPS or an always-running sandbox bills for the wait. Ephemeral providers bill per second while the sandbox is up; pausing stops the clock but is manual.
 
