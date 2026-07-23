@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PR Review Agent — What you'll build</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap');
+  :root{
+    --cream:#f5f3ee;--ink:#161513;--ink-soft:#403d37;--coral:#e3613a;
+    --line:#dcd8cf;--card:#fbfaf6;--mute:#8a857b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:transparent;color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto}
+  .ctrl{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
+  .play{flex:none;font-family:'JetBrains Mono',monospace;font-size:13px;cursor:pointer;background:var(--ink);color:#fff;border:none;padding:11px 22px;border-radius:2px;letter-spacing:.04em;transition:opacity .2s}
+  .play:hover{opacity:.85}
+  .status{flex:1;min-width:0;min-height:38px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.55;color:var(--ink-soft);letter-spacing:.02em;padding-top:2px;overflow-wrap:break-word}
+  @media (max-width:600px){.status{min-height:58px}}
+  .status b{color:var(--coral)}
+
+  .pr{border:1px solid var(--line);border-radius:6px;background:var(--card);overflow:hidden}
+  .pr-head{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);background:var(--cream)}
+  .pr-title{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700}
+  .pr-title span{color:var(--mute);font-weight:400}
+  .chip{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.06em;padding:4px 10px;border-radius:999px;background:var(--coral);color:#fff}
+
+  .timeline{padding:20px 20px 24px;position:relative}
+  .timeline::before{content:'';position:absolute;left:31px;top:24px;bottom:28px;width:2px;background:var(--line)}
+  .ev{display:flex;gap:14px;margin-bottom:14px;opacity:0;transform:translateY(6px);transition:opacity .4s ease,transform .4s ease;position:relative}
+  .ev.show{opacity:1;transform:none}
+  .dot{width:24px;height:24px;border-radius:50%;background:var(--cream);border:2px solid var(--line);flex:none;position:relative;z-index:1}
+  .dot.hot{border-color:var(--coral)}
+  .dot.pulse{border-color:var(--coral);animation:pulse 1s ease-out infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(227,97,58,.35)}100%{box-shadow:0 0 0 12px rgba(227,97,58,0)}}
+  .ev-body{padding-top:3px;flex:1}
+  .ev-text{font-size:13px;color:var(--ink-soft)}
+  .ev-text b{color:var(--ink);font-weight:600}
+  .ev-time{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute);padding-top:5px;flex:none}
+
+  .review{border:1.5px solid var(--coral);border-radius:6px;background:#fff;margin-top:6px;overflow:hidden;box-shadow:0 4px 14px rgba(227,97,58,.12)}
+  .rv-head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--cream)}
+  .rv-who{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700}
+  .rv-state{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--coral);border:1px solid var(--coral);border-radius:2px;padding:2px 7px}
+  .rv-sum{padding:12px 14px;font-size:13px;color:var(--ink-soft);line-height:1.55;border-bottom:1px solid var(--line)}
+  .finding{display:flex;gap:10px;align-items:baseline;padding:10px 14px;border-bottom:1px solid var(--line);opacity:0;transition:opacity .4s ease}
+  .finding.show{opacity:1}
+  .finding:last-child{border-bottom:none}
+  .loc{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--ink);background:var(--cream);border:1px solid var(--line);border-radius:2px;padding:2px 7px;flex:none}
+  .sev{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.08em;color:#fff;background:var(--ink);border-radius:2px;padding:2px 7px;flex:none}
+  .finding p{font-size:12.5px;color:var(--ink-soft);line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="ctrl">
+    <button class="play" id="play">&#9655; open a pull request</button>
+    <span class="status" id="status">Idle. Press play to watch a PR get reviewed with no human in the loop.</span>
+  </div>
+
+  <div class="pr">
+    <div class="pr-head">
+      <span class="chip">OPEN</span>
+      <span class="pr-title">chore: tidy date helpers <span>#2</span></span>
+    </div>
+    <div class="timeline" id="tl">
+      <div class="ev" id="ev1">
+        <div class="dot"></div>
+        <div class="ev-body"><div class="ev-text"><b>Pull request opened.</b> One file changed, framed as a harmless cleanup.</div></div>
+        <div class="ev-time">0:00</div>
+      </div>
+      <div class="ev" id="ev2">
+        <div class="dot hot"></div>
+        <div class="ev-body"><div class="ev-text"><b>Webhook delivered</b> to the sandbox preview URL. Signature verified, deduped, acked <b>202</b>.</div></div>
+        <div class="ev-time">0:01</div>
+      </div>
+      <div class="ev" id="ev3">
+        <div class="dot" id="dot3"></div>
+        <div class="ev-body"><div class="ev-text" id="ev3text"><b>Reviewing in the background.</b> Fetch the diff, ask Claude, validate the anchors.</div></div>
+        <div class="ev-time" id="clock">0:02</div>
+      </div>
+      <div class="ev" id="ev4">
+        <div class="dot hot"></div>
+        <div class="ev-body">
+          <div class="ev-text"><b>Review posted.</b> One native review, comments anchored to the lines that changed.</div>
+          <div class="review">
+            <div class="rv-head"><span class="rv-who">pr-review-agent</span><span class="rv-state">COMMENTED</span></div>
+            <div class="rv-sum">Both new pieces contain bugs. The extracted constant uses 25 hours instead of 24, and clampRange swaps the values back after normalizing, defeating its purpose.</div>
+            <div class="finding" id="f1"><span class="loc">src/dates.js:2</span><span class="sev">BLOCKER</span><p><code>MS_PER_DAY</code> is computed with 25 hours instead of 24. Fix to <code>1000 * 60 * 60 * 24</code>.</p></div>
+            <div class="finding" id="f2"><span class="loc">src/dates.js:15</span><span class="sev">BLOCKER</span><p><code>clampRange</code> returns <code>{ start: end, end: start }</code>, re-swapping the values it just normalized. Return <code>{ start, end }</code>.</p></div>
+          </div>
+        </div>
+        <div class="ev-time" id="posted">0:47</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const status=$('status');
+  let running=false,timer=null;
+
+  const fmt=s=>`0:${String(s).padStart(2,'0')}`;
+
+  function reset(){
+    ['ev1','ev2','ev3','ev4','f1','f2'].forEach(id=>$(id).classList.remove('show'));
+    $('dot3').classList.remove('pulse','hot');
+    $('clock').textContent='0:02';
+    if(timer)clearInterval(timer);
+  }
+
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+
+  async function run(){
+    if(running)return;running=true;reset();
+
+    $('ev1').classList.add('show');
+    status.innerHTML='A developer opens the PR. The diff carries <b>two seeded bugs</b>.';
+    await wait(1100);
+
+    $('ev2').classList.add('show');
+    status.innerHTML='GitHub delivers the webhook. The server acks in milliseconds; <b>the review has not started yet</b>.';
+    await wait(1100);
+
+    $('ev3').classList.add('show');
+    $('dot3').classList.add('pulse');
+    status.innerHTML='The worker runs on its own time. <b>No terminal, no laptop, nothing local.</b>';
+    let t=2;
+    timer=setInterval(()=>{t=Math.min(t+3,46);$('clock').textContent=fmt(t);},200);
+    await wait(3200);
+    clearInterval(timer);
+    $('clock').textContent='0:46';
+    $('dot3').classList.remove('pulse');$('dot3').classList.add('hot');
+
+    $('ev4').classList.add('show');
+    status.innerHTML='Review lands <b>47 seconds</b> after the PR opened.';
+    await wait(500);
+    $('f1').classList.add('show');
+    await wait(450);
+    $('f2').classList.add('show');
+    status.innerHTML='Done. <b>Both bugs caught</b>, each comment anchored to the exact changed line.';
+    running=false;
+  }
+  $('play').onclick=run;
+</script>
+</body>
+</html>

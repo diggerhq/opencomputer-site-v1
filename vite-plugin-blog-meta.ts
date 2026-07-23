@@ -25,6 +25,15 @@ const DEFAULT_IMAGE = `${BASE_URL}/social-preview.png`;
 
 export const blogPosts: BlogMeta[] = [
   {
+    slug: "pr-review-agent",
+    title: "Building a Greptile Clone with Claude and OpenComputer",
+    description:
+      "I cloned Greptile's core loop in about 500 lines of TypeScript: a webhook server in a durable OpenComputer sandbox hands each PR diff to Claude and posts a native review with inline comments on the lines that changed. The build, the prompt, and the GitHub quirks.",
+    author: "Ninad Pathak",
+    datePublished: "2026-07-16",
+    markdownUrl: "/blog/pr-review-agent.md",
+  },
+  {
     slug: "open-ava-bdr-agent",
     title: "Build an Ava-Inspired BDR Agent That Runs on Its Own Computer",
     description:
