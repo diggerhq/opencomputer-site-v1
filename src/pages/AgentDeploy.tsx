@@ -2,20 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import FadeIn from "@/components/FadeIn";
 import SEO from "@/components/SEO";
 import SitePageLayout from "@/components/SitePageLayout";
+import {
+  AGENT_DEPLOY_PROMPT_AFTER_TASK,
+  AGENT_DEPLOY_PROMPT_BEFORE_TASK,
+  AGENT_DEPLOY_PROMPT_PLACEHOLDER,
+  buildAgentDeployPrompt,
+} from "./agentDeployPrompt";
 
 const AGENT_NAMES = ["Claude Code", "Codex", "opencode", "Cursor"];
-const BLANK = "____________";
-
-const buildPrompt = (task: string) => `Set up OpenComputer and deploy my first agent.
-
-1. Install the CLI:
-   curl -fsSL https://raw.githubusercontent.com/diggerhq/opencomputer/main/scripts/install.sh | bash
-2. Open https://app.opencomputer.dev so I can create an API key,
-   then set it with: oc config set api-key <key>
-3. Run \`oc agent init\`, write prompt.md for an agent that ${task || BLANK},
-   then run \`oc agent deploy\`.
-4. Smoke-test it with \`oc agent invoke\` and give me the live agent URL
-   and the dashboard link.`;
 
 const facts = [
   {
@@ -53,7 +47,7 @@ const AgentDeploy = () => {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(buildPrompt(cleanTask));
+      await navigator.clipboard.writeText(buildAgentDeployPrompt(cleanTask));
       setCopied(true);
       window.clearTimeout(copyTimer.current);
       copyTimer.current = window.setTimeout(() => setCopied(false), 1600);
@@ -122,20 +116,11 @@ const AgentDeploy = () => {
           </div>
           <div className="bg-foreground text-background rounded-md px-8 py-7 overflow-x-auto">
             <pre className="font-mono-brand text-[13px] leading-[1.75] whitespace-pre-wrap">
-              {`Set up OpenComputer and deploy my first agent.
-
-1. Install the CLI:
-   curl -fsSL https://raw.githubusercontent.com/diggerhq/opencomputer/main/scripts/install.sh | bash
-2. Open https://app.opencomputer.dev so I can create an API key,
-   then set it with: oc config set api-key <key>
-3. Run \`oc agent init\`, write prompt.md for an agent that `}
+              {AGENT_DEPLOY_PROMPT_BEFORE_TASK}
               <span className="italic border-b border-background/45">
-                {cleanTask || BLANK}
+                {cleanTask || AGENT_DEPLOY_PROMPT_PLACEHOLDER}
               </span>
-              {`,
-   then run \`oc agent deploy\`.
-4. Smoke-test it with \`oc agent invoke\` and give me the live agent URL
-   and the dashboard link.`}
+              {AGENT_DEPLOY_PROMPT_AFTER_TASK}
             </pre>
           </div>
         </div>
