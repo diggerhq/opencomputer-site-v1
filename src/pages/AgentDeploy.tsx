@@ -114,8 +114,8 @@ const AgentDeploy = () => {
               {copied ? "Copied" : "Copy"}
             </button>
           </div>
-          <div className="bg-foreground text-background rounded-md px-8 py-7 overflow-x-auto selection:bg-background selection:text-foreground">
-            <pre className="font-mono-brand text-[13px] leading-[1.75] whitespace-pre-wrap">
+          <div className="bg-foreground text-background rounded-md px-7 py-6 selection:bg-background selection:text-foreground">
+            <pre className="font-mono-brand text-[12px] leading-[1.7] whitespace-pre-wrap [overflow-wrap:anywhere]">
               {AGENT_DEPLOY_PROMPT_BEFORE_TASK}
               <span className="italic border-b border-background/45">
                 {cleanTask || AGENT_DEPLOY_PROMPT_PLACEHOLDER}
