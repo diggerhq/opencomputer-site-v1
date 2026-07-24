@@ -55,6 +55,13 @@ const staticRoutes: Array<{
     canonical: "https://opencomputer.dev/guides/",
   },
   {
+    path: "/agentdeploy/",
+    title: "Deploy a managed agent – OpenComputer",
+    description:
+      "The easiest way to deploy a managed agent. Say what your agent should do, paste one prompt into your coding agent, get a live agent URL.",
+    canonical: "https://opencomputer.dev/agentdeploy/",
+  },
+  {
     path: "/durable-agent-sessions/",
     title: "Durable Agent Sessions – OpenComputer",
     description:
@@ -163,10 +170,17 @@ function applyHeadOverrides(
   html: string,
   route: { title?: string; description?: string; canonical: string },
 ): string {
-  let out = html.replace(
-    /<link rel="canonical" href="[^"]*"/,
-    `<link rel="canonical" href="${route.canonical}"`,
-  );
+  let out = html
+    .replace(
+      /<link rel="canonical" href="[^"]*"/,
+      `<link rel="canonical" href="${route.canonical}"`,
+    )
+    // og:url tracks the canonical so social/crawler URL hints never disagree
+    // with it (the blog-meta plugin already does this for posts).
+    .replace(
+      /<meta property="og:url" content="[^"]*"/,
+      `<meta property="og:url" content="${route.canonical}"`,
+    );
   if (route.title) {
     const title = escapeAttr(route.title);
     out = out
@@ -242,6 +256,14 @@ async function main() {
     if (route.overrides) {
       html = applyHeadOverrides(html, route.overrides);
     }
+    // Drop react-helmet's runtime-injected <meta> duplicates (marked
+    // data-rh="true"). The static head — rewritten per-post by the blog-meta
+    // plugin, or by applyHeadOverrides above — is the single source of truth
+    // for crawler-facing tags. Without this the snapshot carries two of every
+    // og/twitter/description tag, and Helmet's og:url (slash-less) conflicts
+    // with the trailing-slash canonical. Helmet re-injects these at runtime
+    // for live SPA navigation, so interactive behavior is unchanged.
+    html = html.replace(/\s*<meta\b[^>]*\bdata-rh="true"[^>]*>/g, "");
 
     const outDir = route.path === "/" ? DIST : join(DIST, route.path);
     mkdirSync(outDir, { recursive: true });

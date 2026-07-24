@@ -21,9 +21,11 @@ import BackgroundCodingAgent from "./pages/blog/BackgroundCodingAgent";
 import EmailSecurityTriageAgent from "./pages/blog/EmailSecurityTriageAgent";
 import ScalingOneVmToMillionSandboxes from "./pages/blog/ScalingOneVmToMillionSandboxes";
 import OpenAvaBdrAgent from "./pages/blog/OpenAvaBdrAgent";
+import PrReviewAgent from "./pages/blog/PrReviewAgent";
 import GuidesIndex from "./pages/guides/GuidesIndex";
 import GuidePost from "./pages/guides/GuidePost";
 import BackgroundAgentMaxxing from "./pages/BackgroundAgentMaxxing";
+import AgentDeploy from "./pages/AgentDeploy";
 import DesignPartners from "./pages/DesignPartners";
 import Clawputer from "./pages/Clawputer";
 import NotFound from "./pages/NotFound";
@@ -41,6 +43,7 @@ const App = () => (
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/agentdeploy" element={<AgentDeploy />} />
           <Route path="/durable-agent-sessions" element={<IndexDurableAgents />} />
           <Route path="/durable-agents" element={<IndexDurableAgents />} />
           <Route path="/blog" element={<Blog />} />
@@ -76,6 +79,8 @@ const App = () => (
           <Route path="/guides/scaling-one-vm-to-million-sandboxes" element={<ScalingOneVmToMillionSandboxes />} />
           <Route path="/blog/open-ava-bdr-agent" element={<OpenAvaBdrAgent />} />
           <Route path="/guides/open-ava-bdr-agent" element={<OpenAvaBdrAgent />} />
+          <Route path="/blog/pr-review-agent" element={<PrReviewAgent />} />
+          <Route path="/guides/pr-review-agent" element={<PrReviewAgent />} />
           <Route path="/background-agents" element={<BackgroundAgentMaxxing />} />
           <Route path="/backgroundagents" element={<BackgroundAgentMaxxing />} />
           <Route path="/backgroundagentmaxxing" element={<BackgroundAgentMaxxing />} />

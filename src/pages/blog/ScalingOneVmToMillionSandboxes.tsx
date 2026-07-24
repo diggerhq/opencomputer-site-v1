@@ -801,6 +801,17 @@ const ScalingOneVmToMillionSandboxes = () => {
             The product promise stays unchanged through all of it. You get a full Linux VM,
             scheduled close to you, billed for the seconds it actually runs.
           </p>
+          <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
+            That one-sandbox-per-task model is exactly what makes something like a{" "}
+            <Link
+              to="/blog/background-coding-agent"
+              className="underline transition-colors hover:text-muted-foreground"
+            >
+              background coding agent that works while you sleep
+            </Link>{" "}
+            cheap to run: a fresh disposable VM boots for each GitHub issue, runs Claude Code
+            headlessly, opens a draft PR, and is torn down the moment it's done.
+          </p>
         </div>
       </FadeIn>
 
