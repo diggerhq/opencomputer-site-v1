@@ -23,6 +23,7 @@ import ScalingOneVmToMillionSandboxes from "./pages/blog/ScalingOneVmToMillionSa
 import OpenAvaBdrAgent from "./pages/blog/OpenAvaBdrAgent";
 import PrReviewAgent from "./pages/blog/PrReviewAgent";
 import BackgroundAgentMaxxing from "./pages/BackgroundAgentMaxxing";
+import AgentDeploy from "./pages/AgentDeploy";
 import DesignPartners from "./pages/DesignPartners";
 import Clawputer from "./pages/Clawputer";
 import NotFound from "./pages/NotFound";
@@ -40,6 +41,7 @@ const App = () => (
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/agentdeploy" element={<AgentDeploy />} />
           <Route path="/durable-agent-sessions" element={<IndexDurableAgents />} />
           <Route path="/durable-agents" element={<IndexDurableAgents />} />
           <Route path="/blog" element={<Blog />} />

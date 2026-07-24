@@ -53,6 +53,13 @@ const staticRoutes: Array<{
     canonical: "https://opencomputer.dev/blog/",
   },
   {
+    path: "/agentdeploy/",
+    title: "Deploy a managed agent – OpenComputer",
+    description:
+      "The easiest way to deploy a managed agent. Say what your agent should do, paste one prompt into your coding agent, get a live agent URL.",
+    canonical: "https://opencomputer.dev/agentdeploy/",
+  },
+  {
     path: "/durable-agent-sessions/",
     title: "Durable Agent Sessions – OpenComputer",
     description:
