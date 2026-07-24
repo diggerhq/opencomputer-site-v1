@@ -1273,21 +1273,6 @@ const PrReviewAgent = () => {
           The core loop is a verified webhook, a diff turned into a schema-constrained review, and inline comments anchored to the lines that actually changed. That loop, running on a real pull request, caught the bugs and ignored the instructions planted to derail it.
         </p>
       </FadeIn>
-      <FadeIn>
-        <p className="text-[17px] leading-[1.75] tracking-[-0.1px] my-5">
-          Replace with video
-        </p>
-      </FadeIn>
-      <FadeIn>
-        <p className="text-[17px] leading-[1.75] tracking-[-0.1px] my-5">
-          Animated + interactive
-        </p>
-      </FadeIn>
-      <FadeIn>
-        <p className="text-[17px] leading-[1.75] tracking-[-0.1px] my-5">
-          Animated + interactive
-        </p>
-      </FadeIn>
     </SitePageLayout>
   );
 };

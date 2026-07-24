@@ -673,9 +673,3 @@ The prototype works end to end, and there are a few edges I left deliberately ro
 - **Cost.** Each review is one model call sized to the diff, so cost scales with diff size and the model you pick. Watch it if you point this at a busy repo.
 
 The core loop is a verified webhook, a diff turned into a schema-constrained review, and inline comments anchored to the lines that actually changed. That loop, running on a real pull request, caught the bugs and ignored the instructions planted to derail it.
-
-Replace with video
-
-Animated + interactive
-
-Animated + interactive
