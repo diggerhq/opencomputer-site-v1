@@ -16,6 +16,7 @@ import { join, extname, normalize } from "path";
 import { execSync } from "child_process";
 import { chromium } from "playwright";
 import { blogPosts } from "../vite-plugin-blog-meta";
+import { guidePosts } from "../src/content/guides/meta";
 
 const DIST = join(process.cwd(), "dist");
 const PORT = 4517;
@@ -23,7 +24,8 @@ const PORT = 4517;
 // Head overrides for routes that don't get per-route HTML from the blog-meta
 // plugin. Pages don't set <title> at runtime (no per-page Helmet), so without
 // this every static route would snapshot the homepage head verbatim.
-// /guides canonicalizes to /blog — it renders the same index component.
+// /guides/ is the markdown-guides hub, self-canonical since it became a real
+// index page (it previously mirrored /blog and canonicalized there).
 const staticRoutes: Array<{
   path: string;
   title?: string;
@@ -47,10 +49,10 @@ const staticRoutes: Array<{
   },
   {
     path: "/guides/",
-    title: "Blog – OpenComputer",
+    title: "Guides – OpenComputer",
     description:
-      "Long-form writing on agent infrastructure, sandbox isolation, and patterns for building on long-lived compute.",
-    canonical: "https://opencomputer.dev/blog/",
+      "Technical guides on sandbox isolation for AI agents: hypervisors, microVMs, kernel-sharing boundaries, and how to choose infrastructure for agent workloads.",
+    canonical: "https://opencomputer.dev/guides/",
   },
   {
     path: "/agentdeploy/",
@@ -86,6 +88,11 @@ const blogRoutes = blogPosts.flatMap((post) => [
   `/blog/${post.slug}/`,
   `/guides/${post.slug}/`,
 ]);
+
+// Markdown guides: the blog-meta plugin already wrote their head meta into
+// dist/guides/<slug>/index.html; the snapshot preserves it (same path as
+// blog posts — no overrides needed here).
+const guideRoutes = guidePosts.map((guide) => `/guides/${guide.slug}/`);
 
 const MIME: Record<string, string> = {
   ".html": "text/html",
@@ -209,6 +216,7 @@ async function main() {
   const routes: Array<{ path: string; overrides?: (typeof staticRoutes)[number] }> = [
     ...staticRoutes.map((r) => ({ path: r.path, overrides: r })),
     ...blogRoutes.map((path) => ({ path })),
+    ...guideRoutes.map((path) => ({ path })),
   ];
 
   for (const route of routes) {
@@ -234,6 +242,15 @@ async function main() {
       window.scrollTo(0, 0);
     });
     await page.waitForTimeout(800); // let animations + async shiki highlighting settle
+
+    // Helmet (react-helmet-async) injects its own meta set at runtime, tagged
+    // data-rh. The static head already carries the correct per-route values
+    // (plugin shells for posts/guides, overrides below for static routes), so
+    // snapshotting Helmet's copies would ship every crawler a duplicated head.
+    // Strip them; on hydration Helmet re-injects for SPA navigation.
+    await page.evaluate(() => {
+      document.querySelectorAll("head [data-rh]").forEach((el) => el.remove());
+    });
 
     let html = await page.content();
     if (route.overrides) {

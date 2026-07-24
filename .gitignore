@@ -5,3 +5,4 @@ exports/*.mp4
 .claude/
 .env.*.local
 config.bat
+public/draft-md
