@@ -166,7 +166,14 @@ const WhatElasticComputeMeans = () => {
             requests (eg lambda), running ai-generated code on the same host that handles the request
             risks at a minimum secret exfiltration, or worse it could get access to all user's data if
             you get prompt-injected. You'd want bullet-proof isolation, ideally at kernel level - like
-            a VM provides.
+            a VM provides. (We ranked every approach, from in-process tricks to microVMs, in our{" "}
+            <Link
+              to="/guides/python-sandbox"
+              className="underline decoration-foreground/30 hover:decoration-foreground transition-colors"
+            >
+              Python sandbox guide
+            </Link>
+            .)
           </p>
 
           <Callout>

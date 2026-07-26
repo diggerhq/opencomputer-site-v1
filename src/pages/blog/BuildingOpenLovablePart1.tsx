@@ -377,7 +377,15 @@ const BuildingOpenLovablePart1 = () => {
               package a ready-made harness - Claude Agent SDK - into a sandbox and have
               it do its thing with the agentic loop, while we surface its thinking to
               users as it goes. Similarly, we will serve a preview of the app right
-              from the same sandbox VM.
+              from the same sandbox VM. (For a comparison of all the places the SDK
+              can run - local, Docker, VPS, sandboxes - see{" "}
+              <Link
+                to="/guides/claude-agent-sdk-sandbox"
+                className="underline hover:text-muted-foreground transition-colors"
+              >
+                our guide on where the agent actually runs
+              </Link>
+              .)
             </p>
           </div>
         </FadeIn>

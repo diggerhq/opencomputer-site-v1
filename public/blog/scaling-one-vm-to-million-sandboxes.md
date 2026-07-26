@@ -152,7 +152,7 @@ The registry is only as good as the events feeding it, and a stale registry keep
 
 ## Boot, hibernate, and wake latencies in production
 
-The cell design only matters if the VMs inside it are fast. And much of our engineering and tuning effort has gone into lifecycle latency. Our hypervisor is QEMU. While a stock QEMU cold boot takes around 30 seconds, we've brought sandbox boot under 1 second at p95.
+The cell design only matters if the VMs inside it are fast. And much of our engineering and tuning effort has gone into lifecycle latency. Our hypervisor is QEMU on KVM (we've written up [why we run QEMU rather than Firecracker or Cloud Hypervisor](https://opencomputer.dev/guides/qemu-vs-kvm)). While a stock QEMU cold boot takes around 30 seconds, we've brought sandbox boot under 1 second at p95.
 
 ![Sandbox lifecycle latencies in production: boot under 1 second at p95, hibernate in about 6 seconds, wake in 1 to 2 seconds depending on checkpoint warmth.](https://opencomputer.dev/blog-visuals/scaling-one-vm-to-million-sandboxes/05-lifecycle-latencies.png)
 

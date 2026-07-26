@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 import SitePageLayout from "@/components/SitePageLayout";
+import { guidePosts } from "@/content/guides/meta";
 
 const features = [
   {
@@ -348,6 +349,32 @@ const Index = () => {
                 Mohamed Habib, CTO Digger &middot; March 11, 2026
               </p>
             </Link>
+          </div>
+        </div>
+      </FadeIn>
+
+      <FadeIn>
+        <div className="my-14">
+          <p className="font-heading text-[clamp(28px,4vw,38px)] leading-[1.35] tracking-[-0.8px] mb-3">
+            Guides
+          </p>
+          <p className="text-[15px] leading-[1.7] text-muted-foreground mb-8 max-w-[560px]">
+            Technical deep dives on sandbox isolation for AI agents: hypervisors,
+            microVMs, kernel-sharing boundaries, and how to pick infrastructure
+            for agent workloads.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {guidePosts.map((guide) => (
+              <Link
+                key={guide.slug}
+                to={`/guides/${guide.slug}`}
+                className="block p-5 rounded-lg border border-border/50 bg-[hsl(0,0%,98%)] hover:border-foreground/20 transition-colors duration-150 no-underline"
+              >
+                <h3 className="font-heading text-[18px] leading-[1.35] tracking-[-0.2px] text-foreground">
+                  {guide.title}
+                </h3>
+              </Link>
+            ))}
           </div>
         </div>
       </FadeIn>

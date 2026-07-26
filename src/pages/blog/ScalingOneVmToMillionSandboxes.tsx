@@ -750,9 +750,16 @@ const ScalingOneVmToMillionSandboxes = () => {
       <FadeIn>
         <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
           The cell design only matters if the VMs inside it are fast. And much of our
-          engineering and tuning effort has gone into lifecycle latency. Our hypervisor is QEMU.
-          While a stock QEMU cold boot takes around 30 seconds, we've brought sandbox boot under
-          1 second at p95.
+          engineering and tuning effort has gone into lifecycle latency. Our hypervisor is QEMU
+          on KVM (we've written up{" "}
+          <Link
+            to="/guides/qemu-vs-kvm"
+            className="underline transition-colors hover:text-muted-foreground"
+          >
+            why we run QEMU rather than Firecracker or Cloud Hypervisor
+          </Link>
+          ). While a stock QEMU cold boot takes around 30 seconds, we've brought sandbox boot
+          under 1 second at p95.
         </p>
       </FadeIn>
 

@@ -721,7 +721,16 @@ const StopTreatingSandboxesAsCattle = () => {
               belongs outside the sandbox.&rsquo; It&apos;s &lsquo;the harness
               belongs outside an <em>ephemeral</em> sandbox.&rsquo; The thesis
               is sort of tautological once you state the assumption. Persistent
-              sandboxes (ala computers) don&apos;t have these problems.
+              sandboxes (ala computers) don&apos;t have these problems. Session
+              durability is also the axis we used to{" "}
+              <Link
+                to="/guides/codesandbox-alternatives"
+                className="underline decoration-foreground/30 hover:decoration-foreground transition-colors"
+              >
+                compare seven sandbox platforms
+              </Link>{" "}
+              after CodeSandbox shut down its CI and Repos products &mdash;
+              most of the field still assumes the cattle model.
             </p>
 
             <DiagramPanel

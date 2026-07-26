@@ -708,7 +708,14 @@ const BackgroundCodingAgent = () => {
           <p className="text-[17px] leading-[1.75] tracking-[-0.1px]">
             This setup works quite similarly to a Docker image with two differences: a snapshot
             captures live VM state, and it's addressed by the content hash of its definition
-            instead of a tag.
+            instead of a tag. (Why a VM with its own kernel instead of a container? Our{" "}
+            <Link
+              to="/guides/podman-vs-docker-untrusted-code"
+              className="underline transition-colors hover:text-muted-foreground"
+            >
+              Podman vs Docker guide
+            </Link>{" "}
+            walks through where kernel-sharing isolation stops being enough.)
           </p>
         </div>
       </FadeIn>

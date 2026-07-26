@@ -50,7 +50,7 @@ Every issue gets its own throwaway Linux VM that boots in 2 to 3 seconds, does t
 
 A sandbox is a full Linux VM with its own kernel, memory, disk, network namespace, and process table, isolated by KVM at the hardware level. You get root, you install what you want, and it persists between runs.
 
-This setup works quite similarly to a Docker image with two differences: a snapshot captures live VM state, and it's addressed by the content hash of its definition instead of a tag.
+This setup works quite similarly to a Docker image with two differences: a snapshot captures live VM state, and it's addressed by the content hash of its definition instead of a tag. (Why a VM with its own kernel instead of a container? Our [Podman vs Docker guide](https://opencomputer.dev/guides/podman-vs-docker-untrusted-code) walks through where kernel-sharing isolation stops being enough.)
 
 **Comparison — Docker image vs OpenComputer sandbox.** They share: declarative builds (`apt_install` + `run_commands`), reproducibility, base + layered tools, and cached rebuilds. They differ in four ways:
 
