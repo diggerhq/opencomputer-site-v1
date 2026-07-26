@@ -358,7 +358,15 @@ const SandboxFingerprinting = () => {
               this tech. Of interest it seems that Blaxel is layering unikernels
               on top of Firecracker VMs, which makes me curious on the reason
               behind that. Perhaps it is to further reduce the startup time of
-              the sandbox providers.
+              the sandbox providers. For a deeper look at how these options
+              relate, see our guide on{" "}
+              <Link
+                to="/guides/firecracker-vs-cloud-hypervisor-vs-kata"
+                className="underline hover:text-muted-foreground transition-colors"
+              >
+                Firecracker vs Cloud Hypervisor vs Kata Containers
+              </Link>
+              .
             </p>
           </div>
 
@@ -457,6 +465,18 @@ const SandboxFingerprinting = () => {
               </div>
             ))}
           </div>
+          <p className="text-[15px] leading-[1.7] text-muted-foreground mt-4">
+            Fingerprinting tells you what E2B runs on; if you're weighing it
+            against other providers on persistence, resize, and price, we
+            compared them in{" "}
+            <Link
+              to="/guides/e2b-alternatives"
+              className="underline hover:text-muted-foreground transition-colors"
+            >
+              E2B alternatives for AI agent sandboxes
+            </Link>
+            .
+          </p>
         </div>
       </FadeIn>
 
