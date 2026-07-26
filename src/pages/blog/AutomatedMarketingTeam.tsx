@@ -288,9 +288,9 @@ const AutomatedMarketingTeam = () => {
       <FadeIn>
         <div className="space-y-7 mt-7">
           <P>
-            The whole thing is open source. Clone{" "}
+            The whole thing is open source. Clone the{" "}
             <a href={REPO_URL} target="_blank" rel="noreferrer" className="underline hover:text-foreground">
-              github.com/ninadpathak/automated-marketing-team
+              GitHub repo
             </a>{" "}
             and <InlineCode>docker compose up -d --build --wait</InlineCode> runs the team while
             you read.
@@ -917,10 +917,11 @@ const AutomatedMarketingTeam = () => {
       <FadeIn>
         <div className="space-y-7">
           <P>
-            Get the code:{" "}
+            Get the code from the{" "}
             <a href={REPO_URL} target="_blank" rel="noreferrer" className="underline hover:text-foreground">
-              github.com/ninadpathak/automated-marketing-team
+              GitHub repo
             </a>
+            .
           </P>
         </div>
       </FadeIn>
