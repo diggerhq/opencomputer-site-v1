@@ -25,6 +25,14 @@ const DEFAULT_IMAGE = `${BASE_URL}/social-preview.png`;
 
 export const blogPosts: BlogMeta[] = [
   {
+    slug: "automated-marketing-team",
+    title: "Build a Fully Automated Marketing Team with AI Agents",
+    description:
+      "Eight role agents, an orchestrator, and a kanban command center on Docker Compose, with a code-enforced human approval gate: agents draft everything, and nothing goes live without a recorded human sign-off.",
+    author: "Utpal Nadiger",
+    datePublished: "2026-07-26",
+  },
+  {
     slug: "open-ava-bdr-agent",
     title: "Build an Ava-Inspired BDR Agent That Runs on Its Own Computer",
     description:
