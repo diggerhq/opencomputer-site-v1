@@ -1,6 +1,7 @@
 import type { Plugin } from "vite";
 import { writeFileSync, mkdirSync, readFileSync } from "fs";
 import { join } from "path";
+import { guidePosts, extractFaq, type GuideMeta } from "./src/content/guides/meta";
 
 export interface BlogMeta {
   slug: string;
@@ -31,6 +32,15 @@ export const blogPosts: BlogMeta[] = [
       "Eight role agents, an orchestrator, and a kanban command center on Docker Compose, with a code-enforced human approval gate: agents draft everything, and nothing goes live without a recorded human sign-off.",
     author: "Utpal Nadiger",
     datePublished: "2026-07-26",
+  },
+  {
+    slug: "pr-review-agent",
+    title: "Building a Greptile Clone with Claude and OpenComputer",
+    description:
+      "I cloned Greptile's core loop in about 500 lines of TypeScript: a webhook server in a durable OpenComputer sandbox hands each PR diff to Claude and posts a native review with inline comments on the lines that changed. The build, the prompt, and the GitHub quirks.",
+    author: "Ninad Pathak",
+    datePublished: "2026-07-16",
+    markdownUrl: "/blog/pr-review-agent.md",
   },
   {
     slug: "open-ava-bdr-agent",
@@ -139,8 +149,8 @@ function escapeAttr(s: string): string {
 // Builds an Article JSON-LD block. Only invoked when a post sets `datePublished`,
 // so existing posts (which don't set it) get no Article schema and their head is
 // rewritten exactly as before.
-function buildArticleSchema(post: BlogMeta): string {
-  const url = `${BASE_URL}/blog/${post.slug}/`;
+function buildArticleSchema(post: BlogMeta, urlOverride?: string): string {
+  const url = urlOverride ?? `${BASE_URL}/blog/${post.slug}/`;
   const image = post.image ? `${BASE_URL}${post.image}` : DEFAULT_IMAGE;
   const author = post.authorUrl
     ? { "@type": "Person", name: post.author, url: post.authorUrl }
@@ -169,18 +179,26 @@ function buildArticleSchema(post: BlogMeta): string {
   return `\n    <script type="application/ld+json">${json}</script>`;
 }
 
-function replaceMeta(html: string, post: BlogMeta): string {
+function replaceMeta(
+  html: string,
+  post: BlogMeta,
+  guideOpts?: { url: string; extraSchemas: string },
+): string {
   const fullTitle = escapeAttr(`${post.title} – ${SITE_NAME}`);
   const description = escapeAttr(post.description);
   const author = escapeAttr(post.author);
   // Trailing slash matches Cloudflare's auto-trailing-slash normalization, so
   // canonical/og:url point at the URL the server actually serves (no redirect hop).
-  const url = `${BASE_URL}/blog/${post.slug}/`;
+  const url = guideOpts?.url ?? `${BASE_URL}/blog/${post.slug}/`;
   const image = post.image ? `${BASE_URL}${post.image}` : DEFAULT_IMAGE;
 
   // Inject Article JSON-LD + markdown alternate link before </head>.
   // Both are opt-in: only emit them when the post declares the relevant field.
-  const articleSchema = post.datePublished ? buildArticleSchema(post) : "";
+  const articleSchema = guideOpts
+    ? guideOpts.extraSchemas
+    : post.datePublished
+      ? buildArticleSchema(post)
+      : "";
   const markdownLink = post.markdownUrl
     ? `\n    <link rel="alternate" type="text/markdown" href="${BASE_URL}${post.markdownUrl}" title="${fullTitle} (markdown)">`
     : "";
@@ -256,9 +274,46 @@ function replaceMeta(html: string, post: BlogMeta): string {
     );
 }
 
+// ---------------------------------------------------------------------------
+// Guides section (/guides/<slug>/) — markdown-rendered posts, self-canonical.
+// Distinct from the legacy /guides/* blog mirrors, which canonicalize to
+// /blog/* and stay out of the sitemap. Guide slugs must never collide with
+// blog slugs; the closeBundle hook throws if they do.
+
+function buildGuideSchemas(guide: GuideMeta, markdown: string): string {
+  const url = `${BASE_URL}/guides/${guide.slug}/`;
+  const asBlogMeta: BlogMeta = { ...guide };
+  let schemas = buildArticleSchema(asBlogMeta, url);
+
+  const faq = extractFaq(markdown);
+  if (faq.length > 0) {
+    const faqSchema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faq.map((entry) => ({
+        "@type": "Question",
+        name: entry.question,
+        acceptedAnswer: { "@type": "Answer", text: entry.answer },
+      })),
+    };
+    const json = JSON.stringify(faqSchema).replace(/</g, "\\u003c");
+    schemas += `\n    <script type="application/ld+json">${json}</script>`;
+  }
+  return schemas;
+}
+
+function readGuideMarkdown(slug: string): string {
+  return readFileSync(
+    join(process.cwd(), "src", "content", "guides", `${slug}.md`),
+    "utf-8",
+  );
+}
+
 // Generated from `blogPosts` so the sitemap can never drift from the route
 // table again (the old static public/sitemap.xml was missing three posts).
-// /guides/* mirrors are deliberately excluded: they canonicalize to /blog/*.
+// /guides/* blog mirrors are deliberately excluded: they canonicalize to
+// /blog/*. Real guides (from `guidePosts`) are included — they are
+// self-canonical pages.
 function buildSitemap(): string {
   const entry = (loc: string, changefreq: string, priority: string, lastmod?: string) =>
     [
@@ -273,10 +328,14 @@ function buildSitemap(): string {
   const urls = [
     entry("/", "weekly", "1.0"),
     entry("/blog/", "weekly", "0.8"),
+    entry("/guides/", "weekly", "0.8"),
     entry("/clawputer/", "monthly", "0.7"),
     entry("/partners/", "monthly", "0.7"),
     ...blogPosts.map((post) =>
       entry(`/blog/${post.slug}/`, "monthly", "0.6", post.datePublished),
+    ),
+    ...guidePosts.map((guide) =>
+      entry(`/guides/${guide.slug}/`, "monthly", "0.7", guide.datePublished),
     ),
   ];
 
@@ -296,6 +355,15 @@ export default function blogMetaPlugin(): Plugin {
       const distDir = join(process.cwd(), "dist");
       const indexHtml = readFileSync(join(distDir, "index.html"), "utf-8");
 
+      // A guide slug colliding with a blog slug would make the blog mirror
+      // and the real guide fight over dist/guides/<slug>/index.html.
+      const blogSlugs = new Set(blogPosts.map((p) => p.slug));
+      for (const guide of guidePosts) {
+        if (blogSlugs.has(guide.slug)) {
+          throw new Error(`[blog-meta] guide slug collides with blog slug: ${guide.slug}`);
+        }
+      }
+
       for (const post of blogPosts) {
         for (const prefix of ["blog", "guides"]) {
           const dir = join(distDir, prefix, post.slug);
@@ -304,9 +372,28 @@ export default function blogMetaPlugin(): Plugin {
         }
       }
 
+      // Real guides: self-canonical /guides/<slug>/ shells with Article +
+      // FAQPage JSON-LD, plus a markdown twin at /guides/<slug>.md.
+      for (const guide of guidePosts) {
+        const markdown = readGuideMarkdown(guide.slug);
+        const dir = join(distDir, "guides", guide.slug);
+        mkdirSync(dir, { recursive: true });
+        const withMd: BlogMeta = { ...guide, markdownUrl: `/guides/${guide.slug}.md` };
+        writeFileSync(
+          join(dir, "index.html"),
+          replaceMeta(indexHtml, withMd, {
+            url: `${BASE_URL}/guides/${guide.slug}/`,
+            extraSchemas: buildGuideSchemas(guide, markdown),
+          }),
+        );
+        writeFileSync(join(distDir, "guides", `${guide.slug}.md`), markdown);
+      }
+
       writeFileSync(join(distDir, "sitemap.xml"), buildSitemap());
 
-      console.log(`[blog-meta] Generated HTML for ${blogPosts.length} blog posts + sitemap.xml`);
+      console.log(
+        `[blog-meta] Generated HTML for ${blogPosts.length} blog posts + ${guidePosts.length} guides + sitemap.xml`,
+      );
     },
   };
 }

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import FadeIn from "@/components/FadeIn";
 import SEO from "@/components/SEO";
 import SitePageLayout from "@/components/SitePageLayout";
@@ -191,6 +192,17 @@ const BackgroundAgentMaxxing = () => {
 
       <FadeIn delay={0.16}>
         <p className="mt-6 text-center text-[12.5px] text-muted-foreground">
+          Wondering how cloud dev environments like Codespaces and Ona hold up
+          when the developer is an unattended agent?{" "}
+          <Link
+            to="/guides/codespaces-gitpod-agents"
+            className="underline hover:text-foreground transition-colors"
+          >
+            We compared them
+          </Link>
+          .
+        </p>
+        <p className="mt-3 text-center text-[12.5px] text-muted-foreground">
           Building one and not on here?{" "}
           <a
             href="https://cal.com/team/digger/opencomputer-founder-chat"

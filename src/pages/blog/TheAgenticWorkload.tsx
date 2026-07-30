@@ -414,7 +414,15 @@ const TheAgenticWorkload = () => {
               >
                 guide
               </a>{" "}
-              on Agent SDK deployment patterns. Regardless of which pattern you pick, you'll likely end
+              on Agent SDK deployment patterns, and we compared the actual runtime options
+              &mdash; local, Docker, VPS, ephemeral sandboxes, persistent VMs &mdash; in{" "}
+              <Link
+                to="/guides/claude-agent-sdk-sandbox"
+                className="underline hover:text-muted-foreground transition-colors"
+              >
+                Claude Agent SDK: where does the agent actually run?
+              </Link>
+              . Regardless of which pattern you pick, you'll likely end
               up implementing some of the following in your application:
             </p>
           </div>
