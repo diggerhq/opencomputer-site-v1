@@ -124,18 +124,15 @@ const Index = () => {
                 </h1>
                 <p className="text-[17px] leading-[1.7] tracking-[-0.1px] text-muted-foreground max-w-[460px] mb-8">
                   Agents shouldn't die with the process. OpenComputer is an
-                  open, durable runtime that journals every session event —
-                  crash, disconnect, redeploy, and the run picks up exactly
-                  where it left off. On your laptop or on a real VM in our
-                  cloud, same protocol.
+                  open durable runtime — crash, disconnect, redeploy, and the
+                  run picks up where it left off.
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
                   <a
-                    href={CAL_URL}
-                    target="_blank"
+                    href={APP_URL}
                     className="inline-flex items-center gap-2.5 text-[15px] font-medium px-6 py-3.5 rounded-md bg-foreground text-background hover:opacity-90 transition-opacity no-underline"
                   >
-                    Get early access →
+                    Get a VM →
                   </a>
                   <a
                     href={GH_URL}
@@ -149,9 +146,9 @@ const Index = () => {
                   </a>
                 </div>
                 <p className="mt-5 text-[13.5px] text-muted-foreground">
-                  The VMs are live today.{" "}
-                  <a href={APP_URL} className="underline underline-offset-2 hover:text-foreground transition-colors">
-                    Log in and create one →
+                  Persistent VMs are live.{" "}
+                  <a href={CAL_URL} target="_blank" className="underline underline-offset-2 hover:text-foreground transition-colors">
+                    Talk to us about agents →
                   </a>
                 </p>
               </FadeIn>
@@ -159,11 +156,7 @@ const Index = () => {
 
             {/* right: terminal */}
             <FadeIn delay={0.12}>
-              <div className="relative">
-                <span className="absolute -top-3 right-5 z-10 rounded-full bg-background border border-border px-3 py-1 font-mono-brand text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-                  coming soon
-                </span>
-                <WindowChrome dark title="oc agents — a preview">
+              <WindowChrome dark title="oc agents">
                 <div className="px-5 py-5 font-mono-brand text-[13px] leading-[2.05] overflow-x-auto">
                   <div className="whitespace-nowrap">
                     <span className="opacity-45">$ </span>oc init my-agent
@@ -189,11 +182,10 @@ const Index = () => {
                   </div>
                   <div>
                     <span className="opacity-45">$ </span>
-                    <span className="oc-cursor">▍</span>
+                    <span className="oc-cursor">█</span>
                   </div>
                 </div>
-                </WindowChrome>
-              </div>
+              </WindowChrome>
             </FadeIn>
           </div>
         </Container>
@@ -203,21 +195,6 @@ const Index = () => {
       <section className="border-b border-border bg-[hsl(0,0%,98.5%)]">
         <Container className="py-16 md:py-20">
           <FadeIn>
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
-              <h2 className="font-heading text-[clamp(28px,3.6vw,40px)] leading-[1.2] tracking-[-1px]">
-                Every event, journaled.
-                <br />
-                Every session, resumable.
-              </h2>
-              <p className="text-[15px] leading-[1.7] text-muted-foreground max-w-[380px]">
-                Sessions are backed by an append-only journal with FIFO turns,
-                idempotency, and runtime fencing. A crash is just a gap in the
-                stream — replay from any seq and keep going.
-              </p>
-            </div>
-          </FadeIn>
-
-          <FadeIn delay={0.1}>
             <div className="rounded-xl border border-border bg-background p-5 sm:p-7 overflow-x-auto">
               <div className="flex items-center gap-2 min-w-[760px]">
                 {journalEvents.map((e) => (
@@ -251,95 +228,8 @@ const Index = () => {
                   </div>
                 </div>
               </div>
-              <p className="mt-5 font-mono-brand text-[11px] text-muted-foreground">
-                the session journal · no gaps, no lost turns, no supervisor loop to write
-              </p>
             </div>
           </FadeIn>
-
-          {/* stat strip */}
-          <FadeIn delay={0.16}>
-            <div className="mt-10 grid grid-cols-2 md:grid-cols-4 divide-x divide-border rounded-xl border border-border bg-background overflow-hidden">
-              {[
-                { v: "< 1s", l: "deploy to a live VM" },
-                { v: "any seq", l: "reconnect & replay" },
-                { v: "0 deps", l: "cloud needed for local dev" },
-                { v: "∞", l: "session lifetime, hibernated" },
-              ].map((s) => (
-                <div key={s.l} className="px-5 py-6 text-center">
-                  <div className="font-heading text-[26px] tracking-[-0.5px]">{s.v}</div>
-                  <div className="font-mono-brand text-[11px] text-muted-foreground mt-1">{s.l}</div>
-                </div>
-              ))}
-            </div>
-          </FadeIn>
-        </Container>
-      </section>
-
-      {/* ========================= BENTO GRID ========================= */}
-      <section className="border-b border-border">
-        <Container className="py-16 md:py-20">
-          <FadeIn>
-            <h2 className="font-heading text-[clamp(28px,3.6vw,40px)] leading-[1.2] tracking-[-1px] mb-10">
-              What the runtime handles for you
-            </h2>
-          </FadeIn>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <FadeIn className="md:col-span-2">
-              <div className="h-full p-7 rounded-xl bg-foreground text-background">
-                <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-60 mb-3">Durable sessions</p>
-                <h3 className="font-heading text-[24px] tracking-[-0.5px] mb-3">Crash-proof by construction</h3>
-                <p className="text-[15px] leading-[1.75] opacity-80 max-w-[540px]">
-                  Every event is persisted before it's delivered. Kill the
-                  process, lose the network, close the laptop — reconnect from
-                  any sequence number with no gaps and no duplicate turns.
-                  Hibernating WebSockets keep long sessions cheap.
-                </p>
-              </div>
-            </FadeIn>
-            <FadeIn delay={0.06}>
-              <div className="h-full p-7 rounded-xl border border-border bg-[hsl(0,0%,98%)] hover:border-foreground/25 transition-colors">
-                <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-3">Local-first</p>
-                <h3 className="font-heading text-[20px] tracking-[-0.4px] mb-3">The whole control plane, on your machine</h3>
-                <p className="text-[15px] leading-[1.75] text-muted-foreground">
-                  A dev server runs sessions, streaming and Slack locally. No
-                  Docker, no tunnel, no cloud account.
-                </p>
-              </div>
-            </FadeIn>
-            <FadeIn delay={0.04}>
-              <div className="h-full p-7 rounded-xl border border-border bg-[hsl(0,0%,98%)] hover:border-foreground/25 transition-colors">
-                <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-3">Deploys</p>
-                <h3 className="font-heading text-[20px] tracking-[-0.4px] mb-3">Sub-second, immutable</h3>
-                <p className="text-[15px] leading-[1.75] text-muted-foreground">
-                  Agents compile to content-addressed artifacts that land on
-                  real VMs in under a second, with aliases for staged rollout.
-                </p>
-              </div>
-            </FadeIn>
-            <FadeIn delay={0.08}>
-              <div className="h-full p-7 rounded-xl border border-border bg-[hsl(0,0%,98%)] hover:border-foreground/25 transition-colors">
-                <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-3">Channels</p>
-                <h3 className="font-heading text-[20px] tracking-[-0.4px] mb-3">Slack-native out of the box</h3>
-                <p className="text-[15px] leading-[1.75] text-muted-foreground">
-                  One command adds a Slack app. Each thread maps to one
-                  persistent session — the agent sleeps between replies and
-                  wakes with full context.
-                </p>
-              </div>
-            </FadeIn>
-            <FadeIn delay={0.12}>
-              <div className="h-full p-7 rounded-xl border border-border bg-[hsl(0,0%,98%)] hover:border-foreground/25 transition-colors">
-                <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] text-muted-foreground mb-3">Credentials</p>
-                <h3 className="font-heading text-[20px] tracking-[-0.4px] mb-3">Secrets never enter the agent</h3>
-                <p className="text-[15px] leading-[1.75] text-muted-foreground">
-                  Tools are code in your repo; connections are account-level
-                  authorizations. Model keys and OAuth tokens stay in the
-                  control plane, never the VM.
-                </p>
-              </div>
-            </FadeIn>
-          </div>
         </Container>
       </section>
 
@@ -470,6 +360,10 @@ const Index = () => {
                     <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-45">per month</span>
                     <span className="font-heading text-[22px] tracking-[-0.5px]">{pricingTiers[tierIndex].instant.mo}</span>
                   </div>
+                  <div className="flex items-baseline justify-between border-t border-white/10 pt-3">
+                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-45">disk / GB-second</span>
+                    <span className="font-heading text-[17px] tracking-[-0.3px] opacity-90">$0.0000001</span>
+                  </div>
                 </div>
                 <p className="mt-5 text-[12px] leading-[1.6] opacity-45">
                   20 GB disk included. Pay only while running.{" "}
@@ -523,17 +417,17 @@ const Index = () => {
             </h2>
             <div className="flex flex-wrap justify-center items-center gap-3 mt-8">
               <a
-                href={CAL_URL}
-                target="_blank"
+                href={APP_URL}
                 className="inline-block text-[15px] font-medium px-9 py-4 rounded-md bg-foreground text-background hover:opacity-90 transition-opacity no-underline"
               >
-                Get early access →
+                Get a VM →
               </a>
               <a
-                href={APP_URL}
+                href={CAL_URL}
+                target="_blank"
                 className="inline-block text-[15px] font-medium px-7 py-4 rounded-md border border-border bg-background hover:border-foreground transition-colors no-underline"
               >
-                Get a VM today
+                Talk to us about agents
               </a>
               <a
                 href={GH_URL}
