@@ -360,6 +360,10 @@ const Index = () => {
                     <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-45">per month</span>
                     <span className="font-heading text-[22px] tracking-[-0.5px]">{pricingTiers[tierIndex].instant.mo}</span>
                   </div>
+                  <div className="flex items-baseline justify-between border-t border-white/10 pt-3">
+                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-45">disk / GB-second</span>
+                    <span className="font-heading text-[17px] tracking-[-0.3px] opacity-90">$0.0000001</span>
+                  </div>
                 </div>
                 <p className="mt-5 text-[12px] leading-[1.6] opacity-45">
                   20 GB disk included. Pay only while running.{" "}
