@@ -111,12 +111,6 @@ const Index = () => {
             {/* left: copy */}
             <div>
               <FadeIn>
-                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3.5 py-1.5 mb-7">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#28c840] oc-live" />
-                  <span className="font-mono-brand text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
-                    Open source · early access
-                  </span>
-                </div>
                 <h1 className="font-heading text-[clamp(44px,5.6vw,68px)] leading-[1.08] tracking-[-2px] mb-6">
                   A home for
                   <br />
