@@ -239,42 +239,51 @@ const Index = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <FadeIn>
               <h2 className="font-heading text-[clamp(28px,3.6vw,40px)] leading-[1.2] tracking-[-1px] mb-5">
-                An agent is a file.
+                Agents as code.
               </h2>
               <p className="text-[16px] leading-[1.75] text-muted-foreground mb-5 max-w-[440px]">
-                One file declares everything: the instructions, the tools it
-                can use, the accounts it connects to, the channels it lives
-                in. The runtime compiles it into an immutable artifact —
-                reviewable, diffable, revertable.
+                An agent is a source-controlled project. Its identity,
+                instructions, tools, connections, and runtime configuration
+                live together in a normal directory you can review and
+                commit. A stable agent ID points to immutable deployments —
+                deploying again just moves an alias like{" "}
+                <span className="font-mono-brand text-[14px]">production</span>.
               </p>
               <p className="text-[16px] leading-[1.75] text-muted-foreground max-w-[440px]">
-                No framework, no boilerplate, no glue code. Check it into git
-                like anything else. You read it, you own it.
+                Develop it locally with OpenCode before deploying. In the
+                cloud it runs in an isolated sandbox while the platform
+                manages lifecycle, persistence, and connected services.
               </p>
             </FadeIn>
             <FadeIn delay={0.1}>
-              <WindowChrome title="agent.md">
+              <WindowChrome title="gmail-summarizer/">
                 <div className="px-6 py-5 font-mono-brand text-[13px] leading-[2.05] overflow-x-auto">
-                  <div className="text-muted-foreground">---</div>
                   <div className="whitespace-nowrap">
-                    name: <span className="text-muted-foreground">inbox-triage</span>
+                    opencomputer.toml
+                    <span className="text-muted-foreground pl-4"># stable identity</span>
+                  </div>
+                  <div className="whitespace-nowrap">agent.ts</div>
+                  <div className="whitespace-nowrap">
+                    instructions.md
+                    <span className="text-muted-foreground pl-4"># role + rules</span>
                   </div>
                   <div className="whitespace-nowrap">
-                    tools: <span className="text-muted-foreground">[gmail]</span>
+                    tools/<span className="text-muted-foreground">gmail.ts</span>
                   </div>
                   <div className="whitespace-nowrap">
-                    connections: <span className="text-muted-foreground">[google]</span>
+                    connections/<span className="text-muted-foreground">google.json</span>
                     <span className="text-muted-foreground pl-4"># scopes, not secrets</span>
                   </div>
                   <div className="whitespace-nowrap">
-                    channels: <span className="text-muted-foreground">[slack]</span>
-                    <span className="text-muted-foreground pl-4"># where it lives</span>
+                    channels/
+                    <span className="text-muted-foreground pl-4"># slack, and more</span>
                   </div>
-                  <div className="text-muted-foreground">---</div>
-                  <div className="whitespace-nowrap mt-1">You triage inbound email.</div>
-                  <div className="whitespace-nowrap">Group it by urgency, draft replies</div>
-                  <div className="whitespace-nowrap">for anything that needs one, and</div>
-                  <div className="whitespace-nowrap">never send without approval.</div>
+                  <div className="whitespace-nowrap">skills/</div>
+                  <div className="whitespace-nowrap">
+                    workspace/
+                    <span className="text-muted-foreground pl-4"># durable files</span>
+                  </div>
+                  <div className="whitespace-nowrap">evals/</div>
                 </div>
               </WindowChrome>
             </FadeIn>
