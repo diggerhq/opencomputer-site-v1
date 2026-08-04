@@ -26,6 +26,7 @@ import GuidesIndex from "./pages/guides/GuidesIndex";
 import GuidePost from "./pages/guides/GuidePost";
 import BackgroundAgentMaxxing from "./pages/BackgroundAgentMaxxing";
 import AgentDeploy from "./pages/AgentDeploy";
+import Agents from "./pages/Agents";
 import DesignPartners from "./pages/DesignPartners";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Playground from "./pages/Playground";
@@ -46,6 +47,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/agentdeploy" element={<AgentDeploy />} />
+          <Route path="/agents" element={<Agents />} />
+          <Route path="/serverless-agents" element={<Agents />} />
           <Route path="/durable-agent-sessions" element={<IndexDurableAgents />} />
           <Route path="/durable-agents" element={<IndexDurableAgents />} />
           <Route path="/blog" element={<Blog />} />
