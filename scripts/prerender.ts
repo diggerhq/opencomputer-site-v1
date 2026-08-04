@@ -76,6 +76,13 @@ const staticRoutes: Array<{
     canonical: "https://opencomputer.dev/partners/",
   },
   {
+    path: "/privacy/",
+    title: "Privacy Policy – OpenComputer",
+    description:
+      "How OpenComputer collects, uses, and protects your data across opencomputer.dev and the OpenComputer platform.",
+    canonical: "https://opencomputer.dev/privacy/",
+  },
+  {
     path: "/playground/",
     title: "Playground – OpenComputer",
     description:
