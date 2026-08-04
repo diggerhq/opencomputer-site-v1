@@ -22,6 +22,12 @@ const SiteFooter = () => {
       >
         Guides
       </Link>
+      <Link
+        to="/privacy"
+        className="font-mono-brand text-[13px] text-muted-foreground hover:text-foreground transition-colors no-underline"
+      >
+        Privacy
+      </Link>
       <a
         href="https://github.com/diggerhq/opencomputer"
         target="_blank"
