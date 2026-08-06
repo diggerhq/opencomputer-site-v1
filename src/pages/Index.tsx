@@ -13,14 +13,6 @@ const pricingTiers = [
   { mem: "16 GB", cpu: "4 vCPU", instant: { min: "$0.016", hr: "$0.96", mo: "$674.88" } },
 ];
 
-const journalEvents = [
-  { seq: 42, label: "turn.start" },
-  { seq: 43, label: "tool.call" },
-  { seq: 44, label: "tool.result" },
-  { seq: 45, label: "msg.delta" },
-  { seq: 46, label: "tool.call" },
-];
-
 const blogPosts = [
   {
     to: "/blog/what-elastic-compute-means",
@@ -79,8 +71,8 @@ const Index = () => {
   return (
     <SitePageLayout contentClassName="pb-0">
       <SEO
-        title="A home for your agents"
-        description="The open durable agent runtime. Author agents locally, run them as durable sessions, deploy the same protocol to real persistent VMs in the cloud."
+        title="The background agent cloud"
+        description="The background agent cloud. Every sandbox is a full Linux VM with its own kernel, memory, and disk — hardware-level isolation via KVM. Long-running, checkpoint and fork, resize at runtime."
       />
 
       <style>{`
@@ -99,8 +91,6 @@ const Index = () => {
           60% { box-shadow: 0 0 0 7px rgba(40,200,64,0); }
         }
         .oc-live { animation: oc-pulse 1.8s ease-out infinite; }
-        @keyframes oc-crash-flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
-        .oc-crash { animation: oc-crash-flicker 2.2s ease-in-out infinite; }
       `}</style>
 
       {/* ============================ HERO ============================ */}
@@ -112,21 +102,21 @@ const Index = () => {
             <div>
               <FadeIn>
                 <h1 className="font-heading text-[clamp(44px,5.6vw,68px)] leading-[1.08] tracking-[-2px] mb-6">
-                  A home for
+                  The background
                   <br />
-                  your agents.
+                  agent cloud.
                 </h1>
                 <p className="text-[17px] leading-[1.7] tracking-[-0.1px] text-muted-foreground max-w-[460px] mb-8">
-                  Agents shouldn't die with the process. OpenComputer is an
-                  open durable runtime — crash, disconnect, redeploy, and the
-                  run picks up where it left off.
+                  Every sandbox is a full Linux VM — its own kernel, memory,
+                  and disk, isolated at the hardware level. Spin one up in
+                  seconds, keep it for hours or days.
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
                   <a
                     href={APP_URL}
                     className="inline-flex items-center gap-2.5 text-[15px] font-medium px-6 py-3.5 rounded-md bg-foreground text-background hover:opacity-90 transition-opacity no-underline"
                   >
-                    Get a VM →
+                    Start building →
                   </a>
                   <a
                     href={GH_URL}
@@ -140,42 +130,35 @@ const Index = () => {
                   </a>
                 </div>
                 <p className="mt-5 text-[13.5px] text-muted-foreground">
-                  Persistent VMs are live.{" "}
-                  <a href={CAL_URL} target="_blank" className="underline underline-offset-2 hover:text-foreground transition-colors">
-                    Talk to us about agents →
+                  TypeScript and Python SDKs, plus a CLI.{" "}
+                  <a href={DOCS_URL} target="_blank" className="underline underline-offset-2 hover:text-foreground transition-colors">
+                    Read the docs →
                   </a>
                 </p>
               </FadeIn>
             </div>
 
-            {/* right: terminal */}
+            {/* right: code */}
             <FadeIn delay={0.12}>
-              <WindowChrome dark title="oc agents">
+              <WindowChrome dark title="sandbox.ts">
                 <div className="px-5 py-5 font-mono-brand text-[13px] leading-[2.05] overflow-x-auto">
                   <div className="whitespace-nowrap">
-                    <span className="opacity-45">$ </span>oc init my-agent
+                    <span className="opacity-45">import</span> {"{ Sandbox }"} <span className="opacity-45">from</span>{" "}
+                    <span className="text-[#28c840]">"@opencomputer/sdk"</span>;
                   </div>
-                  <div className="opacity-45 whitespace-nowrap">  created agent.md</div>
+                  <div className="whitespace-nowrap">&nbsp;</div>
                   <div className="whitespace-nowrap">
-                    <span className="opacity-45">$ </span>oc dev
-                  </div>
-                  <div className="opacity-45 whitespace-nowrap">  local control plane on :4180 · no cloud attached</div>
-                  <div className="whitespace-nowrap">
-                    <span className="opacity-45">$ </span>oc session "triage my inbox"
+                    <span className="opacity-45">const</span> sandbox = <span className="opacity-45">await</span> Sandbox.create();
                   </div>
                   <div className="whitespace-nowrap">
-                    <span className="text-[#28c840]">●</span>
-                    <span className="opacity-70"> session s_9f2c · durable · streaming</span>
+                    <span className="opacity-45">await</span> sandbox.commands.run(<span className="text-[#28c840]">"npm install"</span>);
                   </div>
                   <div className="whitespace-nowrap">
-                    <span className="opacity-45">$ </span>oc deploy
+                    <span className="opacity-45">await</span> sandbox.checkpoint(<span className="text-[#28c840]">"deps-ready"</span>);
                   </div>
-                  <div className="whitespace-nowrap">
-                    <span className="opacity-70">  artifact sha256:81aa… → vm oc-4c21 · </span>
-                    <span className="text-[#28c840]">live in 0.8s</span>
-                  </div>
+                  <div className="whitespace-nowrap">&nbsp;</div>
+                  <div className="whitespace-nowrap opacity-45">// still alive tomorrow. and next week.</div>
                   <div>
-                    <span className="opacity-45">$ </span>
                     <span className="oc-cursor">█</span>
                   </div>
                 </div>
@@ -185,99 +168,92 @@ const Index = () => {
         </Container>
       </section>
 
-      {/* ======================= JOURNAL DIAGRAM ======================= */}
+      {/* ==================== CHECKPOINT / FORK DIAGRAM ==================== */}
       <section className="border-b border-border bg-[hsl(0,0%,98.5%)]">
         <Container className="py-16 md:py-20">
           <FadeIn>
             <div className="rounded-xl border border-border bg-background p-5 sm:p-7 overflow-x-auto">
               <div className="flex items-center gap-2 min-w-[760px]">
-                {journalEvents.map((e) => (
+                {[
+                  { top: "create", label: "sandbox oc-4c21" },
+                  { top: "run", label: "npm install" },
+                ].map((e) => (
                   <div
-                    key={e.seq}
+                    key={e.top}
                     className="flex-1 rounded-md border border-border bg-[hsl(0,0%,98%)] px-3 py-3 text-center"
                   >
-                    <div className="font-mono-brand text-[10px] text-muted-foreground mb-1">seq {e.seq}</div>
+                    <div className="font-mono-brand text-[10px] text-muted-foreground mb-1">{e.top}</div>
                     <div className="font-mono-brand text-[12px]">{e.label}</div>
                   </div>
                 ))}
 
-                {/* crash */}
-                <div className="oc-crash shrink-0 rounded-md border border-dashed border-[#d4453a]/60 bg-[#d4453a]/[0.06] px-3 py-3 text-center">
-                  <div className="font-mono-brand text-[10px] text-[#d4453a]/70 mb-1">✕</div>
-                  <div className="font-mono-brand text-[12px] text-[#d4453a]">runtime crash</div>
-                </div>
-
-                <div className="shrink-0 font-mono-brand text-[12px] text-muted-foreground px-1">→</div>
-
-                {/* resume */}
+                {/* checkpoint */}
                 <div className="flex-1 rounded-md border border-foreground bg-foreground text-background px-3 py-3 text-center">
-                  <div className="font-mono-brand text-[10px] opacity-60 mb-1">replay 42–46</div>
-                  <div className="font-mono-brand text-[12px]">resume</div>
+                  <div className="font-mono-brand text-[10px] opacity-60 mb-1">checkpoint</div>
+                  <div className="font-mono-brand text-[12px]">deps-ready</div>
                 </div>
-                <div className="flex-1 rounded-md border border-border bg-[hsl(0,0%,98%)] px-3 py-3 text-center">
-                  <div className="font-mono-brand text-[10px] text-muted-foreground mb-1">seq 47</div>
-                  <div className="font-mono-brand text-[12px] inline-flex items-center gap-1.5">
-                    tool.result
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#28c840] oc-live" />
-                  </div>
+
+                <div className="shrink-0 font-mono-brand text-[12px] text-muted-foreground px-1">→ fork ×3</div>
+
+                {/* forks */}
+                <div className="flex-[1.4] flex flex-col gap-1.5">
+                  {["approach-a", "approach-b", "approach-c"].map((f) => (
+                    <div
+                      key={f}
+                      className="rounded-md border border-border bg-[hsl(0,0%,98%)] px-3 py-1.5 text-center"
+                    >
+                      <div className="font-mono-brand text-[12px] inline-flex items-center gap-1.5">
+                        {f}
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#28c840] oc-live" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
+              <p className="mt-5 font-mono-brand text-[12px] text-muted-foreground text-center">
+                Named snapshots you can fork from — try five approaches in parallel from the same starting point.
+              </p>
             </div>
           </FadeIn>
         </Container>
       </section>
 
-      {/* ===================== AGENT IS A REPO ===================== */}
+      {/* ===================== REAL VMS, NOT CONTAINERS ===================== */}
       <section className="border-b border-border bg-[hsl(0,0%,98.5%)]">
         <Container className="py-16 md:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <FadeIn>
               <h2 className="font-heading text-[clamp(28px,3.6vw,40px)] leading-[1.2] tracking-[-1px] mb-5">
-                Agents as code.
+                Real VMs, not containers.
               </h2>
               <p className="text-[16px] leading-[1.75] text-muted-foreground mb-5 max-w-[440px]">
-                An agent is a source-controlled project. Its identity,
-                instructions, tools, connections, and runtime configuration
-                live together in a normal directory you can review and
-                commit. A stable agent ID points to immutable deployments —
-                deploying again just moves an alias like{" "}
-                <span className="font-mono-brand text-[14px]">production</span>.
+                Each sandbox is a full Linux virtual machine with its own
+                kernel, memory, and disk — hardware-level isolation via KVM,
+                not a container sharing a host kernel. Untrusted, AI-generated
+                code gets a whole computer, safely.
               </p>
               <p className="text-[16px] leading-[1.75] text-muted-foreground max-w-[440px]">
-                Develop it locally with OpenCode before deploying. In the
-                cloud it runs in an isolated sandbox while the platform
-                manages lifecycle, persistence, and connected services.
+                And it doesn't shut down after a command finishes. Install
+                packages, clone repos, build projects — the sandbox stays
+                alive for hours or days, until you kill it.
               </p>
             </FadeIn>
             <FadeIn delay={0.1}>
-              <WindowChrome title="gmail-summarizer/">
+              <WindowChrome title="inside the sandbox">
                 <div className="px-6 py-5 font-mono-brand text-[13px] leading-[2.05] overflow-x-auto">
                   <div className="whitespace-nowrap">
-                    opencomputer.toml
-                    <span className="text-muted-foreground pl-4"># stable identity</span>
+                    <span className="text-muted-foreground">$ </span>uname -m && whoami
                   </div>
-                  <div className="whitespace-nowrap">agent.ts</div>
+                  <div className="whitespace-nowrap text-muted-foreground">x86_64</div>
+                  <div className="whitespace-nowrap text-muted-foreground">root</div>
                   <div className="whitespace-nowrap">
-                    instructions.md
-                    <span className="text-muted-foreground pl-4"># role + rules</span>
+                    <span className="text-muted-foreground">$ </span>df -h / | tail -1
                   </div>
+                  <div className="whitespace-nowrap text-muted-foreground">/dev/vda1&nbsp;&nbsp;20G&nbsp;&nbsp;2.1G&nbsp;&nbsp;18G&nbsp;&nbsp;11% /</div>
                   <div className="whitespace-nowrap">
-                    tools/<span className="text-muted-foreground">gmail.ts</span>
+                    <span className="text-muted-foreground">$ </span>apt install postgresql
+                    <span className="text-muted-foreground pl-4"># sure, it's your machine</span>
                   </div>
-                  <div className="whitespace-nowrap">
-                    connections/<span className="text-muted-foreground">google.json</span>
-                    <span className="text-muted-foreground pl-4"># scopes, not secrets</span>
-                  </div>
-                  <div className="whitespace-nowrap">
-                    channels/
-                    <span className="text-muted-foreground pl-4"># slack, and more</span>
-                  </div>
-                  <div className="whitespace-nowrap">skills/</div>
-                  <div className="whitespace-nowrap">
-                    workspace/
-                    <span className="text-muted-foreground pl-4"># durable files</span>
-                  </div>
-                  <div className="whitespace-nowrap">evals/</div>
                 </div>
               </WindowChrome>
             </FadeIn>
@@ -285,32 +261,31 @@ const Index = () => {
         </Container>
       </section>
 
-      {/* ======================= DARK VM BAND ======================= */}
+      {/* ======================= DARK FEATURES BAND ======================= */}
       <section className="bg-foreground text-background border-b border-border">
         <Container className="py-16 md:py-20">
           <FadeIn>
-            <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-50 mb-4">The compute underneath</p>
+            <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-50 mb-4">Built for long-running work</p>
             <h2 className="font-heading text-[clamp(28px,3.6vw,40px)] leading-[1.2] tracking-[-1px] mb-5 max-w-[560px]">
-              Every session runs on a real computer.
+              Sandboxes that stick around.
             </h2>
             <p className="text-[16px] leading-[1.75] opacity-75 max-w-[560px] mb-12">
-              Full filesystem, full OS access, a persistent mounted workspace
-              — a real virtual machine, not a container or a throwaway
-              sandbox. Sessions hibernate between turns and wake in
-              milliseconds with state intact. And it's the same VM you can get
-              bare: for your own harness, your own platform, the machines are
-              a product on their own.
+              Most sandboxes are built for a script that runs and dies.
+              OpenComputer sandboxes are persistent computers: full
+              filesystem, full OS access, state that survives between
+              sessions. Hibernate when idle, wake in milliseconds with
+              everything exactly where you left it.
             </p>
           </FadeIn>
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10 items-start">
-            {/* VM features */}
+            {/* features */}
             <FadeIn delay={0.05}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { t: "Persistent", d: "Always-on, hibernate when idle, wake with state exactly where you left it." },
-                  { t: "Elastic", d: "Resize memory and CPU while the VM is running. No restart." },
-                  { t: "Checkpoints", d: "Instant snapshots. Fork or restore to any point in a second." },
+                  { t: "Long-running", d: "Hours or days, not minutes. Nothing tears down after a command finishes." },
+                  { t: "Checkpoint & fork", d: "Instant named snapshots. Fork or restore to any point in a second." },
+                  { t: "Elastic", d: "Resize memory and CPU while the sandbox is running. No restart." },
                   { t: "Agent friendly", d: "Purpose built for harnesses like Claude Agent SDK and OpenCode." },
                 ].map((f) => (
                   <div key={f.t} className="p-6 rounded-xl border border-white/10 bg-white/[0.04]">
@@ -322,7 +297,7 @@ const Index = () => {
                   href={APP_URL}
                   className="sm:col-span-2 flex items-center justify-between p-6 rounded-xl bg-background text-foreground hover:opacity-90 transition-opacity no-underline"
                 >
-                  <span className="text-[15px] font-medium">Just need VMs? Log in and create one</span>
+                  <span className="text-[15px] font-medium">Create your first sandbox — free to start</span>
                   <span aria-hidden="true">→</span>
                 </a>
               </div>
@@ -332,7 +307,7 @@ const Index = () => {
             <FadeIn delay={0.1}>
               <div className="rounded-xl border border-white/10 bg-white/[0.04] p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-50">VM pricing</p>
+                  <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-50">Pricing</p>
                   <p className="font-heading text-[22px] tracking-[-0.5px]">
                     {pricingTiers[tierIndex].mem}
                     <span className="opacity-50 text-[14px] ml-2">{pricingTiers[tierIndex].cpu}</span>
@@ -414,23 +389,22 @@ const Index = () => {
         <Container className="relative py-20 md:py-24 text-center">
           <FadeIn>
             <h2 className="font-heading text-[clamp(32px,4.5vw,52px)] leading-[1.15] tracking-[-1.5px] mb-6">
-              Your agent should outlive
-              <br />
-              the process that started it.
+              Give your agent
+              <br />a computer.
             </h2>
             <div className="flex flex-wrap justify-center items-center gap-3 mt-8">
               <a
                 href={APP_URL}
                 className="inline-block text-[15px] font-medium px-9 py-4 rounded-md bg-foreground text-background hover:opacity-90 transition-opacity no-underline"
               >
-                Get a VM →
+                Start building →
               </a>
               <a
-                href={CAL_URL}
+                href={DOCS_URL}
                 target="_blank"
                 className="inline-block text-[15px] font-medium px-7 py-4 rounded-md border border-border bg-background hover:border-foreground transition-colors no-underline"
               >
-                Talk to us about agents
+                Read the docs
               </a>
               <a
                 href={GH_URL}
