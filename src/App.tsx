@@ -21,6 +21,7 @@ import BackgroundCodingAgent from "./pages/blog/BackgroundCodingAgent";
 import EmailSecurityTriageAgent from "./pages/blog/EmailSecurityTriageAgent";
 import ScalingOneVmToMillionSandboxes from "./pages/blog/ScalingOneVmToMillionSandboxes";
 import OpenAvaBdrAgent from "./pages/blog/OpenAvaBdrAgent";
+import AutomatedMarketingTeam from "./pages/blog/AutomatedMarketingTeam";
 import PrReviewAgent from "./pages/blog/PrReviewAgent";
 import GuidesIndex from "./pages/guides/GuidesIndex";
 import GuidePost from "./pages/guides/GuidePost";
@@ -84,6 +85,8 @@ const App = () => (
           <Route path="/guides/scaling-one-vm-to-million-sandboxes" element={<ScalingOneVmToMillionSandboxes />} />
           <Route path="/blog/open-ava-bdr-agent" element={<OpenAvaBdrAgent />} />
           <Route path="/guides/open-ava-bdr-agent" element={<OpenAvaBdrAgent />} />
+          <Route path="/blog/automated-marketing-team" element={<AutomatedMarketingTeam />} />
+          <Route path="/guides/automated-marketing-team" element={<AutomatedMarketingTeam />} />
           <Route path="/blog/pr-review-agent" element={<PrReviewAgent />} />
           <Route path="/guides/pr-review-agent" element={<PrReviewAgent />} />
           <Route path="/background-agents" element={<BackgroundAgentMaxxing />} />
