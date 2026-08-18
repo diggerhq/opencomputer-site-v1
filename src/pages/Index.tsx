@@ -53,19 +53,19 @@ type Tier = {
 
 const TIERS: Tier[] = [
   {
-    name: "Free",
-    price: "$0",
-    headline: "$10 in credits to start",
+    name: "PAYG",
+    price: "Usage",
+    headline: "Pay as you go",
     points: [
-      "$10 of free credits to get going",
-      "Compute billed at cost, $0.07 / GB-hour",
-      "Usage-based once your credits run out",
+      "No monthly commitment",
+      "Tokens and compute at usage rates",
+      "Scale to zero when idle",
     ],
-    cta: "Start free",
+    cta: "Start",
     href: APP_URL,
   },
   {
-    name: "Starter",
+    name: "10x",
     price: "$20",
     period: "/mo",
     headline: "Tokens and compute included",
@@ -73,24 +73,24 @@ const TIERS: Tier[] = [
       "Monthly tokens included",
       "Compute included",
       "Bring your own key, Codex, or Claude subscription",
-      "Usage-based after your included tokens",
+      "Overage billed as PAYG",
     ],
-    cta: "Get Starter",
+    cta: "Get 10x",
     href: APP_URL,
     highlight: true,
     badge: "Most popular",
   },
   {
-    name: "Pro",
+    name: "20x",
     price: "$200",
     period: "/mo",
     headline: "For heavier workloads",
     points: [
-      "A larger monthly token allowance",
+      "A larger monthly allowance",
       "Compute included",
-      "Usage-based after your included tokens",
+      "Overage billed as PAYG",
     ],
-    cta: "Get Pro",
+    cta: "Get 20x",
     href: APP_URL,
   },
   {
@@ -349,7 +349,8 @@ const Index = () => (
       <section id="pricing" className="scroll-mt-6 border-t border-border py-10">
         <h2 className="mb-2 text-[1.5rem] font-semibold tracking-[-0.02em]">Pricing</h2>
         <p className="text-[16px] leading-[1.7] text-muted-foreground">
-          A subscription with tokens and compute included. Pay usage-based once your included tokens run out.
+          Start with $10 in credits. After that, stay on pay-as-you-go or pick a plan for included tokens and compute.
+          Overage is billed as PAYG.
         </p>
 
         <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -359,26 +360,17 @@ const Index = () => (
         </div>
 
         <p className="mt-4 font-mono-brand text-[12px] leading-[1.6] text-muted-foreground">
-          Compute is included on Starter and Pro. On the free tier, and for bare sandboxes, it's billed at cost. Bring
-          your own model key, or a Codex / Claude subscription, on Starter.
+          Compute is included on the 10x and 20x plans. On PAYG, and for bare sandboxes, it's billed at cost. Bring your
+          own key, or a Codex / Claude subscription, on the 10x plan.
         </p>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <a
-            href="#sandboxes"
-            className="flex items-center justify-between rounded-[10px] border border-border bg-white px-4 py-3.5 no-underline transition-colors hover:border-foreground"
-          >
-            <span className="text-[15px] text-foreground">I just want compute</span>
-            <span className="font-mono-brand text-[12px] text-muted-foreground">bare sandboxes, $0.07 / GB-hr →</span>
-          </a>
-          <a
-            href={DOCS_URL}
-            className="flex items-center justify-between rounded-[10px] border border-border bg-white px-4 py-3.5 no-underline transition-colors hover:border-foreground"
-          >
-            <span className="text-[15px] text-foreground">I'm happy to pay usage prices</span>
-            <span className="font-mono-brand text-[12px] text-muted-foreground">skip the subscription →</span>
-          </a>
-        </div>
+        <a
+          href="#sandboxes"
+          className="mt-6 flex items-center justify-between rounded-[10px] border border-border bg-white px-4 py-3.5 no-underline transition-colors hover:border-foreground"
+        >
+          <span className="text-[15px] text-foreground">I just want compute</span>
+          <span className="font-mono-brand text-[12px] text-muted-foreground">bare sandboxes, $0.07 / GB-hr →</span>
+        </a>
       </section>
 
       {/* footer */}
