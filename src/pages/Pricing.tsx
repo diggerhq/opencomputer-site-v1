@@ -37,6 +37,34 @@ const PRESETS: Preset[] = [
   { key: "coding", label: "Coding agent", ram: 8, min: 60, runs: 50, model: "opus", tin: 120000, tout: 20000 },
 ];
 
+const AGENT_CODE = `import { useModel, useTool, useMcpServer } from "@opencomputer/agent";
+import { openCleanupPullRequest } from "./tools/github.js";
+
+export default function Agent() {
+  useModel("anthropic/claude-sonnet-4.6");
+  useMcpServer(unleashMcp);           // read flag state
+  useTool(openCleanupPullRequest);    // one PR per stale flag
+  return "Find stale Unleash flags in code, open a PR to remove each.";
+}`;
+
+const CONNECTION_CODE = `// tools/github.ts
+export const githubPat = defineConnection({
+  origin: "https://api.github.com",     // only ever here
+  headers: { Authorization: bearer(useSecret("GITHUB_PAT")) },
+});`;
+
+const SCHEDULE_CODE = `// schedules/weekday-hygiene.ts
+export default defineSchedule({
+  cron: "0 9 * * 1-5",        // weekdays, 9am
+  dispatch: { payload: { dryRun: true } },
+});`;
+
+const SANDBOX_CODE = `import { Sandbox } from "@opencomputer/sdk";
+
+const box = await Sandbox.create();   // a full Linux microVM
+await box.exec("your-harness --run"); // your loop, your rules
+await box.checkpoint("ready");         // fork or restore anytime`;
+
 const money = (x: number) =>
   x === 0 ? "$0" : x < 0.01 ? "<$0.01" : "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const kfmt = (n: number) => (n >= 1000 ? (n % 1000 === 0 ? n / 1000 + "k" : (n / 1000).toFixed(1) + "k") : String(n));
@@ -56,6 +84,39 @@ const PriceCard = ({ name, price, desc }: { name: string; price: string; desc: s
     <p className="text-[15px] leading-[1.6] text-muted-foreground">{desc}</p>
   </div>
 );
+
+const CodeBlock = ({ code }: { code: string }) => (
+  <pre className="rounded-xl border border-border bg-[hsl(0,0%,98.5%)] p-5 mt-4 overflow-x-auto font-mono-brand text-[12.5px] leading-[1.7] text-foreground whitespace-pre">
+    <code>{code}</code>
+  </pre>
+);
+
+const StepLabel = ({ children }: { children: React.ReactNode }) => (
+  <p className="font-mono-brand text-[12px] uppercase tracking-[0.1em] text-muted-foreground mb-2">{children}</p>
+);
+
+const CopyCommand = ({ text }: { text: string }) => {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(text);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1400);
+        } catch {
+          /* clipboard unavailable */
+        }
+      }}
+      className="inline-flex items-center gap-3 rounded-md border border-border bg-[hsl(0,0%,98.5%)] px-4 py-3 font-mono-brand text-[13px] text-foreground hover:border-foreground transition-colors"
+    >
+      <span className="text-muted-foreground">$</span>
+      <span>{text}</span>
+      <span className="text-muted-foreground text-[12px]">{copied ? "copied" : "copy"}</span>
+    </button>
+  );
+};
 
 /* ------------------------------ page ------------------------------ */
 
@@ -109,8 +170,8 @@ const Pricing = () => {
   return (
     <SitePageLayout>
       <SEO
-        title="Pricing"
-        description="Usage-based pricing for OpenComputer agents and sandboxes. Pay for what runs. Estimate your cost by use case."
+        title="Serverless agents"
+        description="Firebase for agents. Write an agent as a TypeScript function, deploy it live in seconds, and your keys never enter the runtime. Simple usage-based pricing with a live estimator."
         path="/pricing"
       />
 
@@ -118,12 +179,103 @@ const Pricing = () => {
       <section className="border-b border-border">
         <Container className="py-16 sm:py-20">
           <FadeIn>
-            <h1 className="font-heading text-[clamp(40px,5.2vw,60px)] leading-[1.06] tracking-[-1.5px] mb-5">
-              Pricing
+            <h1 className="font-heading text-[clamp(44px,5.6vw,68px)] leading-[1.04] tracking-[-2px] mb-5">
+              Firebase for agents.
             </h1>
-            <p className="text-[18px] leading-[1.6] text-muted-foreground max-w-[520px]">
-              You pay for what runs. No seats, no tiers. Run an agent on managed
-              tokens, on your own key, or drop to a bare sandbox and pay compute only.
+            <p className="text-[18px] leading-[1.6] text-muted-foreground max-w-[520px] mb-8">
+              Write an agent as a TypeScript function, deploy it live in seconds.{" "}
+              <span className="text-foreground font-medium">Your keys never enter the runtime.</span>
+            </p>
+            <div className="flex flex-wrap items-center gap-3 mb-8">
+              <CopyCommand text="npm create @opencomputer/start@latest" />
+              <a
+                href={DOCS_URL}
+                target="_blank"
+                className="text-[15px] text-foreground border-b border-border hover:border-foreground pb-0.5 no-underline"
+              >
+                Docs →
+              </a>
+            </div>
+            <p className="text-[15px] leading-[1.6] text-muted-foreground max-w-[560px] pt-6 border-t border-border">
+              <span className="text-foreground font-medium">The example below</span> is one real
+              agent: it finds stale Unleash feature flags still referenced in code and opens a
+              cleanup pull request for each.
+            </p>
+          </FadeIn>
+        </Container>
+      </section>
+
+      {/* agents: the example */}
+      <section className="border-b border-border">
+        <Container className="py-14">
+          <FadeIn>
+            <StepLabel>The agent is a function</StepLabel>
+            <p className="text-[16px] leading-[1.7] text-muted-foreground max-w-[560px]">
+              A model, the tools and MCP servers it can call, and its instructions.
+            </p>
+            <CodeBlock code={AGENT_CODE} />
+          </FadeIn>
+
+          <FadeIn>
+            <div className="mt-12">
+              <StepLabel>Keys it uses but never sees</StepLabel>
+              <p className="text-[16px] leading-[1.7] text-muted-foreground max-w-[600px]">
+                Each secret is bound to one origin and injected after the request leaves the
+                sandbox. The agent can open a PR; it can't read the token, and can't send it
+                anywhere else.
+              </p>
+              <CodeBlock code={CONNECTION_CODE} />
+              <div className="rounded-xl bg-[#0b0b0a] p-5 mt-4 overflow-x-auto font-mono-brand text-[12.5px] leading-[1.7] whitespace-pre">
+                <span className="text-[#c9c7c0]">POST /repos/acme/app/pulls  </span>
+                <span className="text-[#6e6b61]">(open cleanup PR){"\n"}</span>
+                <span className="text-[#6e6b61]">Authorization: Bearer </span>
+                <span className="text-[#e5c07b]">••••••••</span>
+              </div>
+            </div>
+          </FadeIn>
+
+          <FadeIn>
+            <div className="mt-12">
+              <StepLabel>Deploy it, then leave it running</StepLabel>
+              <p className="text-[16px] leading-[1.7] text-muted-foreground max-w-[560px]">
+                Give it a schedule and it runs itself. Sessions, streaming, MCP, and Slack are handled.
+              </p>
+              <CodeBlock code={SCHEDULE_CODE} />
+              <CodeBlock code={"$ opencomputer deploy\n✓ live · runs weekdays, opens PRs, never sees the token"} />
+            </div>
+          </FadeIn>
+        </Container>
+      </section>
+
+      {/* sandboxes: drop a layer */}
+      <section className="border-b border-border">
+        <Container className="py-14">
+          <FadeIn>
+            <h2 className="font-heading text-[clamp(26px,3.4vw,36px)] leading-[1.2] tracking-[-0.8px] mb-3">
+              Or drop a layer.
+            </h2>
+            <p className="text-[16px] leading-[1.7] text-muted-foreground max-w-[600px]">
+              Agents run on OpenComputer sandboxes: full Linux microVMs with checkpoint, fork,
+              and live resize. Bringing your own harness or runtime? Use the sandbox directly.
+              Same compute, you own the loop.
+            </p>
+
+            <div className="grid gap-1.5 my-6 font-mono-brand text-[13px] max-w-[620px]">
+              <div className="flex justify-between items-center rounded-lg border border-foreground bg-[hsl(0,0%,98.5%)] px-4 py-3">
+                <span>Agents <span className="text-muted-foreground text-[11px]">managed</span></span>
+                <span className="text-muted-foreground text-[11px]">egress · sessions · streaming · schedules</span>
+              </div>
+              <div className="flex justify-between items-center rounded-lg border border-border bg-[hsl(0,0%,98.5%)] px-4 py-3">
+                <span>Sandboxes <span className="text-muted-foreground text-[11px]">bare</span></span>
+                <span className="text-muted-foreground text-[11px]">microVM · checkpoint · fork · resize</span>
+              </div>
+              <div className="text-center text-muted-foreground text-[11px] tracking-wide pt-1">one compute, one bill</div>
+            </div>
+
+            <CodeBlock code={SANDBOX_CODE} />
+            <p className="text-[16px] leading-[1.7] text-foreground max-w-[600px] mt-5">
+              Bring your own VM if you want the control. Just don't hand-roll secret injection,
+              sessions, and autoscaling in 2026. That's what the managed layer is for.
             </p>
           </FadeIn>
         </Container>
