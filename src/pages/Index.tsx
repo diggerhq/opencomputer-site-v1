@@ -258,11 +258,17 @@ const Index = () => (
         <a href="/" className="inline-flex items-center no-underline" aria-label="OpenComputer">
           <img src="/logos/opencomputer.svg" alt="OpenComputer" className="h-5 w-auto" />
         </a>
-        <nav className="flex gap-5">
+        <nav className="flex items-center gap-5">
           <a href="#agents" className={navLink}>Agents</a>
           <a href="#sandboxes" className={navLink}>Sandboxes</a>
           <a href="#pricing" className={navLink}>Pricing</a>
           <a href={DOCS_URL} className={navLink}>Docs</a>
+          <a
+            href={APP_URL}
+            className="rounded-md bg-foreground px-4 py-1.5 text-[14px] font-medium text-background no-underline transition-opacity hover:opacity-90"
+          >
+            Log in
+          </a>
         </nav>
       </header>
 
