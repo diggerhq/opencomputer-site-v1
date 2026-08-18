@@ -31,6 +31,7 @@ import DesignPartners from "./pages/DesignPartners";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Playground from "./pages/Playground";
 import Clawputer from "./pages/Clawputer";
+import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -48,6 +49,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/agentdeploy" element={<AgentDeploy />} />
           <Route path="/agents" element={<Agents />} />
+          <Route path="/pricing" element={<Pricing />} />
           <Route path="/serverless-agents" element={<Agents />} />
           <Route path="/durable-agent-sessions" element={<IndexDurableAgents />} />
           <Route path="/durable-agents" element={<IndexDurableAgents />} />
