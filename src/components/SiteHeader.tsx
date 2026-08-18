@@ -35,9 +35,6 @@ const SiteHeader = ({ activeSection }: SiteHeaderProps) => {
         <Link to="/blog" className={navLinkClass(activeSection === "blog")}>
           blog
         </Link>
-        <Link to="/pricing" className="font-mono-brand text-[13px] text-muted-foreground hover:text-foreground transition-colors no-underline">
-          pricing
-        </Link>
         <a
           href="https://cal.com/team/digger/opencomputer-founder-chat"
           target="_blank"

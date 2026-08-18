@@ -1,423 +1,414 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import FadeIn from "@/components/FadeIn";
-import SitePageLayout from "@/components/SitePageLayout";
+import { useMemo, useState, type ReactNode } from "react";
 import SEO from "@/components/SEO";
+import { Slider } from "@/components/ui/slider";
 
-/* ------------------------------ data ------------------------------ */
+const DOCS_URL = "https://docs.opencomputer.dev/agents/overview";
+const EXAMPLE_URL = "https://github.com/diggerhq/opencomputer-example-unleash";
+const SECRET = "#B4791F";
 
-const pricingTiers = [
-  { mem: "1 GB", cpu: "1 vCPU", instant: { min: "$0.001", hr: "$0.06", mo: "$42.18" } },
-  { mem: "4 GB", cpu: "1 vCPU", instant: { min: "$0.004", hr: "$0.24", mo: "$168.72" } },
-  { mem: "8 GB", cpu: "2 vCPU", instant: { min: "$0.008", hr: "$0.48", mo: "$337.44" } },
-  { mem: "16 GB", cpu: "4 vCPU", instant: { min: "$0.016", hr: "$0.96", mo: "$674.88" } },
+/* ------------------------------ code samples ------------------------------ */
+
+const AGENT_CODE = `import { useModel, useTool, useMcpServer } from "@opencomputer/agent";
+import { openCleanupPullRequest } from "./tools/github.js";
+
+export default function Agent() {
+  useModel("anthropic/claude-sonnet-4.6");
+  useMcpServer(unleashMcp);           // read flag state
+  useTool(openCleanupPullRequest);    // one PR per stale flag
+  return "Find stale Unleash flags in code, open a PR to remove each.";
+}`;
+
+const CONNECTION_CODE = `// tools/github.ts
+export const githubPat = defineConnection({
+  origin: "https://api.github.com",     // only ever here
+  headers: { Authorization: bearer(useSecret("GITHUB_PAT")) },
+});`;
+
+const SCHEDULE_CODE = `// schedules/weekday-hygiene.ts
+export default defineSchedule({
+  cron: "0 9 * * 1-5",        // weekdays, 9am
+  dispatch: { payload: { dryRun: true } },
+});`;
+
+const SANDBOX_CODE = `import { Sandbox } from "@opencomputer/sdk";
+
+const box = await Sandbox.create();   // a full Linux microVM
+await box.exec("your-harness --run"); // your loop, your rules
+await box.checkpoint("ready");         // fork or restore anytime`;
+
+/* ------------------------------ pricing model ------------------------------ */
+
+const RATE_SANDBOX = 0.07;
+const RATE_AGENT = 0.08;
+const MANAGED_MARKUP = 0.2;
+
+const MODELS: Record<string, { label: string; in: number; out: number }> = {
+  haiku: { label: "Claude Haiku 4.5", in: 1, out: 5 },
+  sonnet: { label: "Claude Sonnet 4.6", in: 3, out: 15 },
+  opus: { label: "Claude Opus 5", in: 5, out: 25 },
+};
+
+type Preset = { key: string; label: string; ram: number; min: number; runs: number; model: string; tin: number; tout: number };
+const PRESETS: Preset[] = [
+  { key: "pr", label: "PR reviewer", ram: 1, min: 2, runs: 200, model: "sonnet", tin: 30000, tout: 3000 },
+  { key: "nightly", label: "Nightly data agent", ram: 4, min: 15, runs: 30, model: "sonnet", tin: 60000, tout: 8000 },
+  { key: "support", label: "Support bot", ram: 1, min: 0.5, runs: 5000, model: "haiku", tin: 8000, tout: 1000 },
+  { key: "coding", label: "Coding agent", ram: 8, min: 60, runs: 50, model: "opus", tin: 120000, tout: 20000 },
 ];
 
-const blogPosts = [
-  {
-    to: "/blog/what-elastic-compute-means",
-    title: 'What "elastic compute" means in 2026',
-    byline: "Igor Zalutski · April 7, 2026",
-  },
-  {
-    to: "/blog/where-should-the-agent-live",
-    title: "Where Should the Agent(s) Live?",
-    byline: "Utpal Nadiger, Mohamed Habib, Igor Zalutski · March 20, 2026",
-  },
-  {
-    to: "/blog/agent-execution-new-http-request",
-    title: "Agent Execution Is the New HTTP Request",
-    byline: "Igor Zalutski · March 17, 2026",
-  },
-  {
-    to: "/blog/sandbox-fingerprinting",
-    title: "I Asked Opus 4.6 to Fingerprint Sandbox Vendors",
-    byline: "Mohamed Habib · March 17, 2026",
-  },
-];
+const money = (x: number) =>
+  x === 0 ? "$0" : x < 0.01 ? "<$0.01" : "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const kfmt = (n: number) => (n >= 1000 ? (n % 1000 === 0 ? n / 1000 + "k" : (n / 1000).toFixed(1) + "k") : String(n));
 
-const GH_URL = "https://github.com/diggerhq/opencomputer";
-const APP_URL = "https://app.opencomputer.dev";
-const DOCS_URL = "https://docs.opencomputer.dev";
-const CAL_URL = "https://cal.com/team/digger/opencomputer-founder-chat";
+/* ------------------------------ syntax highlight ------------------------------ */
 
-/* --------------------------- tiny pieces --------------------------- */
+const KW = new Set(["import", "from", "export", "default", "function", "const", "return", "await", "new"]);
+const FN = new Set(["useModel", "useTool", "useMcpServer", "useSecret", "defineConnection", "defineSchedule", "bearer", "Agent", "Sandbox", "create", "exec", "checkpoint", "openCleanupPullRequest"]);
 
-const Container = ({ className = "", children }: { className?: string; children: React.ReactNode }) => (
-  <div className={`mx-auto max-w-[1080px] px-6 sm:px-10 ${className}`}>{children}</div>
+function hlLine(line: string, key: number): ReactNode {
+  const ci = line.indexOf("//");
+  let code = line;
+  let tail: ReactNode = null;
+  if (ci >= 0) {
+    code = line.slice(0, ci);
+    tail = <span className="italic text-muted-foreground">{line.slice(ci)}</span>;
+  }
+  const re = /("(?:[^"\\]|\\.)*")|([A-Za-z_$][\w$]*)|([^A-Za-z_$"]+)/g;
+  const out: ReactNode[] = [];
+  let m: RegExpExecArray | null;
+  let i = 0;
+  while ((m = re.exec(code))) {
+    if (m[1]) out.push(<span key={i++} className="text-[#7C3AED]">{m[1]}</span>);
+    else if (m[2]) {
+      const w = m[2];
+      if (KW.has(w)) out.push(<span key={i++} className="text-[#2563EB]">{w}</span>);
+      else if (FN.has(w)) out.push(<span key={i++} className="text-[#B45309]">{w}</span>);
+      else out.push(<span key={i++}>{w}</span>);
+    } else out.push(<span key={i++}>{m[3]}</span>);
+  }
+  return (
+    <span key={key}>
+      {out}
+      {tail}
+    </span>
+  );
+}
+
+const Code = ({ code, dim = false }: { code: string; dim?: boolean }) => {
+  const lines = code.split("\n");
+  return (
+    <pre className="mt-4 rounded-[10px] border border-border bg-white p-5 font-mono-brand text-[12.5px] leading-[1.7] text-foreground whitespace-pre-wrap [overflow-wrap:anywhere]">
+      <code className={dim ? "text-muted-foreground" : undefined}>
+        {dim
+          ? code
+          : lines.map((l, idx) => (
+              <span key={idx}>
+                {hlLine(l, idx)}
+                {idx < lines.length - 1 ? "\n" : null}
+              </span>
+            ))}
+      </code>
+    </pre>
+  );
+};
+
+/* ------------------------------ small blocks ------------------------------ */
+
+const Label = ({ children }: { children: ReactNode }) => (
+  <p className="font-mono-brand text-[12px] uppercase tracking-[0.1em] text-muted-foreground mb-2">{children}</p>
 );
 
-const WindowChrome = ({ title, children, dark = false }: { title: string; children: React.ReactNode; dark?: boolean }) => (
-  <div
-    className={`rounded-xl overflow-hidden shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)] border ${
-      dark ? "bg-[hsl(45,8%,8%)] text-[hsl(40,33%,97%)] border-black/40" : "bg-background border-border"
-    }`}
-  >
-    <div className={`flex items-center gap-2 px-4 py-3 border-b ${dark ? "border-white/10" : "border-border"}`}>
-      <span className="w-3 h-3 rounded-full bg-[#ff5f57]" />
-      <span className="w-3 h-3 rounded-full bg-[#febc2e]" />
-      <span className="w-3 h-3 rounded-full bg-[#28c840]" />
-      <span className={`ml-3 font-mono-brand text-[11px] ${dark ? "opacity-50" : "text-muted-foreground"}`}>{title}</span>
+const PriceCard = ({ name, price, desc }: { name: string; price: string; desc: string }) => (
+  <div className="h-full rounded-[10px] border border-border bg-white p-5">
+    <div className="mb-2 flex items-baseline justify-between gap-3">
+      <span className="text-[17px] font-semibold tracking-[-0.01em]">{name}</span>
+      <span className="font-mono-brand text-[13px]" style={{ color: SECRET }}>{price}</span>
     </div>
-    {children}
+    <p className="text-[14px] leading-[1.55] text-muted-foreground">{desc}</p>
   </div>
 );
+
+const CopyCommand = ({ text }: { text: string }) => {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(text);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1400);
+        } catch {
+          /* clipboard unavailable */
+        }
+      }}
+      className="inline-flex items-center gap-3 rounded-md border border-border bg-white px-4 py-3 font-mono-brand text-[13px] text-foreground transition-colors hover:border-foreground"
+    >
+      <span className="text-muted-foreground">$</span>
+      <span>{text}</span>
+      <span className="text-[12px] text-muted-foreground">{copied ? "copied" : "copy"}</span>
+    </button>
+  );
+};
+
+const Rung = ({ title, tag, meta, top }: { title: string; tag: string; meta: string; top?: boolean }) => (
+  <div
+    className="flex items-center justify-between rounded-lg border bg-white px-4 py-3"
+    style={{ borderColor: top ? SECRET : "hsl(var(--border))" }}
+  >
+    <span>
+      {title} <span className="text-[11px] text-muted-foreground">{tag}</span>
+    </span>
+    <span className="text-[11px] text-muted-foreground">{meta}</span>
+  </div>
+);
+
+const navLink = "text-[15px] text-muted-foreground transition-colors hover:text-foreground no-underline";
 
 /* ------------------------------ page ------------------------------ */
 
 const Index = () => {
-  const [tierIndex, setTierIndex] = useState(1);
+  const [ram, setRam] = useState(1);
+  const [min, setMin] = useState(2);
+  const [runs, setRuns] = useState(200);
+  const [model, setModel] = useState("sonnet");
+  const [tin, setTin] = useState(30000);
+  const [tout, setTout] = useState(3000);
+  const [active, setActive] = useState("pr");
+
+  const applyPreset = (p: Preset) => {
+    setRam(p.ram); setMin(p.min); setRuns(p.runs); setModel(p.model); setTin(p.tin); setTout(p.tout); setActive(p.key);
+  };
+  const manual = (setter: (v: number) => void) => (v: number) => { setter(v); setActive(""); };
+
+  const { managed, byok, sandbox, byokBreak, sbBreak } = useMemo(() => {
+    const mo = MODELS[model] ?? MODELS.sonnet;
+    const gbHours = ram * (min / 60) * runs;
+    const tokens = ((tin * mo.in + tout * mo.out) / 1e6) * runs;
+    const compAgent = gbHours * RATE_AGENT;
+    const compSb = gbHours * RATE_SANDBOX;
+    return {
+      managed: tokens * (1 + MANAGED_MARKUP),
+      byok: compAgent + tokens,
+      sandbox: compSb,
+      byokBreak: `${money(compAgent)} compute + ${money(tokens)} model`,
+      sbBreak: `${money(compSb)} compute · tokens are yours`,
+    };
+  }, [ram, min, runs, model, tin, tout]);
+
+  const managedBest = managed <= byok;
+  const results = [
+    { t: "Managed agent", p: money(managed), b: "tokens only, compute included", best: managedBest },
+    { t: "Your own key", p: money(byok), b: byokBreak, best: !managedBest },
+    { t: "Bare sandbox", p: money(sandbox), b: sbBreak, best: false },
+  ];
+
+  const sliderField = (label: string, value: string, node: ReactNode) => (
+    <label className="flex flex-col gap-2.5">
+      <span className="flex items-baseline justify-between font-mono-brand text-[12px] uppercase tracking-[0.04em] text-muted-foreground">
+        <span>{label}</span>
+        <span className="normal-case text-foreground">{value}</span>
+      </span>
+      {node}
+    </label>
+  );
 
   return (
-    <SitePageLayout contentClassName="pb-0">
+    <div className="min-h-screen bg-background text-foreground antialiased [scroll-behavior:smooth]">
       <SEO
-        title="The background agent cloud"
-        description="The background agent cloud. Every sandbox is a full Linux VM with its own kernel, memory, and disk — hardware-level isolation via KVM. Long-running, checkpoint and fork, resize at runtime."
+        title="Firebase for agents"
+        description="Write an agent as a TypeScript function, deploy it live in seconds, and your keys never enter the runtime. Serverless agents and sandboxes with simple usage-based pricing."
+        path="/"
       />
 
-      <style>{`
-        .oc-dotgrid {
-          background-image: radial-gradient(hsl(45 8% 8% / 0.09) 1px, transparent 1px);
-          background-size: 22px 22px;
-        }
-        .oc-fade-mask {
-          -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
-          mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
-        }
-        @keyframes oc-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
-        .oc-cursor { animation: oc-blink 1.1s step-end infinite; }
-        @keyframes oc-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(40,200,64,0.5); }
-          60% { box-shadow: 0 0 0 7px rgba(40,200,64,0); }
-        }
-        .oc-live { animation: oc-pulse 1.8s ease-out infinite; }
-      `}</style>
+      <div className="mx-auto max-w-[640px] px-6">
+        {/* header */}
+        <header className="flex flex-wrap items-center justify-between gap-3 py-6">
+          <a href="/" className="flex items-center gap-2 font-semibold tracking-tight text-foreground no-underline">
+            <svg width="20" height="22" viewBox="0 0 150 164" aria-hidden="true">
+              <path d="M75 4 L142 42 L142 122 L75 160 L8 122 L8 42 Z" fill="none" stroke="currentColor" strokeWidth="9" />
+              <path d="M75 6 L140 43 L75 80 L10 43 Z" fill="currentColor" />
+            </svg>
+            OpenComputer
+          </a>
+          <nav className="flex gap-5">
+            <a href="#agents" className={navLink}>Agents</a>
+            <a href="#sandboxes" className={navLink}>Sandboxes</a>
+            <a href="#pricing" className={navLink}>Pricing</a>
+            <a href={DOCS_URL} className={navLink}>Docs</a>
+          </nav>
+        </header>
 
-      {/* ============================ HERO ============================ */}
-      <section className="relative border-b border-border">
-        <div className="absolute inset-0 oc-dotgrid oc-fade-mask" aria-hidden="true" />
-        <Container className="relative pt-16 pb-20 md:pt-20 md:pb-24">
-          <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-14 lg:gap-12 items-center">
-            {/* left: copy */}
-            <div>
-              <FadeIn>
-                <h1 className="font-heading text-[clamp(44px,5.6vw,68px)] leading-[1.08] tracking-[-2px] mb-6">
-                  The background
-                  <br />
-                  agent cloud.
-                </h1>
-                <p className="text-[17px] leading-[1.7] tracking-[-0.1px] text-muted-foreground max-w-[460px] mb-8">
-                  Every sandbox is a full Linux VM — its own kernel, memory,
-                  and disk, isolated at the hardware level. Spin one up in
-                  seconds, keep it for hours or days.
-                </p>
-                <div className="flex flex-wrap items-center gap-3">
-                  <a
-                    href={APP_URL}
-                    className="inline-flex items-center gap-2.5 text-[15px] font-medium px-6 py-3.5 rounded-md bg-foreground text-background hover:opacity-90 transition-opacity no-underline"
-                  >
-                    Start building →
-                  </a>
-                  <a
-                    href={GH_URL}
-                    target="_blank"
-                    className="inline-flex items-center gap-2.5 text-[15px] font-medium px-6 py-3.5 rounded-md border border-border bg-background hover:border-foreground transition-colors no-underline"
-                  >
-                    <svg className="w-4 h-4" viewBox="0 0 16 16" fill="currentColor">
-                      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-                    </svg>
-                    Star on GitHub
-                  </a>
-                </div>
-                <p className="mt-5 text-[13.5px] text-muted-foreground">
-                  TypeScript and Python SDKs, plus a CLI.{" "}
-                  <a href={DOCS_URL} target="_blank" className="underline underline-offset-2 hover:text-foreground transition-colors">
-                    Read the docs →
-                  </a>
-                </p>
-              </FadeIn>
-            </div>
-
-            {/* right: code */}
-            <FadeIn delay={0.12}>
-              <WindowChrome dark title="sandbox.ts">
-                <div className="px-5 py-5 font-mono-brand text-[13px] leading-[2.05] overflow-x-auto">
-                  <div className="whitespace-nowrap">
-                    <span className="opacity-45">import</span> {"{ Sandbox }"} <span className="opacity-45">from</span>{" "}
-                    <span className="text-[#28c840]">"@opencomputer/sdk"</span>;
-                  </div>
-                  <div className="whitespace-nowrap">&nbsp;</div>
-                  <div className="whitespace-nowrap">
-                    <span className="opacity-45">const</span> sandbox = <span className="opacity-45">await</span> Sandbox.create();
-                  </div>
-                  <div className="whitespace-nowrap">
-                    <span className="opacity-45">await</span> sandbox.commands.run(<span className="text-[#28c840]">"npm install"</span>);
-                  </div>
-                  <div className="whitespace-nowrap">
-                    <span className="opacity-45">await</span> sandbox.checkpoint(<span className="text-[#28c840]">"deps-ready"</span>);
-                  </div>
-                  <div className="whitespace-nowrap">&nbsp;</div>
-                  <div className="whitespace-nowrap opacity-45">// still alive tomorrow. and next week.</div>
-                  <div>
-                    <span className="oc-cursor">█</span>
-                  </div>
-                </div>
-              </WindowChrome>
-            </FadeIn>
+        {/* hero */}
+        <main className="pb-10 pt-14">
+          <h1 className="mb-4 text-[clamp(2.4rem,8vw,3.6rem)] font-semibold leading-none tracking-[-0.04em] [text-wrap:balance]">
+            Firebase for agents.
+          </h1>
+          <p className="mb-8 text-[1.15rem] leading-[1.5] text-muted-foreground">
+            Write an agent as a TypeScript function, deploy it live in seconds.{" "}
+            <span className="font-medium text-foreground">Your keys never enter the runtime.</span>
+          </p>
+          <div className="mb-8 flex flex-wrap items-center gap-3">
+            <CopyCommand text="npm create @opencomputer/start@latest" />
+            <a href={DOCS_URL} className="border-b border-border pb-0.5 text-[15px] text-foreground no-underline hover:border-foreground">
+              Docs →
+            </a>
           </div>
-        </Container>
-      </section>
+          <p className="border-t border-border pt-6 text-[15px] leading-[1.6] text-muted-foreground">
+            <span className="font-medium text-foreground">The example below</span> is one real agent: it finds stale
+            Unleash feature flags still referenced in code and opens a cleanup pull request for each.
+          </p>
+        </main>
 
-      {/* ==================== CHECKPOINT / FORK DIAGRAM ==================== */}
-      <section className="border-b border-border bg-[hsl(0,0%,98.5%)]">
-        <Container className="py-16 md:py-20">
-          <FadeIn>
-            <div className="rounded-xl border border-border bg-background p-5 sm:p-7 overflow-x-auto">
-              <div className="flex items-center gap-2 min-w-[760px]">
-                {[
-                  { top: "create", label: "sandbox oc-4c21" },
-                  { top: "run", label: "npm install" },
-                ].map((e) => (
-                  <div
-                    key={e.top}
-                    className="flex-1 rounded-md border border-border bg-[hsl(0,0%,98%)] px-3 py-3 text-center"
-                  >
-                    <div className="font-mono-brand text-[10px] text-muted-foreground mb-1">{e.top}</div>
-                    <div className="font-mono-brand text-[12px]">{e.label}</div>
-                  </div>
-                ))}
+        {/* agents example */}
+        <section id="agents" className="scroll-mt-6 border-t border-border py-10">
+          <Label>The agent is a function</Label>
+          <p className="text-[16px] leading-[1.7] text-muted-foreground">
+            A model, the tools and MCP servers it can call, and its instructions.
+          </p>
+          <Code code={AGENT_CODE} />
 
-                {/* checkpoint */}
-                <div className="flex-1 rounded-md border border-foreground bg-foreground text-background px-3 py-3 text-center">
-                  <div className="font-mono-brand text-[10px] opacity-60 mb-1">checkpoint</div>
-                  <div className="font-mono-brand text-[12px]">deps-ready</div>
-                </div>
-
-                <div className="shrink-0 font-mono-brand text-[12px] text-muted-foreground px-1">→ fork ×3</div>
-
-                {/* forks */}
-                <div className="flex-[1.4] flex flex-col gap-1.5">
-                  {["approach-a", "approach-b", "approach-c"].map((f) => (
-                    <div
-                      key={f}
-                      className="rounded-md border border-border bg-[hsl(0,0%,98%)] px-3 py-1.5 text-center"
-                    >
-                      <div className="font-mono-brand text-[12px] inline-flex items-center gap-1.5">
-                        {f}
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#28c840] oc-live" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <p className="mt-5 font-mono-brand text-[12px] text-muted-foreground text-center">
-                Named snapshots you can fork from — try five approaches in parallel from the same starting point.
-              </p>
-            </div>
-          </FadeIn>
-        </Container>
-      </section>
-
-      {/* ===================== REAL VMS, NOT CONTAINERS ===================== */}
-      <section className="border-b border-border bg-[hsl(0,0%,98.5%)]">
-        <Container className="py-16 md:py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <FadeIn>
-              <h2 className="font-heading text-[clamp(28px,3.6vw,40px)] leading-[1.2] tracking-[-1px] mb-5">
-                Real VMs, not containers.
-              </h2>
-              <p className="text-[16px] leading-[1.75] text-muted-foreground mb-5 max-w-[440px]">
-                Each sandbox is a full Linux virtual machine with its own
-                kernel, memory, and disk — hardware-level isolation via KVM,
-                not a container sharing a host kernel. Untrusted, AI-generated
-                code gets a whole computer, safely.
-              </p>
-              <p className="text-[16px] leading-[1.75] text-muted-foreground max-w-[440px]">
-                And it doesn't shut down after a command finishes. Install
-                packages, clone repos, build projects — the sandbox stays
-                alive for hours or days, until you kill it.
-              </p>
-            </FadeIn>
-            <FadeIn delay={0.1}>
-              <WindowChrome title="inside the sandbox">
-                <div className="px-6 py-5 font-mono-brand text-[13px] leading-[2.05] overflow-x-auto">
-                  <div className="whitespace-nowrap">
-                    <span className="text-muted-foreground">$ </span>uname -m && whoami
-                  </div>
-                  <div className="whitespace-nowrap text-muted-foreground">x86_64</div>
-                  <div className="whitespace-nowrap text-muted-foreground">root</div>
-                  <div className="whitespace-nowrap">
-                    <span className="text-muted-foreground">$ </span>df -h / | tail -1
-                  </div>
-                  <div className="whitespace-nowrap text-muted-foreground">/dev/vda1&nbsp;&nbsp;20G&nbsp;&nbsp;2.1G&nbsp;&nbsp;18G&nbsp;&nbsp;11% /</div>
-                  <div className="whitespace-nowrap">
-                    <span className="text-muted-foreground">$ </span>apt install postgresql
-                    <span className="text-muted-foreground pl-4"># sure, it's your machine</span>
-                  </div>
-                </div>
-              </WindowChrome>
-            </FadeIn>
-          </div>
-        </Container>
-      </section>
-
-      {/* ======================= DARK FEATURES BAND ======================= */}
-      <section className="bg-foreground text-background border-b border-border">
-        <Container className="py-16 md:py-20">
-          <FadeIn>
-            <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-50 mb-4">Built for long-running work</p>
-            <h2 className="font-heading text-[clamp(28px,3.6vw,40px)] leading-[1.2] tracking-[-1px] mb-5 max-w-[560px]">
-              Sandboxes that stick around.
-            </h2>
-            <p className="text-[16px] leading-[1.75] opacity-75 max-w-[560px] mb-12">
-              Most sandboxes are built for a script that runs and dies.
-              OpenComputer sandboxes are persistent computers: full
-              filesystem, full OS access, state that survives between
-              sessions. Hibernate when idle, wake in milliseconds with
-              everything exactly where you left it.
+          <div className="mt-10">
+            <Label>Keys it uses but never sees</Label>
+            <p className="text-[16px] leading-[1.7] text-muted-foreground">
+              Each secret is bound to one origin and injected after the request leaves the sandbox. The agent can open
+              a PR; it can't read the token, and can't send it anywhere else.
             </p>
-          </FadeIn>
-
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10 items-start">
-            {/* features */}
-            <FadeIn delay={0.05}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {[
-                  { t: "Long-running", d: "Hours or days, not minutes. Nothing tears down after a command finishes." },
-                  { t: "Checkpoint & fork", d: "Instant named snapshots. Fork or restore to any point in a second." },
-                  { t: "Elastic", d: "Resize memory and CPU while the sandbox is running. No restart." },
-                  { t: "Agent friendly", d: "Purpose built for harnesses like Claude Agent SDK and OpenCode." },
-                ].map((f) => (
-                  <div key={f.t} className="p-6 rounded-xl border border-white/10 bg-white/[0.04]">
-                    <h3 className="font-heading text-[18px] tracking-[-0.3px] mb-2">{f.t}</h3>
-                    <p className="text-[14px] leading-[1.7] opacity-70">{f.d}</p>
-                  </div>
-                ))}
-                <a
-                  href={APP_URL}
-                  className="sm:col-span-2 flex items-center justify-between p-6 rounded-xl bg-background text-foreground hover:opacity-90 transition-opacity no-underline"
-                >
-                  <span className="text-[15px] font-medium">Create your first sandbox — free to start</span>
-                  <span aria-hidden="true">→</span>
-                </a>
-              </div>
-            </FadeIn>
-
-            {/* pricing */}
-            <FadeIn delay={0.1}>
-              <div className="rounded-xl border border-white/10 bg-white/[0.04] p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-50">Pricing</p>
-                  <p className="font-heading text-[22px] tracking-[-0.5px]">
-                    {pricingTiers[tierIndex].mem}
-                    <span className="opacity-50 text-[14px] ml-2">{pricingTiers[tierIndex].cpu}</span>
-                  </p>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={pricingTiers.length - 1}
-                  value={tierIndex}
-                  onChange={(e) => setTierIndex(Number(e.target.value))}
-                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-white/15 accent-[hsl(40,33%,97%)]"
-                />
-                <div className="flex justify-between mt-1.5 mb-6">
-                  <span className="font-mono-brand text-[10px] opacity-40">1 GB</span>
-                  <span className="font-mono-brand text-[10px] opacity-40">16 GB</span>
-                </div>
-                <div className="space-y-3 border-t border-white/10 pt-5">
-                  <div className="flex items-baseline justify-between">
-                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-45">per minute</span>
-                    <span className="font-heading text-[17px] tracking-[-0.3px] opacity-90">{pricingTiers[tierIndex].instant.min}</span>
-                  </div>
-                  <div className="flex items-baseline justify-between">
-                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-45">per hour</span>
-                    <span className="font-heading text-[17px] tracking-[-0.3px] opacity-90">{pricingTiers[tierIndex].instant.hr}</span>
-                  </div>
-                  <div className="flex items-baseline justify-between">
-                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-45">per month</span>
-                    <span className="font-heading text-[22px] tracking-[-0.5px]">{pricingTiers[tierIndex].instant.mo}</span>
-                  </div>
-                  <div className="flex items-baseline justify-between border-t border-white/10 pt-3">
-                    <span className="font-mono-brand text-[11px] uppercase tracking-[0.15em] opacity-45">disk / GB-second</span>
-                    <span className="font-heading text-[17px] tracking-[-0.3px] opacity-90">$0.0000001</span>
-                  </div>
-                </div>
-                <p className="mt-5 text-[12px] leading-[1.6] opacity-45">
-                  20 GB disk included. Pay only while running.{" "}
-                  <a href={CAL_URL} target="_blank" className="underline hover:opacity-100">
-                    Talk to us
-                  </a>{" "}
-                  for volume discounts.
-                </p>
-              </div>
-            </FadeIn>
-          </div>
-        </Container>
-      </section>
-
-      {/* =========================== BLOG =========================== */}
-      <section className="border-b border-border">
-        <Container className="py-16 md:py-20">
-          <FadeIn>
-            <div className="flex items-end justify-between mb-8">
-              <h2 className="font-heading text-[clamp(28px,3.6vw,40px)] leading-[1.2] tracking-[-1px]">From the blog</h2>
-              <Link to="/blog" className="font-mono-brand text-[13px] text-muted-foreground hover:text-foreground transition-colors no-underline">
-                all posts →
-              </Link>
+            <Code code={CONNECTION_CODE} />
+            <div className="mt-4 overflow-x-auto whitespace-pre-wrap rounded-[10px] bg-[#0b0b0a] p-5 font-mono-brand text-[12.5px] leading-[1.7]">
+              <span className="text-[#c9c7c0]">POST /repos/acme/app/pulls  </span>
+              <span className="text-[#6e6b61]">(open cleanup PR){"\n"}</span>
+              <span className="text-[#6e6b61]">Authorization: Bearer </span>
+              <span className="text-[#e5c07b]">••••••••</span>
             </div>
-          </FadeIn>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {blogPosts.map((p, i) => (
-              <FadeIn key={p.to} delay={i * 0.04}>
-                <Link
-                  to={p.to}
-                  className="block h-full p-6 rounded-xl border border-border bg-[hsl(0,0%,98%)] hover:border-foreground/25 transition-colors no-underline"
-                >
-                  <h3 className="font-heading text-[21px] leading-[1.3] tracking-[-0.3px] mb-3 text-foreground">{p.title}</h3>
-                  <p className="font-mono-brand text-[12px] text-muted-foreground">{p.byline}</p>
-                </Link>
-              </FadeIn>
+          </div>
+
+          <div className="mt-10">
+            <Label>Deploy it, then leave it running</Label>
+            <p className="text-[16px] leading-[1.7] text-muted-foreground">
+              Give it a schedule and it runs itself. Sessions, streaming, MCP, and Slack are handled.
+            </p>
+            <Code code={SCHEDULE_CODE} />
+            <Code dim code={"$ opencomputer deploy\n✓ live · runs weekdays, opens PRs, never sees the token"} />
+          </div>
+        </section>
+
+        {/* sandboxes */}
+        <section id="sandboxes" className="scroll-mt-6 border-t border-border py-10">
+          <h2 className="mb-2 text-[1.5rem] font-semibold tracking-[-0.02em]">Or drop a layer.</h2>
+          <p className="text-[16px] leading-[1.7] text-muted-foreground">
+            Agents run on OpenComputer sandboxes: full Linux microVMs with checkpoint, fork, and live resize. Bringing
+            your own harness or runtime? Use the sandbox directly. Same compute, you own the loop.
+          </p>
+          <div className="my-6 grid gap-1.5 font-mono-brand text-[13px]">
+            <Rung top title="Agents" tag="managed" meta="egress · sessions · streaming · schedules" />
+            <Rung title="Sandboxes" tag="bare" meta="microVM · checkpoint · fork · resize" />
+            <div className="pt-1 text-center text-[11px] tracking-wide text-muted-foreground">one compute, one bill</div>
+          </div>
+          <Code code={SANDBOX_CODE} />
+          <p className="mt-5 text-[16px] leading-[1.7] text-foreground">
+            Bring your own VM if you want the control. Just don't hand-roll secret injection, sessions, and autoscaling
+            in 2026. That's what the managed layer is for.
+          </p>
+        </section>
+
+        {/* pricing */}
+        <section id="pricing" className="scroll-mt-6 border-t border-border py-10">
+          <h2 className="mb-2 text-[1.5rem] font-semibold tracking-[-0.02em]">Pricing</h2>
+          <p className="text-[16px] leading-[1.7] text-muted-foreground">You pay for what runs. No seats, no tiers.</p>
+
+          <p className="mb-3 mt-7 font-mono-brand text-[12px] uppercase tracking-[0.1em] text-muted-foreground">Agents</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <PriceCard name="Managed tokens" price="tokens only" desc="We run the model. Pay for the tokens it uses, nothing else. No keys to manage." />
+            <PriceCard name="Bring your own key" price="$0.08 / GB-hr" desc="Use your own model key and pay the provider directly. You pay us for compute, by the second." />
+          </div>
+
+          <p className="mb-3 mt-8 font-mono-brand text-[12px] uppercase tracking-[0.1em] text-muted-foreground">Sandboxes</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <PriceCard name="microVM" price="$0.07 / GB-hr" desc="A full Linux microVM, billed by the second while running. 20 GB disk included." />
+            <div className="flex h-full items-center rounded-[10px] border border-dashed border-border p-5">
+              <p className="text-[14px] leading-[1.55] text-muted-foreground">
+                Compute is billed per GB-hour of memory, by the second; CPU scales with it. Agents run on the same
+                compute, so either way you only pay while it runs.
+              </p>
+            </div>
+          </div>
+
+          {/* estimator */}
+          <p className="mb-3 mt-8 font-mono-brand text-[12px] uppercase tracking-[0.1em] text-muted-foreground">Estimate your cost</p>
+          <p className="mb-6 text-[16px] leading-[1.7] text-muted-foreground">
+            Pick a use case, or set your own. Compare running it as a managed agent, with your own key, or on a bare sandbox.
+          </p>
+
+          <div className="mb-7 flex flex-wrap gap-2">
+            {PRESETS.map((p) => (
+              <button
+                key={p.key}
+                type="button"
+                onClick={() => applyPreset(p)}
+                className="rounded-full border px-4 py-1.5 font-mono-brand text-[13px] transition-colors"
+                style={
+                  active === p.key
+                    ? { background: "hsl(var(--foreground))", color: "hsl(var(--background))", borderColor: "hsl(var(--foreground))" }
+                    : { background: "transparent", borderColor: "hsl(var(--border))" }
+                }
+              >
+                <span className={active === p.key ? "" : "text-muted-foreground"}>{p.label}</span>
+              </button>
             ))}
           </div>
-        </Container>
-      </section>
 
-      {/* ========================= FINAL CTA ========================= */}
-      <section className="relative">
-        <div className="absolute inset-0 oc-dotgrid" aria-hidden="true" />
-        <Container className="relative py-20 md:py-24 text-center">
-          <FadeIn>
-            <h2 className="font-heading text-[clamp(32px,4.5vw,52px)] leading-[1.15] tracking-[-1.5px] mb-6">
-              Give your agent
-              <br />a computer.
-            </h2>
-            <div className="flex flex-wrap justify-center items-center gap-3 mt-8">
-              <a
-                href={APP_URL}
-                className="inline-block text-[15px] font-medium px-9 py-4 rounded-md bg-foreground text-background hover:opacity-90 transition-opacity no-underline"
+          <div className="grid gap-x-8 gap-y-6 sm:grid-cols-3">
+            {sliderField("Memory", `${ram} GB`, <Slider min={0.5} max={16} step={0.5} value={[ram]} onValueChange={([v]) => manual(setRam)(v)} />)}
+            {sliderField("Minutes / run", `${min} min`, <Slider min={0.5} max={120} step={0.5} value={[min]} onValueChange={([v]) => manual(setMin)(v)} />)}
+            {sliderField("Runs / month", runs.toLocaleString("en-US"), <Slider min={0} max={10000} step={10} value={[runs]} onValueChange={([v]) => manual(setRuns)(v)} />)}
+            <label className="flex flex-col gap-2.5">
+              <span className="font-mono-brand text-[12px] uppercase tracking-[0.04em] text-muted-foreground">Model</span>
+              <select
+                value={model}
+                onChange={(e) => { setModel(e.target.value); setActive(""); }}
+                className="rounded-md border border-border bg-white px-3 py-2 font-mono-brand text-[14px] text-foreground"
               >
-                Start building →
-              </a>
-              <a
-                href={DOCS_URL}
-                target="_blank"
-                className="inline-block text-[15px] font-medium px-7 py-4 rounded-md border border-border bg-background hover:border-foreground transition-colors no-underline"
+                {Object.entries(MODELS).map(([k, v]) => (
+                  <option key={k} value={k}>{v.label}</option>
+                ))}
+              </select>
+            </label>
+            {sliderField("Input tokens / run", kfmt(tin), <Slider min={0} max={200000} step={1000} value={[tin]} onValueChange={([v]) => manual(setTin)(v)} />)}
+            {sliderField("Output tokens / run", kfmt(tout), <Slider min={0} max={40000} step={500} value={[tout]} onValueChange={([v]) => manual(setTout)(v)} />)}
+          </div>
+
+          <div className="mt-9 grid gap-3 sm:grid-cols-3">
+            {results.map((r) => (
+              <div
+                key={r.t}
+                className="rounded-[10px] border bg-white p-5"
+                style={{ borderColor: r.best ? SECRET : "hsl(var(--border))" }}
               >
-                Read the docs
-              </a>
-              <a
-                href={GH_URL}
-                target="_blank"
-                className="inline-block text-[15px] font-medium px-7 py-4 rounded-md border border-border bg-background hover:border-foreground transition-colors no-underline"
-              >
-                Star on GitHub
-              </a>
-            </div>
-          </FadeIn>
-        </Container>
-      </section>
-    </SitePageLayout>
+                <div className="mb-1 font-mono-brand text-[12px] uppercase tracking-[0.06em] text-muted-foreground">{r.t}</div>
+                <div className="mb-1.5 text-[30px] font-semibold leading-none tracking-[-0.03em] tabular-nums">{r.p}</div>
+                <div className="text-[13px] text-muted-foreground">{r.b}</div>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 font-mono-brand text-[12px] text-muted-foreground">
+            Per month. Bare sandbox is compute only, tokens are yours. Agent model tokens at list rate; managed adds a small margin.
+          </p>
+        </section>
+
+        {/* footer */}
+        <footer className="flex flex-wrap justify-between gap-4 border-t border-border py-7 text-[14px] text-muted-foreground">
+          <span>OpenComputer</span>
+          <span className="flex flex-wrap gap-5">
+            <a href="#agents" className="text-muted-foreground no-underline hover:text-foreground">Agents</a>
+            <a href="#sandboxes" className="text-muted-foreground no-underline hover:text-foreground">Sandboxes</a>
+            <a href="#pricing" className="text-muted-foreground no-underline hover:text-foreground">Pricing</a>
+            <a href={DOCS_URL} className="text-muted-foreground no-underline hover:text-foreground">Docs</a>
+            <a href={EXAMPLE_URL} className="text-muted-foreground no-underline hover:text-foreground">Example</a>
+          </span>
+        </footer>
+      </div>
+    </div>
   );
 };
 

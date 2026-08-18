@@ -62,13 +62,6 @@ const staticRoutes: Array<{
     canonical: "https://opencomputer.dev/agentdeploy/",
   },
   {
-    path: "/agents/",
-    title: "Serverless agents – OpenComputer",
-    description:
-      "An agent is a directory. Instructions, tools, connections, and config, versioned in your repo. Deploy it and it runs serverless on OpenComputer: hibernating between invocations, resuming with state intact.",
-    canonical: "https://opencomputer.dev/agents/",
-  },
-  {
     path: "/durable-agent-sessions/",
     title: "Durable Agent Sessions – OpenComputer",
     description:
