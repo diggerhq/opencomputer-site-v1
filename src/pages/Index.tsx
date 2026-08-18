@@ -221,15 +221,11 @@ const Index = () => {
         path="/"
       />
 
-      <div className="mx-auto max-w-[640px] px-6">
+      <div className="mx-auto w-full max-w-[1440px] px-6 sm:px-10">
         {/* header */}
         <header className="flex flex-wrap items-center justify-between gap-3 py-6">
-          <a href="/" className="flex items-center gap-2 font-semibold tracking-tight text-foreground no-underline">
-            <svg width="20" height="22" viewBox="0 0 150 164" aria-hidden="true">
-              <path d="M75 4 L142 42 L142 122 L75 160 L8 122 L8 42 Z" fill="none" stroke="currentColor" strokeWidth="9" />
-              <path d="M75 6 L140 43 L75 80 L10 43 Z" fill="currentColor" />
-            </svg>
-            OpenComputer
+          <a href="/" className="inline-flex items-center no-underline" aria-label="OpenComputer">
+            <img src="/logos/opencomputer.svg" alt="OpenComputer" className="h-5 w-auto" />
           </a>
           <nav className="flex gap-5">
             <a href="#agents" className={navLink}>Agents</a>
