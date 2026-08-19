@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Check } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import SEO from "@/components/SEO";
 
 const DOCS_URL = "https://docs.opencomputer.dev/agents/overview";
@@ -153,16 +154,58 @@ const CopyCommand = ({ text }: { text: string }) => {
   );
 };
 
-const Rung = ({ title, tag, meta, top }: { title: string; tag: string; meta: string; top?: boolean }) => (
-  <div
-    className="flex items-center justify-between rounded-lg border bg-white px-4 py-3"
-    style={{ borderColor: top ? AMBER : "hsl(var(--border))" }}
-  >
-    <span className="font-mono-brand text-[13px]">
-      {title} <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{tag}</span>
-    </span>
-    <span className="font-mono-brand text-[11px] text-muted-foreground">{meta}</span>
-  </div>
+/* two-layer isometric cube — Agents layer floating above the Sandboxes layer */
+type P = [number, number];
+const isoSlab = (cx: number, topY: number, X: number, Y: number, H: number) => {
+  const T: P = [cx, topY], R: P = [cx + X, topY + Y], B: P = [cx, topY + 2 * Y], L: P = [cx - X, topY + Y];
+  const d = ([x, y]: P): P => [x, y + H];
+  const lerp = (a: P, b: P, t: number): P => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+  const lines: [P, P][] = [];
+  for (const t of [1 / 3, 2 / 3]) {
+    lines.push([lerp(T, L, t), lerp(R, B, t)]);
+    lines.push([lerp(T, R, t), lerp(L, B, t)]);
+  }
+  return { top: [T, R, B, L] as P[], left: [L, B, d(B), d(L)] as P[], right: [R, B, d(B), d(R)] as P[], lines };
+};
+const pts = (arr: P[]) => arr.map((p) => p.join(",")).join(" ");
+
+type Faces = { top: string; left: string; right: string; stroke: string; grid: string };
+const NEUTRAL: Faces = { top: "#efeadd", left: "#d6d0c0", right: "#e4dfd0", stroke: "#c9c3b2", grid: "#dbd5c5" };
+const AMBERF: Faces = { top: "#f6e7cb", left: "#cd983c", right: "#e6bd77", stroke: "#c59640", grid: "#e3cb92" };
+
+const Slab = ({ s, c }: { s: ReturnType<typeof isoSlab>; c: Faces }) => (
+  <g>
+    <polygon points={pts(s.left)} fill={c.left} stroke={c.stroke} strokeWidth={1} strokeLinejoin="round" />
+    <polygon points={pts(s.right)} fill={c.right} stroke={c.stroke} strokeWidth={1} strokeLinejoin="round" />
+    <polygon points={pts(s.top)} fill={c.top} stroke={c.stroke} strokeWidth={1} strokeLinejoin="round" />
+    {s.lines.map((ln, i) => (
+      <line key={i} x1={ln[0][0]} y1={ln[0][1]} x2={ln[1][0]} y2={ln[1][1]} stroke={c.grid} strokeWidth={1} />
+    ))}
+  </g>
+);
+
+const LayerCube = ({ className = "" }: { className?: string }) => {
+  const X = 84, Y = 42, H = 36, cx = 104;
+  const bottom = isoSlab(cx, 128, X, Y, H);
+  const top = isoSlab(cx, 66, X, Y, H);
+  return (
+    <svg width="208" height="264" viewBox="0 0 208 264" className={"shrink-0 " + className} role="img" aria-label="Agents layer floating above the Sandboxes layer">
+      <defs>
+        <filter id="cubeLift" x="-50%" y="-50%" width="200%" height="200%">
+          <feDropShadow dx="0" dy="12" stdDeviation="11" floodColor="#3a2f14" floodOpacity="0.18" />
+        </filter>
+      </defs>
+      <ellipse cx={cx} cy={250} rx={94} ry={15} fill="#000000" opacity={0.06} />
+      <Slab s={bottom} c={NEUTRAL} />
+      <g filter="url(#cubeLift)">
+        <Slab s={top} c={AMBERF} />
+      </g>
+    </svg>
+  );
+};
+
+const Swatch = ({ c }: { c: Faces }) => (
+  <span className="inline-block h-3 w-3 rounded-[3px]" style={{ background: c.right, border: `1px solid ${c.stroke}` }} />
 );
 
 type Tier = {
@@ -353,11 +396,23 @@ const Index = () => (
           Agents run on OpenComputer sandboxes: full Linux microVMs with checkpoint, fork, and live resize. Bringing
           your own harness or runtime? Use the sandbox directly. Same compute, you own the loop.
         </p>
-        <div className="my-6 grid gap-1.5">
-          <Rung top title="Agents" tag="managed" meta="egress · sessions · streaming · schedules" />
-          <Rung title="Sandboxes" tag="bare" meta="microVM · checkpoint · fork · resize" />
-          <div className="pt-1 text-center font-mono-brand text-[11px] uppercase tracking-[0.14em] text-muted-foreground">one compute, one bill</div>
-        </div>
+        <Card className="my-8 flex flex-col items-center gap-8 border-border bg-white px-7 py-9 sm:flex-row sm:gap-12">
+          <LayerCube />
+          <div className="flex flex-1 flex-col gap-6">
+            <div>
+              <div className="flex items-center gap-2.5 font-mono-brand text-[15px]">
+                <Swatch c={AMBERF} /> Agents <span className="text-[11px] uppercase tracking-wide text-muted-foreground">managed</span>
+              </div>
+              <div className="mt-1.5 pl-[22px] font-mono-brand text-[12.5px] text-muted-foreground">egress · sessions · streaming · schedules</div>
+            </div>
+            <div>
+              <div className="flex items-center gap-2.5 font-mono-brand text-[15px]">
+                <Swatch c={NEUTRAL} /> Sandboxes
+              </div>
+              <div className="mt-1.5 pl-[22px] font-mono-brand text-[12.5px] text-muted-foreground">microVM · checkpoint · fork · resize</div>
+            </div>
+          </div>
+        </Card>
         <Code file="sandbox.ts" code={SANDBOX_CODE} />
       </Section>
 
