@@ -1,11 +1,12 @@
 import { useState, type ReactNode } from "react";
+import { Check } from "lucide-react";
 import SEO from "@/components/SEO";
 
 const DOCS_URL = "https://docs.opencomputer.dev/agents/overview";
 const APP_URL = "https://app.opencomputer.dev";
 const EXAMPLE_URL = "https://github.com/diggerhq/opencomputer-example-unleash";
 const CAL_URL = "https://cal.com/team/digger/opencomputer-founder-chat";
-const SECRET = "#B4791F";
+const AMBER = "#B4791F";
 
 /* ------------------------------ code samples ------------------------------ */
 
@@ -16,101 +17,30 @@ export default function Agent() {
   useModel("anthropic/claude-sonnet-4.6");
   useMcpServer(unleashMcp);           // read flag state
   useTool(openCleanupPullRequest);    // one PR per stale flag
-  return "Find stale Unleash flags in code, open a PR to remove each.";
+  return "Find stale flags in code, open a PR to remove each.";
 }`;
 
-const CONNECTION_CODE = `// tools/github.ts
-export const githubPat = defineConnection({
+const CONNECTION_CODE = `export const githubPat = defineConnection({
   origin: "https://api.github.com",     // only ever here
   headers: { Authorization: bearer(useSecret("GITHUB_PAT")) },
 });`;
 
-const SCHEDULE_CODE = `// schedules/weekday-hygiene.ts
-export default defineSchedule({
+const SCHEDULE_CODE = `export default defineSchedule({
   cron: "0 9 * * 1-5",        // weekdays, 9am
   dispatch: { payload: { dryRun: true } },
 });`;
 
-const SANDBOX_CODE = `import { Sandbox } from "@opencomputer/sdk";
-
-const box = await Sandbox.create();   // a full Linux microVM
+const SANDBOX_CODE = `const box = await Sandbox.create();   // a full Linux microVM
 await box.exec("your-harness --run"); // your loop, your rules
 await box.checkpoint("ready");         // fork or restore anytime`;
-
-/* ------------------------------ pricing tiers ------------------------------ */
-
-type Tier = {
-  name: string;
-  price: string;
-  period?: string;
-  headline: string;
-  points: string[];
-  cta: string;
-  href: string;
-  highlight?: boolean;
-  badge?: string;
-};
-
-const TIERS: Tier[] = [
-  {
-    name: "PAYG",
-    price: "Usage",
-    headline: "Pay as you go",
-    points: [
-      "No monthly commitment",
-      "Tokens and compute at usage rates",
-      "Scale to zero when idle",
-    ],
-    cta: "Start",
-    href: APP_URL,
-  },
-  {
-    name: "10x",
-    price: "$20",
-    period: "/mo",
-    headline: "Tokens and compute included",
-    points: [
-      "Monthly tokens included",
-      "Compute included",
-      "Bring your own key, Codex, or Claude subscription",
-      "Overage billed as PAYG",
-    ],
-    cta: "Get 10x",
-    href: APP_URL,
-    highlight: true,
-    badge: "Most popular",
-  },
-  {
-    name: "20x",
-    price: "$200",
-    period: "/mo",
-    headline: "For heavier workloads",
-    points: [
-      "A larger monthly allowance",
-      "Compute included",
-      "Overage billed as PAYG",
-    ],
-    cta: "Get 20x",
-    href: APP_URL,
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    headline: "On your terms",
-    points: [
-      "Your own cloud or VPC, self-hosted connections",
-      "Volume pricing and higher limits",
-      "SSO, audit log, priority support",
-    ],
-    cta: "Talk to us",
-    href: CAL_URL,
-  },
-];
 
 /* ------------------------------ syntax highlight ------------------------------ */
 
 const KW = new Set(["import", "from", "export", "default", "function", "const", "return", "await", "new"]);
 const FN = new Set(["useModel", "useTool", "useMcpServer", "useSecret", "defineConnection", "defineSchedule", "bearer", "Agent", "Sandbox", "create", "exec", "checkpoint", "openCleanupPullRequest"]);
+const C_KW = "#3B5BDB";
+const C_STR = "#2E7D6B";
+const C_FN = "#A2662B";
 
 function hlLine(line: string, key: number): ReactNode {
   const ci = line.indexOf("//");
@@ -125,11 +55,11 @@ function hlLine(line: string, key: number): ReactNode {
   let m: RegExpExecArray | null;
   let i = 0;
   while ((m = re.exec(code))) {
-    if (m[1]) out.push(<span key={i++} className="text-[#7C3AED]">{m[1]}</span>);
+    if (m[1]) out.push(<span key={i++} style={{ color: C_STR }}>{m[1]}</span>);
     else if (m[2]) {
       const w = m[2];
-      if (KW.has(w)) out.push(<span key={i++} className="text-[#2563EB]">{w}</span>);
-      else if (FN.has(w)) out.push(<span key={i++} className="text-[#B45309]">{w}</span>);
+      if (KW.has(w)) out.push(<span key={i++} style={{ color: C_KW }}>{w}</span>);
+      else if (FN.has(w)) out.push(<span key={i++} style={{ color: C_FN }}>{w}</span>);
       else out.push(<span key={i++}>{w}</span>);
     } else out.push(<span key={i++}>{m[3]}</span>);
   }
@@ -141,28 +71,63 @@ function hlLine(line: string, key: number): ReactNode {
   );
 }
 
-const Code = ({ code, dim = false }: { code: string; dim?: boolean }) => {
-  const lines = code.split("\n");
+/* ------------------------------ building blocks ------------------------------ */
+
+const Eyebrow = ({ children }: { children: ReactNode }) => (
+  <p className="font-mono-brand text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{children}</p>
+);
+
+const WindowChrome = ({ file, tone = "light", children }: { file?: string; tone?: "light" | "dark"; children: ReactNode }) => {
+  const dark = tone === "dark";
   return (
-    <pre className="mt-4 rounded-[10px] border border-border bg-white p-5 font-mono-brand text-[12.5px] leading-[1.7] text-foreground whitespace-pre-wrap [overflow-wrap:anywhere]">
-      <code className={dim ? "text-muted-foreground" : undefined}>
-        {dim
-          ? code
-          : lines.map((l, idx) => (
-              <span key={idx}>
-                {hlLine(l, idx)}
-                {idx < lines.length - 1 ? "\n" : null}
-              </span>
-            ))}
-      </code>
-    </pre>
+    <div className={"overflow-hidden rounded-xl border " + (dark ? "border-[#242424] bg-[#0c0c0b]" : "border-border bg-white shadow-[0_12px_28px_-22px_rgba(0,0,0,0.28)]")}>
+      <div className={"flex items-center gap-2 border-b px-4 py-2.5 " + (dark ? "border-[#242424]" : "border-border")}>
+        <span className="flex gap-1.5">
+          {[0, 1, 2].map((i) => (
+            <span key={i} className="h-2.5 w-2.5 rounded-full" style={{ background: dark ? "#2a2a28" : "#e2ded2" }} />
+          ))}
+        </span>
+        {file ? <span className={"ml-1 font-mono-brand text-[11px] " + (dark ? "text-[#7d7d78]" : "text-muted-foreground")}>{file}</span> : null}
+      </div>
+      {children}
+    </div>
   );
 };
 
-/* ------------------------------ small blocks ------------------------------ */
+const Code = ({ code, file, tone = "light", dim = false }: { code: string; file?: string; tone?: "light" | "dark"; dim?: boolean }) => {
+  const lines = code.split("\n");
+  return (
+    <WindowChrome file={file} tone={tone}>
+      <pre className={"overflow-x-auto whitespace-pre-wrap [overflow-wrap:anywhere] px-5 py-4 font-mono-brand text-[12.5px] leading-[1.75] " + (tone === "dark" ? "text-[#c9c7c0]" : "text-foreground")}>
+        <code className={dim ? "text-muted-foreground" : undefined}>
+          {dim || tone === "dark"
+            ? code
+            : lines.map((l, idx) => (
+                <span key={idx}>
+                  {hlLine(l, idx)}
+                  {idx < lines.length - 1 ? "\n" : null}
+                </span>
+              ))}
+        </code>
+      </pre>
+    </WindowChrome>
+  );
+};
 
-const Label = ({ children }: { children: ReactNode }) => (
-  <p className="font-mono-brand text-[12px] uppercase tracking-[0.1em] text-muted-foreground mb-2">{children}</p>
+const Section = ({ id, eyebrow, title, children }: { id?: string; eyebrow: string; title: string; children: ReactNode }) => (
+  <section id={id} className="scroll-mt-8 border-t border-border py-16 lg:py-24">
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,236px)_minmax(0,1fr)] lg:gap-20">
+      <div className="self-start lg:sticky lg:top-10">
+        <Eyebrow>{eyebrow}</Eyebrow>
+        <h2 className="mt-3 whitespace-pre-line font-mono-brand text-[1.7rem] font-medium leading-[1.1] tracking-[-0.02em] text-foreground">{title}</h2>
+      </div>
+      <div className="max-w-[660px]">{children}</div>
+    </div>
+  </section>
+);
+
+const StepLabel = ({ children }: { children: ReactNode }) => (
+  <p className="font-mono-brand text-[11px] uppercase tracking-[0.14em] text-foreground">{children}</p>
 );
 
 const CopyCommand = ({ text }: { text: string }) => {
@@ -179,11 +144,11 @@ const CopyCommand = ({ text }: { text: string }) => {
           /* clipboard unavailable */
         }
       }}
-      className="inline-flex items-center gap-3 rounded-md border border-border bg-white px-4 py-3 font-mono-brand text-[13px] text-foreground transition-colors hover:border-foreground"
+      className="group inline-flex items-center gap-3 rounded-lg border border-border bg-white px-4 py-3 font-mono-brand text-[13px] text-foreground transition-colors hover:border-foreground"
     >
       <span className="text-muted-foreground">$</span>
       <span>{text}</span>
-      <span className="text-[12px] text-muted-foreground">{copied ? "copied" : "copy"}</span>
+      <span className="text-[11px] uppercase tracking-wide text-muted-foreground transition-colors group-hover:text-foreground">{copied ? "copied" : "copy"}</span>
     </button>
   );
 };
@@ -191,37 +156,85 @@ const CopyCommand = ({ text }: { text: string }) => {
 const Rung = ({ title, tag, meta, top }: { title: string; tag: string; meta: string; top?: boolean }) => (
   <div
     className="flex items-center justify-between rounded-lg border bg-white px-4 py-3"
-    style={{ borderColor: top ? SECRET : "hsl(var(--border))" }}
+    style={{ borderColor: top ? AMBER : "hsl(var(--border))" }}
   >
-    <span>
-      {title} <span className="text-[11px] text-muted-foreground">{tag}</span>
+    <span className="font-mono-brand text-[13px]">
+      {title} <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{tag}</span>
     </span>
-    <span className="text-[11px] text-muted-foreground">{meta}</span>
+    <span className="font-mono-brand text-[11px] text-muted-foreground">{meta}</span>
   </div>
 );
 
+type Tier = {
+  name: string;
+  price: string;
+  period?: string;
+  note: string;
+  points: string[];
+  cta: string;
+  href: string;
+  highlight?: boolean;
+  badge?: string;
+};
+
+const TIERS: Tier[] = [
+  {
+    name: "PAYG",
+    price: "Usage",
+    note: "Pay as you go",
+    points: ["No monthly commitment", "Tokens and compute at usage rates", "Scale to zero when idle"],
+    cta: "Start",
+    href: APP_URL,
+  },
+  {
+    name: "10×",
+    price: "$20",
+    period: "/mo",
+    note: "Tokens and compute included",
+    points: ["Monthly tokens included", "Compute included", "Bring your own key, Codex, or Claude subscription", "Overage billed as PAYG"],
+    cta: "Get 10×",
+    href: APP_URL,
+    highlight: true,
+    badge: "Popular",
+  },
+  {
+    name: "20×",
+    price: "$200",
+    period: "/mo",
+    note: "For heavier workloads",
+    points: ["A larger monthly allowance", "Compute included", "Overage billed as PAYG"],
+    cta: "Get 20×",
+    href: APP_URL,
+  },
+  {
+    name: "Enterprise",
+    price: "Custom",
+    note: "On your terms",
+    points: ["Your own cloud or VPC, self-hosted connections", "Volume pricing and higher limits", "SSO, audit log, priority support"],
+    cta: "Talk to us",
+    href: CAL_URL,
+  },
+];
+
 const TierCard = ({ tier }: { tier: Tier }) => (
-  <div
-    className="flex flex-col rounded-[12px] border bg-white p-6"
-    style={{ borderColor: tier.highlight ? SECRET : "hsl(var(--border))", borderWidth: tier.highlight ? 1.5 : 1 }}
-  >
-    <div className="mb-3 flex items-center justify-between">
-      <span className="font-mono-brand text-[12px] uppercase tracking-[0.1em] text-muted-foreground">{tier.name}</span>
+  <div className={"flex flex-col rounded-xl border bg-white p-6 " + (tier.highlight ? "border-foreground" : "border-border")}>
+    <div className="mb-4 flex items-center justify-between">
+      <span className="font-mono-brand text-[12px] uppercase tracking-[0.12em] text-muted-foreground">{tier.name}</span>
       {tier.badge ? (
-        <span className="rounded-full px-2 py-0.5 font-mono-brand text-[10px] uppercase tracking-[0.08em] text-white" style={{ background: SECRET }}>
+        <span className="rounded-full px-2.5 py-0.5 font-mono-brand text-[10px] uppercase tracking-[0.1em] text-white" style={{ background: AMBER }}>
           {tier.badge}
         </span>
       ) : null}
     </div>
-    <div className="mb-1 flex items-baseline gap-1">
-      <span className="text-[42px] font-semibold leading-none tracking-[-0.03em]">{tier.price}</span>
-      {tier.period ? <span className="text-[15px] text-muted-foreground">{tier.period}</span> : null}
+    <div className="flex items-baseline gap-1">
+      <span className="text-[38px] font-semibold leading-none tracking-[-0.03em]">{tier.price}</span>
+      {tier.period ? <span className="font-mono-brand text-[14px] text-muted-foreground">{tier.period}</span> : null}
     </div>
-    <p className="mb-5 text-[14px] font-medium" style={{ color: SECRET }}>{tier.headline}</p>
-    <ul className="flex flex-col gap-2.5 text-[14px] leading-[1.5] text-muted-foreground">
+    <p className="mt-2 text-[13.5px] text-muted-foreground">{tier.note}</p>
+    <ul className="mt-5 flex flex-1 flex-col gap-3 text-[14px] leading-[1.45] text-foreground/85">
       {tier.points.map((pt, i) => (
         <li key={i} className="flex gap-2.5">
-          <span aria-hidden style={{ color: SECRET }}>+</span>
+          <Check size={15} strokeWidth={2.25} className="mt-0.5 shrink-0 text-muted-foreground" />
           <span>{pt}</span>
         </li>
       ))}
@@ -229,7 +242,7 @@ const TierCard = ({ tier }: { tier: Tier }) => (
     <a
       href={tier.href}
       className={
-        "mt-6 rounded-md px-4 py-2.5 text-center text-[14px] font-medium no-underline transition-colors " +
+        "mt-7 rounded-lg px-4 py-2.5 text-center text-[14px] font-medium no-underline transition-colors " +
         (tier.highlight
           ? "bg-foreground text-background hover:opacity-90"
           : "border border-border bg-background text-foreground hover:border-foreground")
@@ -240,7 +253,7 @@ const TierCard = ({ tier }: { tier: Tier }) => (
   </div>
 );
 
-const navLink = "text-[15px] text-muted-foreground transition-colors hover:text-foreground no-underline";
+const navLink = "text-[14px] text-muted-foreground transition-colors hover:text-foreground no-underline";
 
 /* ------------------------------ page ------------------------------ */
 
@@ -248,134 +261,142 @@ const Index = () => (
   <div className="min-h-screen bg-background text-foreground antialiased [scroll-behavior:smooth]">
     <SEO
       title="Firebase for agents"
-      description="Write an agent as a TypeScript function, deploy it live in seconds, and your keys never enter the runtime. Simple subscription pricing with included tokens; bring your own key or drop to a bare sandbox."
+      description="Write an agent as a TypeScript function, deploy it live in seconds, and your keys never enter the runtime. Serverless agents and sandboxes with simple usage-based pricing."
       path="/"
     />
 
-    <div className="mx-auto w-full max-w-[1440px] px-6 sm:px-10">
+    <div className="mx-auto w-full max-w-[1200px] px-6 sm:px-10">
       {/* header */}
       <header className="flex flex-wrap items-center justify-between gap-3 py-6">
         <a href="/" className="inline-flex items-center no-underline" aria-label="OpenComputer">
           <img src="/logos/opencomputer.svg" alt="OpenComputer" className="h-5 w-auto" />
         </a>
-        <nav className="flex items-center gap-5">
+        <nav className="flex items-center gap-6">
           <a href="#agents" className={navLink}>Agents</a>
           <a href="#sandboxes" className={navLink}>Sandboxes</a>
           <a href="#pricing" className={navLink}>Pricing</a>
           <a href={DOCS_URL} className={navLink}>Docs</a>
           <a
             href={APP_URL}
-            className="rounded-md bg-foreground px-4 py-1.5 text-[14px] font-medium text-background no-underline transition-opacity hover:opacity-90"
+            className="rounded-lg bg-foreground px-4 py-1.5 text-[14px] font-medium text-background no-underline transition-opacity hover:opacity-90"
           >
             Log in
           </a>
         </nav>
       </header>
 
-      {/* hero */}
-      <main className="pb-10 pt-14">
-        <h1 className="mb-4 text-[clamp(2.4rem,8vw,3.6rem)] font-semibold leading-none tracking-[-0.04em] [text-wrap:balance]">
-          Firebase for agents.
-        </h1>
-        <p className="mb-8 text-[1.15rem] leading-[1.5] text-muted-foreground">
-          Write an agent as a TypeScript function, deploy it live in seconds.{" "}
-          <span className="font-medium text-foreground">Your keys never enter the runtime.</span>
-        </p>
-        <div className="mb-8 flex flex-wrap items-center gap-3">
-          <CopyCommand text="npm create @opencomputer/start@latest" />
-          <a href={DOCS_URL} className="border-b border-border pb-0.5 text-[15px] text-foreground no-underline hover:border-foreground">
-            Docs →
-          </a>
+      {/* hero — headline left, the agent (the thesis) right */}
+      <section className="grid items-center gap-12 pb-16 pt-12 lg:grid-cols-2 lg:gap-16 lg:pb-24 lg:pt-16">
+        <div>
+          <Eyebrow>Serverless agents</Eyebrow>
+          <h1 className="mt-5 font-mono-brand text-[clamp(2.2rem,4.6vw,3.3rem)] font-medium leading-[1.04] tracking-[-0.035em]">
+            Firebase for agents.
+          </h1>
+          <p className="mt-5 max-w-[420px] text-[1.12rem] leading-[1.5] text-muted-foreground">
+            Write an agent as a TypeScript function, deploy it live in seconds.{" "}
+            <span className="font-medium text-foreground">Your keys never enter the runtime.</span>
+          </p>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <CopyCommand text="npm create @opencomputer/start@latest" />
+            <a href={DOCS_URL} className="border-b border-border pb-0.5 text-[15px] text-foreground no-underline hover:border-foreground">
+              Read the docs →
+            </a>
+          </div>
         </div>
-        <p className="border-t border-border pt-6 text-[15px] leading-[1.6] text-muted-foreground">
-          <span className="font-medium text-foreground">The example below</span> is one real agent: it finds stale
-          Unleash feature flags still referenced in code and opens a cleanup pull request for each.
-        </p>
-      </main>
+        <div className="lg:pl-4">
+          <Code file="agent.ts" code={AGENT_CODE} />
+          <p className="mt-3 pl-1 text-[13px] text-muted-foreground">
+            A real agent: it finds stale feature flags still referenced in code and opens a cleanup PR for each.
+          </p>
+        </div>
+      </section>
 
-      {/* agents example */}
-      <section id="agents" className="scroll-mt-6 border-t border-border py-10">
-        <Label>The agent is a function</Label>
-        <p className="text-[16px] leading-[1.7] text-muted-foreground">
-          A model, the tools and MCP servers it can call, and its instructions.
-        </p>
-        <Code code={AGENT_CODE} />
-
-        <div className="mt-10">
-          <Label>Keys it uses but never sees</Label>
-          <p className="text-[16px] leading-[1.7] text-muted-foreground">
+      {/* agents */}
+      <Section id="agents" eyebrow="Managed" title={"Batteries\nincluded."}>
+        <div>
+          <StepLabel>Keys it uses but never sees</StepLabel>
+          <p className="mt-2.5 text-[16px] leading-[1.65] text-muted-foreground">
             Each secret is bound to one origin and injected after the request leaves the sandbox. The agent can open a
             PR; it can't read the token, and can't send it anywhere else.
           </p>
-          <Code code={CONNECTION_CODE} />
-          <div className="mt-4 overflow-x-auto whitespace-pre-wrap rounded-[10px] bg-[#0b0b0a] p-5 font-mono-brand text-[12.5px] leading-[1.7]">
-            <span className="text-[#c9c7c0]">POST /repos/acme/app/pulls  </span>
-            <span className="text-[#6e6b61]">(open cleanup PR){"\n"}</span>
-            <span className="text-[#6e6b61]">Authorization: Bearer </span>
-            <span className="text-[#e5c07b]">••••••••</span>
+          <div className="mt-4">
+            <Code file="tools/github.ts" code={CONNECTION_CODE} />
+          </div>
+          <div className="mt-3">
+            <WindowChrome file="egress" tone="dark">
+              <pre className="overflow-x-auto whitespace-pre-wrap px-5 py-4 font-mono-brand text-[12.5px] leading-[1.75]">
+                <span className="text-[#c9c7c0]">POST /repos/acme/app/pulls  </span>
+                <span className="text-[#6e6b61]">(open cleanup PR){"\n"}</span>
+                <span className="text-[#6e6b61]">Authorization: Bearer </span>
+                <span style={{ color: "#e5c07b" }}>••••••••</span>
+              </pre>
+            </WindowChrome>
           </div>
         </div>
 
-        <div className="mt-10">
-          <Label>Deploy it, then leave it running</Label>
-          <p className="text-[16px] leading-[1.7] text-muted-foreground">
+        <div className="mt-12">
+          <StepLabel>Deploy it, then leave it running</StepLabel>
+          <p className="mt-2.5 text-[16px] leading-[1.65] text-muted-foreground">
             Give it a schedule and it runs itself. Sessions, streaming, MCP, and Slack are handled.
           </p>
-          <Code code={SCHEDULE_CODE} />
-          <Code dim code={"$ opencomputer deploy\n✓ live · runs weekdays, opens PRs, never sees the token"} />
+          <div className="mt-4">
+            <Code file="schedules/weekday-hygiene.ts" code={SCHEDULE_CODE} />
+          </div>
+          <div className="mt-3">
+            <Code tone="dark" dim file="terminal" code={"$ opencomputer deploy\n✓ live · runs weekdays, opens PRs, never sees the token"} />
+          </div>
         </div>
-      </section>
+      </Section>
 
       {/* sandboxes */}
-      <section id="sandboxes" className="scroll-mt-6 border-t border-border py-10">
-        <h2 className="mb-2 text-[1.5rem] font-semibold tracking-[-0.02em]">Or drop a layer.</h2>
-        <p className="text-[16px] leading-[1.7] text-muted-foreground">
+      <Section id="sandboxes" eyebrow="Bare metal" title={"Or drop\na layer."}>
+        <p className="text-[16px] leading-[1.65] text-muted-foreground">
           Agents run on OpenComputer sandboxes: full Linux microVMs with checkpoint, fork, and live resize. Bringing
           your own harness or runtime? Use the sandbox directly. Same compute, you own the loop.
         </p>
-        <div className="my-6 grid gap-1.5 font-mono-brand text-[13px]">
+        <div className="my-6 grid gap-1.5">
           <Rung top title="Agents" tag="managed" meta="egress · sessions · streaming · schedules" />
           <Rung title="Sandboxes" tag="bare" meta="microVM · checkpoint · fork · resize" />
-          <div className="pt-1 text-center text-[11px] tracking-wide text-muted-foreground">one compute, one bill</div>
+          <div className="pt-1 text-center font-mono-brand text-[11px] uppercase tracking-[0.14em] text-muted-foreground">one compute, one bill</div>
         </div>
-        <Code code={SANDBOX_CODE} />
-        <p className="mt-5 text-[16px] leading-[1.7] text-foreground">
+        <Code file="sandbox.ts" code={SANDBOX_CODE} />
+        <p className="mt-6 text-[16px] leading-[1.65] text-foreground">
           Bring your own VM if you want the control. Just don't hand-roll secret injection, sessions, and autoscaling
           in 2026. That's what the managed layer is for.
         </p>
-      </section>
+      </Section>
 
-      {/* pricing */}
-      <section id="pricing" className="scroll-mt-6 border-t border-border py-10">
-        <h2 className="mb-2 text-[1.5rem] font-semibold tracking-[-0.02em]">Pricing</h2>
-        <p className="text-[16px] leading-[1.7] text-muted-foreground">
-          Start with $10 in credits. After that, stay on pay-as-you-go or pick a plan for included tokens and compute.
-          Overage is billed as PAYG.
-        </p>
+      {/* pricing — full width */}
+      <section id="pricing" className="scroll-mt-8 border-t border-border py-16 lg:py-24">
+        <div className="max-w-[620px]">
+          <Eyebrow>Pricing</Eyebrow>
+          <h2 className="mt-3 font-mono-brand text-[1.7rem] font-medium leading-[1.1] tracking-[-0.02em]">Pay for what runs.</h2>
+          <p className="mt-4 text-[16px] leading-[1.65] text-muted-foreground">
+            Start with $10 in credits. After that, stay on pay-as-you-go or pick a plan for included tokens and
+            compute. Overage is billed as PAYG.
+          </p>
+        </div>
 
-        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {TIERS.map((t) => (
             <TierCard key={t.name} tier={t} />
           ))}
         </div>
 
-        <p className="mt-4 font-mono-brand text-[12px] leading-[1.6] text-muted-foreground">
-          Compute is included on the 10x and 20x plans. On PAYG, and for bare sandboxes, it's billed at cost. Bring your
-          own key, or a Codex / Claude subscription, on the 10x plan.
-        </p>
-
-        <a
-          href="#sandboxes"
-          className="mt-6 flex items-center justify-between rounded-[10px] border border-border bg-white px-4 py-3.5 no-underline transition-colors hover:border-foreground"
-        >
-          <span className="text-[15px] text-foreground">I just want compute</span>
-          <span className="font-mono-brand text-[12px] text-muted-foreground">bare sandboxes, $0.07 / GB-hr →</span>
-        </a>
+        <div className="mt-8 flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="max-w-[640px] font-mono-brand text-[11.5px] leading-[1.7] text-muted-foreground">
+            Compute is included on the 10× and 20× plans. On PAYG, and for bare sandboxes, it's billed at cost. Bring
+            your own key, or a Codex / Claude subscription, on the 10× plan.
+          </p>
+          <a href="#sandboxes" className="shrink-0 font-mono-brand text-[13px] text-foreground no-underline">
+            <span className="border-b border-border pb-0.5 hover:border-foreground">I just want compute →</span>
+          </a>
+        </div>
       </section>
 
       {/* footer */}
-      <footer className="flex flex-wrap justify-between gap-4 border-t border-border py-7 text-[14px] text-muted-foreground">
-        <span>OpenComputer</span>
+      <footer className="flex flex-wrap items-center justify-between gap-4 border-t border-border py-8 text-[14px] text-muted-foreground">
+        <img src="/logos/opencomputer.svg" alt="OpenComputer" className="h-4 w-auto opacity-70" />
         <span className="flex flex-wrap gap-5">
           <a href="#agents" className="text-muted-foreground no-underline hover:text-foreground">Agents</a>
           <a href="#sandboxes" className="text-muted-foreground no-underline hover:text-foreground">Sandboxes</a>
