@@ -114,12 +114,12 @@ const Code = ({ code, file, tone = "light", dim = false }: { code: string; file?
   );
 };
 
-const Section = ({ id, eyebrow, title, children }: { id?: string; eyebrow: string; title: string; children: ReactNode }) => (
+const Section = ({ id, eyebrow, title, children }: { id?: string; eyebrow?: string; title: string; children: ReactNode }) => (
   <section id={id} className="scroll-mt-8 border-t border-border py-16 lg:py-24">
     <div className="grid gap-8 lg:grid-cols-[minmax(0,236px)_minmax(0,1fr)] lg:gap-20">
       <div className="self-start lg:sticky lg:top-10">
-        <Eyebrow>{eyebrow}</Eyebrow>
-        <h2 className="mt-3 whitespace-pre-line font-mono-brand text-[1.7rem] font-medium leading-[1.1] tracking-[-0.02em] text-foreground">{title}</h2>
+        {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
+        <h2 className={(eyebrow ? "mt-3 " : "") + "whitespace-pre-line font-mono-brand text-[1.7rem] font-medium leading-[1.1] tracking-[-0.02em] text-foreground"}>{title}</h2>
       </div>
       <div className="max-w-[660px]">{children}</div>
     </div>
@@ -288,8 +288,7 @@ const Index = () => (
       {/* hero — headline left, the agent (the thesis) right */}
       <section className="grid items-center gap-12 pb-16 pt-12 lg:grid-cols-2 lg:gap-16 lg:pb-24 lg:pt-16">
         <div>
-          <Eyebrow>Serverless agents</Eyebrow>
-          <h1 className="mt-5 font-mono-brand text-[clamp(2.2rem,4.6vw,3.3rem)] font-medium leading-[1.04] tracking-[-0.035em]">
+          <h1 className="font-mono-brand text-[clamp(2.2rem,4.6vw,3.3rem)] font-medium leading-[1.04] tracking-[-0.035em]">
             Firebase for agents.
           </h1>
           <p className="mt-5 max-w-[420px] text-[1.12rem] leading-[1.5] text-muted-foreground">
@@ -349,7 +348,7 @@ const Index = () => (
       </Section>
 
       {/* sandboxes */}
-      <Section id="sandboxes" eyebrow="Bare metal" title={"Or drop\na layer."}>
+      <Section id="sandboxes" title={"Or drop\na layer."}>
         <p className="text-[16px] leading-[1.65] text-muted-foreground">
           Agents run on OpenComputer sandboxes: full Linux microVMs with checkpoint, fork, and live resize. Bringing
           your own harness or runtime? Use the sandbox directly. Same compute, you own the loop.
@@ -360,10 +359,6 @@ const Index = () => (
           <div className="pt-1 text-center font-mono-brand text-[11px] uppercase tracking-[0.14em] text-muted-foreground">one compute, one bill</div>
         </div>
         <Code file="sandbox.ts" code={SANDBOX_CODE} />
-        <p className="mt-6 text-[16px] leading-[1.65] text-foreground">
-          Bring your own VM if you want the control. Just don't hand-roll secret injection, sessions, and autoscaling
-          in 2026. That's what the managed layer is for.
-        </p>
       </Section>
 
       {/* pricing — full width */}
