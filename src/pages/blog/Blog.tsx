@@ -5,6 +5,14 @@ import SEO from "@/components/SEO";
 
 const posts = [
   {
+    slug: "automated-marketing-team",
+    title: "Build a Fully Automated Marketing Team with AI Agents",
+    description:
+      "Eight role agents, an orchestrator, and a kanban command center on Docker Compose, with a code-enforced human approval gate: agents draft everything, and nothing goes live without a recorded human sign-off.",
+    author: "Utpal Nadiger",
+    date: "July 26, 2026",
+  },
+  {
     slug: "pr-review-agent",
     title: "Building a Greptile Clone with Claude and OpenComputer",
     description:
